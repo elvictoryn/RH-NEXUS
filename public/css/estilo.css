@@ -1,0 +1,137 @@
+/* =========================
+   Paleta de colores Nexus RH
+   ========================= */
+:root {
+    --azul-petroleo: #87a1b7; 
+    --verde-esmeralda: #0D6EFD;
+    --naranja-coral: #FF6B35;
+    --verde-menta: #09BC8A;
+    --gris-azulado: #F5F7FA;
+    --amarillo-mostaza: #F6BD60;
+    --rojo-alerta: #E63946;
+    --texto-principal: #04181e;
+    --blanco-humo: #FAFAFA;
+}
+
+/* =========================
+   General
+   ========================= */
+body {
+    background-color: var(--azul-petroleo);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--blanco-humo);
+}
+
+/* =========================
+   Navbar
+   ========================= */
+.navbar {
+    background-color: var(--azul-petroleo);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.navbar-brand,
+.navbar .nav-link,
+.navbar .text-white {
+    color: var(--blanco-humo) !important;
+}
+
+.navbar .nav-link:hover {
+    color: var(--verde-menta) !important;
+}
+
+/* =========================
+   Tarjetas (Módulos)
+   ========================= */
+.custom-card {
+    background-color: var(--gris-azulado);
+    color: var(--texto-principal);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-left: 5px solid var(--verde-esmeralda);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-card:has(.btn-primary:hover) {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border-left-color: #008c4e;
+}
+
+/* =========================
+   Botones
+   ========================= */
+.btn-primary {
+    background-color: var(--verde-esmeralda);
+    border-color: var(--verde-esmeralda);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #008c4e;
+    border-color: #008c4e;
+}
+
+.btn-secondary {
+    background-color: var(--naranja-coral);
+    border-color: var(--naranja-coral);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #e85a27;
+    border-color: #e85a27;
+}
+
+/* =========================
+   Alertas
+   ========================= */
+.alert-success {
+    background-color: var(--verde-menta);
+    color: var(--texto-principal);
+}
+
+.alert-warning {
+    background-color: var(--amarillo-mostaza);
+    color: var(--texto-principal);
+}
+
+.alert-danger {
+    background-color: var(--rojo-alerta);
+    color: white;
+}
+
+
+/* Efecto hover para filas de tabla */
+.table-hover tbody tr:hover {
+  background-color: #2a2a2a !important;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+/* Resaltado suave con cambio de color en hover */
+.table-hover tbody tr:hover {
+  background-color: #2f2f2f !important;
+  color: #f8f9fa !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+/* Opcional: Mostrar ícono al hacer hover en fila */
+.table-hover tbody tr .hover-icon {
+  display: none;
+  margin-left: 8px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #444c56 !important;
+  color: #ffffff !important;
+  border: 2px solid #17a2b8 !important;
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}

@@ -1,0 +1,71 @@
+@startuml "Nexus RH - Submódulo captura de solicitudes"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo captura de solicitudes - Nexus RH"
+
+actor Candidato
+actor RH as "Recursos Humanos (RH)"
+actor Sistema
+
+rectangle "Captura de Solicitudes" {
+    usecase "Crear Solicitud" as UC1
+    usecase "Validar Datos" as UC2
+    usecase "Gestionar Documentos" as UC3
+    usecase "Verificar Requisitos" as UC4
+    usecase "Capturar Información Personal" as UC5
+    usecase "Subir CV" as UC6
+    usecase "Subir Carta de Presentación" as UC7
+    usecase "Completar Formulario" as UC8
+}
+
+' Relaciones del Candidato
+Candidato --> UC1
+Candidato --> UC5
+Candidato --> UC6
+Candidato --> UC7
+Candidato --> UC8
+
+' Relaciones de RH
+RH --> UC2
+RH --> UC3
+RH --> UC4
+
+' Relaciones internas
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC8 : <<include>>
+
+UC2 ..> UC4 : <<include>>
+
+UC3 ..> UC6 : <<include>>
+UC3 ..> UC7 : <<include>>
+
+UC6 ..> Sistema : <<include>>
+UC7 ..> Sistema : <<include>>
+
+UC8 ..> UC5 : <<include>>
+
+' Notas explicativas
+note right of UC2 : "Valida datos del candidato\ny documentos requeridos"
+note right of UC4 : "Verifica que cumpla\ncon requisitos del puesto"
+note right of UC6 : "Sube CV en formato\nPDF, DOC, DOCX"
+note right of UC7 : "Sube carta de presentación\nopcional"
+note right of UC8 : "Completa formulario\ncon datos personales"
+
+@enduml 

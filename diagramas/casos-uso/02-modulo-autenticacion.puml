@@ -1,0 +1,60 @@
+@startuml "Nexus RH - Módulo de autenticación y seguridad"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo de autenticación y seguridad - Nexus RH"
+
+actor Usuario
+actor Sistema
+
+rectangle "Módulo de Autenticación" {
+    usecase "Iniciar Sesión" as UC1
+    usecase "Cerrar Sesión" as UC2
+    usecase "Recuperar Contraseña" as UC3
+    usecase "Validar Credenciales" as UC4
+    usecase "Gestionar Sesiones" as UC5
+    usecase "Controlar Acceso" as UC6
+    usecase "Regenerar Token" as UC7
+    usecase "Validar Permisos" as UC8
+}
+
+' Relaciones principales
+Usuario --> UC1
+Usuario --> UC2
+Usuario --> UC3
+
+' Relaciones internas
+UC1 ..> UC4 : <<include>>
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC7 : <<include>>
+
+UC2 ..> UC5 : <<include>>
+
+UC3 ..> UC4 : <<include>>
+UC3 ..> Sistema : <<extend>>
+
+UC6 ..> UC8 : <<include>>
+
+' Notas explicativas
+note right of UC4 : "Verifica usuario y contraseña\nen la base de datos"
+note right of UC5 : "Maneja tiempo de sesión\ny sesiones concurrentes"
+note right of UC6 : "Controla acceso según\nrol del usuario"
+note right of UC8 : "Valida permisos específicos\npara cada funcionalidad"
+
+@enduml 

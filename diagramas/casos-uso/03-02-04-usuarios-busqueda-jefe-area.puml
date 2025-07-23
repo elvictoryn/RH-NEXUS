@@ -1,0 +1,71 @@
+@startuml "Nexus RH - Búsqueda de Usuarios - Jefe de Área"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Búsqueda de Usuarios - Jefe de Área - Nexus RH"
+
+actor JefeArea as "Jefe de Área"
+actor Sistema
+
+rectangle "Búsqueda y Listado de Usuarios" {
+    usecase "Buscar Usuario" as UC1
+    usecase "Listar Usuarios Departamento" as UC2
+    usecase "Filtrar por Sede" as UC3
+    usecase "Ordenar Resultados" as UC4
+    usecase "Paginación" as UC5
+    usecase "Ver Información Departamento" as UC6
+    usecase "Evaluar Personal" as UC7
+    usecase "Asignar Tareas" as UC8
+    usecase "Consultar Rendimiento" as UC9
+}
+
+' Relaciones principales del Jefe de Área
+JefeArea --> UC1
+JefeArea --> UC2
+JefeArea --> UC3
+JefeArea --> UC4
+JefeArea --> UC6
+JefeArea --> UC7
+JefeArea --> UC8
+JefeArea --> UC9
+
+' Relaciones internas
+UC1 ..> UC2 : <<extend>>
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC2 ..> UC5 : <<include>>
+
+UC6 ..> UC1 : <<include>>
+UC7 ..> UC1 : <<include>>
+UC8 ..> UC1 : <<include>>
+UC9 ..> UC1 : <<include>>
+
+UC5 ..> Sistema : <<include>>
+UC9 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC1 : "Búsqueda por nombre,\nusuario o número empleado"
+note right of UC2 : "Lista usuarios de\nsu departamento específico"
+note right of UC3 : "Filtra por sede\nsi aplica"
+note right of UC6 : "Ve información del\ndepartamento"
+note right of UC7 : "Accede a evaluación\nde personal"
+note right of UC8 : "Asigna tareas a\npersonal del departamento"
+note right of UC9 : "Consulta rendimiento\nde su equipo"
+
+@enduml 

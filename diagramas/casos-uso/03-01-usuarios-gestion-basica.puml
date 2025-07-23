@@ -1,0 +1,62 @@
+@startuml "Nexus RH - Submódulo gestión básica de usuarios"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo gestión básica de usuarios - Nexus RH"
+
+actor Administrador
+actor Sistema
+
+rectangle "Gestión Básica de Usuarios" {
+    usecase "Crear Usuario" as UC1
+    usecase "Editar Usuario" as UC2
+    usecase "Eliminar Usuario" as UC3
+    usecase "Ver Usuario" as UC4
+    usecase "Validar Datos" as UC5
+    usecase "Subir Fotografía" as UC6
+    usecase "Encriptar Contraseña" as UC7
+    usecase "Verificar Duplicados" as UC8
+}
+
+' Relaciones principales del Administrador
+Administrador --> UC1
+Administrador --> UC2
+Administrador --> UC3
+Administrador --> UC4
+
+' Relaciones internas
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC7 : <<include>>
+UC1 ..> UC8 : <<include>>
+
+UC2 ..> UC5 : <<include>>
+UC2 ..> UC6 : <<extend>>
+UC2 ..> UC7 : <<extend>>
+
+UC3 ..> UC5 : <<include>>
+
+UC6 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC5 : "Valida formato de datos\ny campos obligatorios"
+note right of UC7 : "Encripta contraseña\ncon hash seguro"
+note right of UC8 : "Verifica que usuario y\nnúmero de empleado sean únicos"
+note right of UC6 : "Sube y almacena\nfotografía del usuario"
+
+@enduml 

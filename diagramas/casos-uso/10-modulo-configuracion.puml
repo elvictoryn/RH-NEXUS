@@ -1,0 +1,89 @@
+@startuml "Nexus RH - Módulo de configuración del sistema"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo de configuración del sistema - Nexus RH"
+
+actor Administrador
+actor Sistema
+
+rectangle "Módulo de Configuración" {
+    usecase "Gestionar Permisos" as UC1
+    usecase "Configurar Parámetros" as UC2
+    usecase "Monitorear Sistema" as UC3
+    usecase "Backup Automático" as UC4
+    usecase "Restaurar Datos" as UC5
+    usecase "Logs Sistema" as UC6
+    usecase "Gestionar Versiones" as UC7
+    usecase "Actualizar Sistema" as UC8
+    usecase "Mantener Seguridad" as UC9
+    usecase "Validar Configuración" as UC10
+    usecase "Gestionar Base de Datos" as UC11
+    usecase "Configurar Notificaciones" as UC12
+}
+
+' Relaciones del Administrador
+Administrador --> UC1
+Administrador --> UC2
+Administrador --> UC3
+Administrador --> UC4
+Administrador --> UC5
+Administrador --> UC6
+Administrador --> UC7
+Administrador --> UC8
+Administrador --> UC9
+Administrador --> UC10
+Administrador --> UC11
+Administrador --> UC12
+
+' Relaciones internas
+UC1 ..> UC10 : <<include>>
+
+UC2 ..> UC10 : <<include>>
+
+UC3 ..> UC6 : <<include>>
+
+UC4 ..> Sistema : <<include>>
+
+UC5 ..> UC4 : <<extend>>
+
+UC6 ..> Sistema : <<include>>
+
+UC7 ..> UC8 : <<include>>
+
+UC8 ..> UC10 : <<include>>
+
+UC9 ..> UC1 : <<include>>
+UC9 ..> UC6 : <<include>>
+
+UC10 ..> Sistema : <<include>>
+
+UC11 ..> UC4 : <<include>>
+UC11 ..> UC5 : <<include>>
+
+UC12 ..> UC2 : <<include>>
+
+' Notas explicativas
+note right of UC1 : "Gestiona permisos por rol\ny funcionalidad"
+note right of UC4 : "Backup automático de\nbase de datos"
+note right of UC6 : "Registra eventos del\nsistema"
+note right of UC7 : "Control de versiones\ndel software"
+note right of UC9 : "Mantiene seguridad\ndel sistema"
+note right of UC11 : "Administra conexiones\ny estructura de BD"
+
+@enduml 

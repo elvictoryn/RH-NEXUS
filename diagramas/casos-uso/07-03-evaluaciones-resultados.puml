@@ -1,0 +1,83 @@
+@startuml "Nexus RH - Submódulo resultados de evaluaciones"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo resultados de evaluaciones - Nexus RH"
+
+actor RH as "Recursos Humanos (RH)"
+actor JefeArea as "Jefe de Área"
+actor Gerente
+actor SistemaIA as "Sistema de IA"
+actor Sistema
+
+rectangle "Resultados de Evaluaciones" {
+    usecase "Revisar Resultados" as UC1
+    usecase "Aprobar Candidato" as UC2
+    usecase "Generar Reporte" as UC3
+    usecase "Análisis con IA" as UC4
+    usecase "Comparar Candidatos" as UC5
+    usecase "Calcular Promedios" as UC6
+    usecase "Validar Resultados" as UC7
+    usecase "Registrar Decisión" as UC8
+}
+
+' Relaciones de RH
+RH --> UC1
+RH --> UC3
+RH --> UC4
+RH --> UC6
+RH --> UC7
+
+' Relaciones del Jefe de Área
+JefeArea --> UC1
+
+' Relaciones del Gerente
+Gerente --> UC2
+Gerente --> UC3
+
+' Relaciones del Sistema de IA
+SistemaIA --> UC4
+
+' Relaciones internas
+UC1 ..> UC4 : <<include>>
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC7 : <<include>>
+
+UC2 ..> UC8 : <<include>>
+
+UC3 ..> UC4 : <<include>>
+UC3 ..> UC6 : <<include>>
+
+UC4 ..> UC5 : <<include>>
+
+UC5 ..> UC6 : <<include>>
+
+UC7 ..> Sistema : <<include>>
+
+UC8 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC1 : "Revisa resultados\ndetallados de evaluación"
+note right of UC2 : "Aprueba candidato\npara siguiente fase"
+note right of UC4 : "Análisis automático con\ninteligencia artificial"
+note right of UC5 : "Compara múltiples\ncandidatos"
+note right of UC6 : "Calcula promedios\ny estadísticas"
+note right of UC7 : "Valida integridad\nde resultados"
+
+@enduml 

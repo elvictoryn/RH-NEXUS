@@ -1,0 +1,105 @@
+@startuml "Nexus RH - Secuencia de Crear Usuario"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam participant {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+
+title "Secuencia de Crear Usuario - Nexus RH"
+
+actor Administrador
+participant "Crear Usuario Form" as Form
+participant "Usuarios Controller" as Controller
+participant "Usuario Model" as Model
+participant "File Upload" as Upload
+participant "Database" as DB
+participant "Validation" as Validation
+
+Administrador -> Form: Completa formulario
+activate Form
+
+Form -> Form: Validación AJAX en tiempo real
+activate Form
+
+Form -> Controller: POST /crear-usuario
+activate Controller
+
+Controller -> Validation: validarDatos(datos)
+activate Validation
+Validation -> Validation: validarCamposObligatorios()
+Validation -> Validation: validarFormatoEmail()
+Validation -> Validation: validarFormatoTelefono()
+Validation --> Controller: true/false + errores
+deactivate Validation
+
+alt Datos válidos
+    Controller -> Model: existeUsuario(usuario, numero_empleado)
+    activate Model
+    
+    Model -> DB: SELECT COUNT(*) FROM usuarios WHERE usuario = ? OR numero_empleado = ?
+    activate DB
+    DB --> Model: count
+    deactivate DB
+    
+    Model --> Controller: existe/no existe
+    deactivate Model
+    
+    alt Usuario no existe
+        Controller -> Controller: password_hash(password, PASSWORD_DEFAULT)
+        
+        alt Hay fotografía
+            Controller -> Upload: procesarFotografia(file)
+            activate Upload
+            Upload -> Upload: uniqid() + nombre_original
+            Upload -> Upload: move_uploaded_file()
+            Upload --> Controller: nombre_foto
+            deactivate Upload
+        else No hay fotografía
+            Controller -> Controller: nombre_foto = ''
+        end
+        
+        Controller -> Model: crear(datos_usuario)
+        activate Model
+        
+        Model -> DB: INSERT INTO usuarios (...)
+        activate DB
+        DB --> Model: success/error
+        deactivate DB
+        
+        Model --> Controller: true/false
+        deactivate Model
+        
+        alt Usuario creado exitosamente
+            Controller --> Form: "exito"
+            deactivate Controller
+            Form --> Administrador: Usuario creado exitosamente
+            deactivate Form
+        else Error al crear
+            Controller --> Form: "error"
+            deactivate Controller
+            Form --> Administrador: Error al crear usuario
+            deactivate Form
+        end
+        
+    else Usuario ya existe
+        Controller --> Form: "usuario_existe"
+        deactivate Controller
+        Form --> Administrador: Usuario o número de empleado ya existe
+        deactivate Form
+    end
+    
+else Datos inválidos
+    Controller --> Form: errores de validación
+    deactivate Controller
+    Form --> Administrador: Mostrar errores
+    deactivate Form
+end
+
+@enduml 

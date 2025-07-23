@@ -1,0 +1,163 @@
+@startuml "Nexus RH - Secuencia de Evaluar Candidato"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam participant {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+
+title "Secuencia de Evaluar Candidato - Nexus RH"
+
+actor JefeArea as "Jefe de Área"
+actor RH as "Recursos Humanos (RH)"
+participant "Evaluaciones View" as View
+participant "Evaluaciones Controller" as Controller
+participant "Evaluacion Model" as Model
+participant "Candidato Model" as CandidatoModel
+participant "SistemaIA" as IA
+participant "Database" as DB
+participant "Validation" as Validation
+
+JefeArea -> View: Accede a evaluaciones asignadas
+activate View
+
+View -> Controller: GET /evaluaciones/asignadas
+activate Controller
+
+Controller -> Model: obtenerAsignadas(evaluador_id)
+activate Model
+
+Model -> DB: SELECT * FROM evaluaciones WHERE evaluador_id = ? AND estado = 'asignada'
+activate DB
+DB --> Model: Lista de evaluaciones
+deactivate DB
+
+Model --> Controller: Array de evaluaciones
+deactivate Model
+
+Controller --> View: Datos de evaluaciones
+deactivate Controller
+
+View --> JefeArea: Muestra evaluaciones asignadas
+deactivate View
+
+JefeArea -> View: Selecciona evaluación para realizar
+activate View
+
+View -> Controller: GET /evaluaciones/realizar?id=456
+activate Controller
+
+Controller -> Model: obtenerPorId(id)
+activate Model
+
+Model -> DB: SELECT * FROM evaluaciones WHERE id = ?
+activate DB
+DB --> Model: Datos de evaluación
+deactivate DB
+
+Model --> Controller: Objeto evaluación
+deactivate Model
+
+Controller -> CandidatoModel: obtenerCandidato(evaluacion.candidato_id)
+activate CandidatoModel
+
+CandidatoModel -> DB: SELECT * FROM candidatos WHERE id = ?
+activate DB
+DB --> CandidatoModel: Datos del candidato
+deactivate DB
+
+CandidatoModel --> Controller: Objeto candidato
+deactivate CandidatoModel
+
+Controller --> View: Datos completos de evaluación
+deactivate Controller
+
+View --> JefeArea: Muestra formulario de evaluación
+deactivate View
+
+JefeArea -> View: Completa evaluación
+activate View
+
+View -> Controller: POST /evaluaciones/calificar
+activate Controller
+
+Controller -> Validation: validarEvaluacion(datos)
+activate Validation
+Validation -> Validation: validarCriterios()
+Validation -> Validation: validarPuntuaciones()
+Validation --> Controller: true/false + errores
+deactivate Validation
+
+alt Evaluación válida
+    Controller -> Model: actualizarEvaluacion(id, datos)
+    activate Model
+    
+    Model -> DB: UPDATE evaluaciones SET puntuaciones = ?, observaciones = ?, fecha_evaluacion = NOW(), estado = 'completada' WHERE id = ?
+    activate DB
+    DB --> Model: success/error
+    deactivate DB
+    
+    Model --> Controller: true/false
+    deactivate Model
+    
+    alt Evaluación guardada
+        Controller -> IA: analizarEvaluacion(evaluacion_id)
+        activate IA
+        
+        IA -> DB: SELECT * FROM evaluaciones WHERE id = ?
+        activate DB
+        DB --> IA: Datos de evaluación
+        deactivate DB
+        
+        IA -> IA: procesarConIA(datos_evaluacion)
+        IA -> IA: calcularPuntuacionPromedio()
+        IA -> IA: generarRecomendacion()
+        IA --> Controller: Análisis IA completado
+        deactivate IA
+        
+        Controller -> Model: guardarAnalisisIA(evaluacion_id, analisis_ia)
+        activate Model
+        
+        Model -> DB: UPDATE evaluaciones SET analisis_ia = ? WHERE id = ?
+        activate DB
+        DB --> Model: success/error
+        deactivate DB
+        
+        Model --> Controller: true/false
+        deactivate Model
+        
+        Controller -> Controller: notificarRH(evaluacion_id)
+        activate Controller
+        
+        Controller -> RH: Enviar notificación de evaluación completada
+        activate RH
+        RH -> RH: Revisar evaluación completada
+        RH --> Controller: Notificación recibida
+        deactivate RH
+        
+        Controller --> View: "evaluacion_completada"
+        deactivate Controller
+        View --> JefeArea: Evaluación completada exitosamente
+        deactivate View
+        
+    else Error al guardar
+        Controller --> View: "error_evaluacion"
+        deactivate Controller
+        View --> JefeArea: Error al guardar evaluación
+        deactivate View
+    end
+    
+else Evaluación inválida
+    Controller --> View: "errores_validacion"
+    deactivate Controller
+    View --> JefeArea: Mostrar errores de validación
+    deactivate View
+end
+
+@enduml 

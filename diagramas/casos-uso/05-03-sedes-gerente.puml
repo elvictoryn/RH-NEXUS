@@ -1,0 +1,79 @@
+@startuml "Nexus RH - Gestión de Sedes - Gerente"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Gestión de Sedes - Gerente - Nexus RH"
+
+actor Gerente
+actor Sistema
+
+rectangle "Módulo de Sedes" {
+    usecase "Consultar Sedes Área" as UC1
+    usecase "Buscar Sede" as UC2
+    usecase "Listar Sedes Supervisadas" as UC3
+    usecase "Ver Información Gerencial" as UC4
+    usecase "Analizar Distribución" as UC5
+    usecase "Consultar Personal" as UC6
+    usecase "Generar Reporte Área" as UC7
+    usecase "Evaluar Eficiencia" as UC8
+    usecase "Planificar Recursos" as UC9
+}
+
+' Relaciones principales del Gerente
+Gerente --> UC1
+Gerente --> UC2
+Gerente --> UC3
+Gerente --> UC4
+Gerente --> UC5
+Gerente --> UC6
+Gerente --> UC7
+Gerente --> UC8
+Gerente --> UC9
+
+' Relaciones internas
+UC1 ..> UC3 : <<include>>
+
+UC2 ..> UC1 : <<extend>>
+
+UC4 ..> UC1 : <<include>>
+
+UC5 ..> UC1 : <<include>>
+UC5 ..> UC6 : <<include>>
+
+UC6 ..> UC1 : <<include>>
+
+UC7 ..> UC3 : <<include>>
+UC7 ..> UC6 : <<include>>
+
+UC8 ..> UC3 : <<include>>
+UC8 ..> UC6 : <<include>>
+
+UC9 ..> UC5 : <<include>>
+UC9 ..> UC8 : <<include>>
+
+' Notas explicativas
+note right of UC1 : "Consulta sedes\nde su área de responsabilidad"
+note right of UC3 : "Lista sedes\nbajo su supervisión"
+note right of UC4 : "Ve información gerencial:\npresupuesto, capacidad"
+note right of UC5 : "Analiza distribución\nde personal por sede"
+note right of UC6 : "Consulta personal\npor sede"
+note right of UC7 : "Genera reportes\nde su área"
+note right of UC8 : "Evalúa eficiencia\nde sedes"
+note right of UC9 : "Planifica recursos\npor sede"
+
+@enduml 

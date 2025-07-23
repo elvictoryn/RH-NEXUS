@@ -1,0 +1,71 @@
+@startuml "Nexus RH - Secuencia de Login"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam participant {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+
+title "Secuencia de Login - Nexus RH"
+
+actor Usuario
+participant "Login Form" as Form
+participant "Auth Controller" as Auth
+participant "Usuario Model" as Model
+participant "Database" as DB
+participant "Session Manager" as Session
+participant "Dashboard" as Dashboard
+
+Usuario -> Form: Ingresa credenciales
+activate Form
+
+Form -> Auth: POST /login
+activate Auth
+
+Auth -> Model: validarCredenciales(usuario, password)
+activate Model
+
+Model -> DB: SELECT * FROM usuarios WHERE usuario = ?
+activate DB
+DB --> Model: Datos del usuario
+deactivate DB
+
+Model -> Model: password_verify(password, hash)
+Model --> Auth: true/false
+deactivate Model
+
+alt Credenciales válidas
+    Auth -> Session: crearSesion(usuario, rol)
+    activate Session
+    Session -> Session: $_SESSION['usuario'] = usuario
+    Session -> Session: $_SESSION['rol'] = rol
+    Session --> Auth: Sesión creada
+    deactivate Session
+    
+    Auth -> Auth: determinarRedireccion(rol)
+    Auth --> Form: Redirección según rol
+    deactivate Auth
+    
+    Form --> Usuario: Redirección a dashboard
+    deactivate Form
+    
+    Usuario -> Dashboard: Accede al dashboard
+    activate Dashboard
+    Dashboard -> Dashboard: mostrarMenuSegunRol()
+    Dashboard --> Usuario: Dashboard personalizado
+    deactivate Dashboard
+    
+else Credenciales inválidas
+    Auth --> Form: Error de autenticación
+    deactivate Auth
+    Form --> Usuario: Mensaje de error
+    deactivate Form
+end
+
+@enduml 

@@ -1,0 +1,103 @@
+@startuml "Nexus RH - Secuencia de Buscar Usuarios"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam participant {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+
+title "Secuencia de Buscar Usuarios - Nexus RH"
+
+actor Administrador
+participant "Lista Usuarios View" as View
+participant "Usuarios Controller" as Controller
+participant "Usuario Model" as Model
+participant "Database" as DB
+participant "Search Engine" as Search
+
+Administrador -> View: Accede a lista de usuarios
+activate View
+
+View -> Controller: GET /usuarios/lista
+activate Controller
+
+Controller -> Model: obtenerTodos()
+activate Model
+
+Model -> DB: SELECT id, usuario, rol, nombre_completo, departamento, sede, numero_empleado, correo, estado FROM usuarios
+activate DB
+DB --> Model: Lista de usuarios
+deactivate DB
+
+Model --> Controller: Array de usuarios
+deactivate Model
+
+Controller --> View: Datos de usuarios
+deactivate Controller
+
+View --> Administrador: Muestra tabla de usuarios
+deactivate View
+
+note over Administrador, View : Búsqueda en tiempo real
+
+Administrador -> View: Escribe término de búsqueda
+activate View
+
+View -> Search: buscarUsuarios(termino)
+activate Search
+
+Search -> Controller: GET /usuarios/buscar?q=termino
+activate Controller
+
+Controller -> Model: buscarPorTermino(termino)
+activate Model
+
+Model -> DB: SELECT * FROM usuarios WHERE nombre_completo LIKE ? OR usuario LIKE ? OR departamento LIKE ? OR numero_empleado LIKE ?
+activate DB
+DB --> Model: Resultados filtrados
+deactivate DB
+
+Model --> Controller: Array de resultados
+deactivate Model
+
+Controller --> Search: JSON con resultados
+deactivate Controller
+
+Search --> View: Actualizar tabla con resultados
+deactivate Search
+
+View --> Administrador: Muestra resultados filtrados
+deactivate View
+
+note over Administrador, View : Filtros adicionales
+
+Administrador -> View: Aplica filtro por rol
+activate View
+
+View -> Controller: GET /usuarios/filtrar?rol=admin
+activate Controller
+
+Controller -> Model: obtenerPorRol(rol)
+activate Model
+
+Model -> DB: SELECT * FROM usuarios WHERE rol = ?
+activate DB
+DB --> Model: Usuarios por rol
+deactivate DB
+
+Model --> Controller: Array de usuarios
+deactivate Model
+
+Controller --> View: Datos filtrados
+deactivate Controller
+
+View --> Administrador: Muestra usuarios por rol
+deactivate View
+
+@enduml 

@@ -1,0 +1,95 @@
+@startuml "Nexus RH - Secuencia de Crear Departamento"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam participant {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+
+title "Secuencia de Crear Departamento - Nexus RH"
+
+actor Administrador
+participant "Crear Departamento Form" as Form
+participant "Departamentos Controller" as Controller
+participant "Departamento Model" as Model
+participant "Sede Model" as SedeModel
+participant "Database" as DB
+participant "Validation" as Validation
+
+Administrador -> Form: Completa formulario
+activate Form
+
+Form -> Form: Validación AJAX en tiempo real
+activate Form
+
+Form -> Controller: POST /guardar-departamento
+activate Controller
+
+Controller -> Validation: validarDatos(datos)
+activate Validation
+Validation -> Validation: validarCamposObligatorios()
+Validation -> Validation: validarNombre()
+Validation --> Controller: true/false + errores
+deactivate Validation
+
+alt Datos válidos
+    Controller -> Model: existeNombreEnSede(nombre, sede_id)
+    activate Model
+    
+    Model -> DB: SELECT COUNT(*) FROM departamentos WHERE nombre = ? AND sede_id = ?
+    activate DB
+    DB --> Model: count
+    deactivate DB
+    
+    Model --> Controller: existe/no existe
+    deactivate Model
+    
+    alt Departamento no existe en la sede
+        Controller -> Model: crear(datos_departamento)
+        activate Model
+        
+        Model -> DB: INSERT INTO departamentos (nombre, descripcion, sede_id) VALUES (?, ?, ?)
+        activate DB
+        DB --> Model: success/error
+        deactivate DB
+        
+        Model --> Controller: true/false
+        deactivate Model
+        
+        alt Departamento creado exitosamente
+            Controller -> Controller: $_SESSION['departamento_guardado'] = "✅ Departamento registrado correctamente."
+            Controller --> Form: Redirección con mensaje de éxito
+            deactivate Controller
+            Form --> Administrador: Departamento creado exitosamente
+            deactivate Form
+        else Error al crear
+            Controller -> Controller: $_SESSION['error_departamento'] = "❌ Error al guardar el departamento."
+            Controller --> Form: Redirección con mensaje de error
+            deactivate Controller
+            Form --> Administrador: Error al crear departamento
+            deactivate Form
+        end
+        
+    else Departamento ya existe en la sede
+        Controller -> Controller: $_SESSION['error_departamento'] = "❌ Ya existe un departamento con ese nombre en esa sede."
+        Controller --> Form: Redirección con mensaje de error
+        deactivate Controller
+        Form --> Administrador: Departamento ya existe en esta sede
+        deactivate Form
+    end
+    
+else Datos inválidos
+    Controller -> Controller: $_SESSION['error_departamento'] = "⚠️ Todos los campos son obligatorios."
+    Controller --> Form: Redirección con mensaje de error
+    deactivate Controller
+    Form --> Administrador: Mostrar errores de validación
+    deactivate Form
+end
+
+@enduml 

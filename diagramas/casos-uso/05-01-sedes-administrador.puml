@@ -1,0 +1,94 @@
+@startuml "Nexus RH - Gestión de Sedes - Administrador"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Gestión de Sedes - Administrador - Nexus RH"
+
+actor Administrador
+actor Sistema
+
+rectangle "Módulo de Sedes" {
+    usecase "Crear Sede" as UC1
+    usecase "Editar Sede" as UC2
+    usecase "Eliminar Sede" as UC3
+    usecase "Listar Todas las Sedes" as UC4
+    usecase "Buscar Sede" as UC5
+    usecase "Gestionar Dirección" as UC6
+    usecase "Validar Datos Únicos" as UC7
+    usecase "Gestionar Contacto" as UC8
+    usecase "Reportar Ubicación Completa" as UC9
+    usecase "Validar Datos" as UC10
+    usecase "Verificar Código Postal" as UC11
+    usecase "Validar Teléfono" as UC12
+    usecase "Exportar Estructura" as UC13
+    usecase "Configurar Jerarquía" as UC14
+}
+
+' Relaciones principales del Administrador
+Administrador --> UC1
+Administrador --> UC2
+Administrador --> UC3
+Administrador --> UC4
+Administrador --> UC5
+Administrador --> UC6
+Administrador --> UC8
+Administrador --> UC9
+Administrador --> UC13
+Administrador --> UC14
+
+' Relaciones internas
+UC1 ..> UC7 : <<include>>
+UC1 ..> UC10 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC8 : <<include>>
+UC1 ..> UC11 : <<include>>
+UC1 ..> UC12 : <<include>>
+
+UC2 ..> UC7 : <<include>>
+UC2 ..> UC10 : <<include>>
+UC2 ..> UC6 : <<include>>
+UC2 ..> UC8 : <<include>>
+
+UC3 ..> UC10 : <<include>>
+
+UC5 ..> UC4 : <<extend>>
+
+UC6 ..> UC11 : <<include>>
+
+UC7 ..> Sistema : <<include>>
+
+UC9 ..> UC4 : <<include>>
+UC13 ..> UC9 : <<include>>
+UC14 ..> UC1 : <<include>>
+UC14 ..> UC2 : <<include>>
+
+UC11 ..> Sistema : <<include>>
+UC12 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC7 : "Verifica que el nombre\nde la sede sea único"
+note right of UC10 : "Valida campos obligatorios\ny formato de datos"
+note right of UC11 : "Valida formato de\ncódigo postal (5 dígitos)"
+note right of UC12 : "Valida formato\nde teléfono"
+note right of UC6 : "Gestiona dirección completa:\ncalle, número, colonia, etc."
+note right of UC8 : "Gestiona información\nde contacto"
+note right of UC9 : "Reporta ubicación\ncompleta de la empresa"
+note right of UC13 : "Exporta estructura\na Excel/PDF"
+note right of UC14 : "Configura jerarquía\ny dependencias"
+
+@enduml 

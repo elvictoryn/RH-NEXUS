@@ -1,0 +1,61 @@
+@startuml "Nexus RH - Submódulo búsqueda y listado de usuarios"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo búsqueda y listado de usuarios - Nexus RH"
+
+actor Administrador
+actor Sistema
+
+rectangle "Búsqueda y Listado de Usuarios" {
+    usecase "Buscar Usuario" as UC1
+    usecase "Listar Usuarios" as UC2
+    usecase "Filtrar por Rol" as UC3
+    usecase "Filtrar por Departamento" as UC4
+    usecase "Filtrar por Sede" as UC5
+    usecase "Ordenar Resultados" as UC6
+    usecase "Paginación" as UC8
+}
+
+' Relaciones principales del Administrador
+Administrador --> UC1
+Administrador --> UC2
+Administrador --> UC3
+Administrador --> UC4
+Administrador --> UC5
+Administrador --> UC6
+
+' Relaciones internas
+UC1 ..> UC2 : <<extend>>
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC2 ..> UC5 : <<include>>
+UC2 ..> UC6 : <<include>>
+UC2 ..> UC8 : <<include>>
+
+
+UC8 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC1 : "Búsqueda por nombre,\nusuario o número empleado"
+note right of UC3 : "Filtra por roles:\nadmin, rh, gerente, jefe_area"
+note right of UC6 : "Ordena por nombre,\nfecha, departamento"
+note right of UC8 : "Maneja paginación\nde resultados"
+
+@enduml 

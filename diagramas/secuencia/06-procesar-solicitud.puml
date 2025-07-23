@@ -1,0 +1,174 @@
+@startuml "Nexus RH - Secuencia de Procesar Solicitud"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam participant {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+
+title "Secuencia de Procesar Solicitud - Nexus RH "
+
+actor RH as "Recursos Humanos (RH)"
+actor JefeArea as "Jefe de Área"
+participant "Solicitudes View" as View
+participant "Solicitudes Controller" as Controller
+participant "Solicitud Model" as Model
+participant "Documentos Model" as DocModel
+participant "Database" as DB
+participant "Validation" as Validation
+participant "Notification" as Notification
+
+RH -> View: Accede a solicitudes pendientes
+activate View
+
+View -> Controller: GET /solicitudes/pendientes
+activate Controller
+
+Controller -> Model: obtenerPendientes()
+activate Model
+
+Model -> DB: SELECT * FROM solicitudes WHERE estado = 'pendiente'
+activate DB
+DB --> Model: Lista de solicitudes
+deactivate DB
+
+Model --> Controller: Array de solicitudes
+deactivate Model
+
+Controller --> View: Datos de solicitudes
+deactivate Controller
+
+View --> RH: Muestra solicitudes pendientes
+deactivate View
+
+RH -> View: Selecciona solicitud para procesar
+activate View
+
+View -> Controller: GET /solicitudes/procesar?id=123
+activate Controller
+
+Controller -> Model: obtenerPorId(id)
+activate Model
+
+Model -> DB: SELECT * FROM solicitudes WHERE id = ?
+activate DB
+DB --> Model: Datos de solicitud
+deactivate DB
+
+Model --> Controller: Objeto solicitud
+deactivate Model
+
+Controller -> DocModel: obtenerDocumentos(solicitud_id)
+activate DocModel
+
+DocModel -> DB: SELECT * FROM documentos WHERE solicitud_id = ?
+activate DB
+DB --> DocModel: Documentos adjuntos
+deactivate DB
+
+DocModel --> Controller: Array de documentos
+deactivate DocModel
+
+Controller --> View: Datos completos de solicitud
+deactivate Controller
+
+View --> RH: Muestra detalles de solicitud
+deactivate View
+
+RH -> View: Inicia procesamiento
+activate View
+
+View -> Controller: POST /solicitudes/procesar
+activate Controller
+
+Controller -> Validation: validarSolicitud(solicitud)
+activate Validation
+Validation -> Validation: validarDocumentos()
+Validation -> Validation: validarRequisitos()
+Validation --> Controller: true/false + observaciones
+deactivate Validation
+
+alt Solicitud válida
+    Controller -> Model: actualizarEstado(id, 'en_revision')
+    activate Model
+    
+    Model -> DB: UPDATE solicitudes SET estado = ?, fecha_procesamiento = NOW() WHERE id = ?
+    activate DB
+    DB --> Model: success/error
+    deactivate DB
+    
+    Model --> Controller: true/false
+    deactivate Model
+    
+    alt Estado actualizado
+        Controller -> Controller: asignarEvaluador(solicitud_id)
+        activate Controller
+        
+        Controller -> Model: buscarEvaluadorDisponible(area)
+        activate Model
+        
+        Model -> DB: SELECT * FROM usuarios WHERE rol = 'jefe_area' AND departamento = ?
+        activate DB
+        DB --> Model: Evaluadores disponibles
+        deactivate DB
+        
+        Model --> Controller: Array de evaluadores
+        deactivate Model
+        
+        Controller -> Model: asignarEvaluador(solicitud_id, evaluador_id)
+        activate Model
+        
+        Model -> DB: UPDATE solicitudes SET evaluador_id = ? WHERE id = ?
+        activate DB
+        DB --> Model: success/error
+        deactivate DB
+        
+        Model --> Controller: true/false
+        deactivate Model
+        
+        Controller -> Notification: notificarEvaluador(evaluador_id, solicitud_id)
+        activate Notification
+        Notification -> Notification: enviarEmail(evaluador_email, solicitud_detalles)
+        Notification --> Controller: Email enviado
+        deactivate Notification
+        
+        Controller --> View: "solicitud_procesada"
+        deactivate Controller
+        View --> RH: Solicitud procesada exitosamente
+        deactivate View
+        
+    else Error al actualizar
+        Controller --> View: "error_procesamiento"
+        deactivate Controller
+        View --> RH: Error al procesar solicitud
+        deactivate View
+    end
+    
+else Solicitud inválida
+    Controller -> Controller: registrarObservaciones(solicitud_id, observaciones)
+    activate Controller
+    
+    Controller -> Model: actualizarObservaciones(id, observaciones)
+    activate Model
+    
+    Model -> DB: UPDATE solicitudes SET observaciones = ? WHERE id = ?
+    activate DB
+    DB --> Model: success/error
+    deactivate DB
+    
+    Model --> Controller: true/false
+    deactivate Model
+    
+    Controller --> View: "solicitud_con_observaciones"
+    deactivate Controller
+    View --> RH: Solicitud marcada con observaciones
+    deactivate View
+end
+
+@enduml 

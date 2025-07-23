@@ -1,0 +1,70 @@
+@startuml "Nexus RH - Búsqueda de Usuarios - Recursos Humanos"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Búsqueda de Usuarios - Recursos Humanos - Nexus RH"
+
+actor RH as "Recursos Humanos (RH)"
+actor Sistema
+
+rectangle "Búsqueda y Listado de Usuarios" {
+    usecase "Buscar Usuario" as UC1
+    usecase "Listar Usuarios RH" as UC2
+    usecase "Filtrar por Departamento" as UC3
+    usecase "Filtrar por Sede" as UC4
+    usecase "Ordenar Resultados" as UC5
+    usecase "Paginación" as UC6
+    usecase "Ver Información RH" as UC7
+    usecase "Asignar a Proceso" as UC8
+    usecase "Consultar Historial" as UC9
+}
+
+' Relaciones principales de RH
+RH --> UC1
+RH --> UC2
+RH --> UC3
+RH --> UC4
+RH --> UC5
+RH --> UC7
+RH --> UC8
+RH --> UC9
+
+' Relaciones internas
+UC1 ..> UC2 : <<extend>>
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC2 ..> UC5 : <<include>>
+UC2 ..> UC6 : <<include>>
+
+UC7 ..> UC1 : <<include>>
+UC8 ..> UC1 : <<include>>
+UC9 ..> UC1 : <<include>>
+
+UC6 ..> Sistema : <<include>>
+UC9 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC1 : "Búsqueda por nombre,\nusuario o número empleado"
+note right of UC2 : "Lista usuarios para\nprocesos de RRHH"
+note right of UC3 : "Filtra por departamento\npara asignaciones"
+note right of UC7 : "Ve información relevante\npara procesos de RRHH"
+note right of UC8 : "Asigna usuario a\nproceso de evaluación"
+note right of UC9 : "Consulta historial de\nevaluaciones y procesos"
+
+@enduml 

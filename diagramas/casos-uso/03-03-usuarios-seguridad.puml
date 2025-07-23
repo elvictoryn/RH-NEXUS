@@ -1,0 +1,57 @@
+'NOOOOOOOOOOOOOOOOOOOOO
+
+@startuml "Nexus RH - Submódulo usuarios y roles"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo usuarios y roles de usuario - Nexus RH"
+
+actor Administrador
+actor Sistema
+
+rectangle "Seguridad y Roles de Usuarios" {
+    usecase "Gestionar Roles" as UC1
+    usecase "Asignar Permisos" as UC2
+    usecase "Validar Acceso" as UC3
+    usecase "Editar Usuario" as UC5
+    usecase "Eliminar usuario" as UC7
+}
+
+' Relaciones principales del Administrador
+Administrador --> UC1
+Administrador --> UC2
+Sistema --> UC3
+Administrador --> UC5
+Administrador --> UC7
+
+' Relaciones internas
+UC1 ..> UC2 : <<include>>
+
+UC2 ..> UC3 : <<include>>
+
+UC5 ..> Sistema : <<include>>
+
+
+' Notas explicativas
+note right of UC1 : "Asigna roles: admin, rh,\ngerente, jefe_area"
+note right of UC2 : "Define permisos específicos\npor funcionalidad"
+note right of UC3 : "Valida acceso según\nrol y permisos"
+note right of UC5 : "Cambia la información del usuario"
+note right of UC7 : "Elimina al usuario del sistema"
+
+@enduml 

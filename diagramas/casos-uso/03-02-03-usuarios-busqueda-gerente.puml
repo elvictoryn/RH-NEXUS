@@ -1,0 +1,71 @@
+@startuml "Nexus RH - Búsqueda de Usuarios - Gerente"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Búsqueda de Usuarios - Gerente - Nexus RH"
+
+actor Gerente
+actor Sistema
+
+rectangle "Búsqueda y Listado de Usuarios" {
+    usecase "Buscar Usuario" as UC1
+    usecase "Listar Usuarios Área" as UC2
+    usecase "Filtrar por Departamento" as UC3
+    usecase "Filtrar por Sede" as UC4
+    usecase "Ordenar Resultados" as UC5
+    usecase "Paginación" as UC6
+    usecase "Ver Información Gerencial" as UC7
+    usecase "Generar Reporte Área" as UC8
+    usecase "Consultar Estadísticas" as UC9
+}
+
+' Relaciones principales del Gerente
+Gerente --> UC1
+Gerente --> UC2
+Gerente --> UC3
+Gerente --> UC4
+Gerente --> UC5
+Gerente --> UC7
+Gerente --> UC8
+Gerente --> UC9
+
+' Relaciones internas
+UC1 ..> UC2 : <<extend>>
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC2 ..> UC5 : <<include>>
+UC2 ..> UC6 : <<include>>
+
+UC7 ..> UC1 : <<include>>
+UC8 ..> UC2 : <<include>>
+UC9 ..> UC2 : <<include>>
+
+UC6 ..> Sistema : <<include>>
+UC8 ..> Sistema : <<include>>
+UC9 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC1 : "Búsqueda por nombre,\nusuario o número empleado"
+note right of UC2 : "Lista usuarios de\nsu área de responsabilidad"
+note right of UC3 : "Filtra por departamentos\nbajo su supervisión"
+note right of UC7 : "Ve información gerencial:\nrendimiento, antigüedad"
+note right of UC8 : "Genera reportes de\npersonal del área"
+note right of UC9 : "Consulta estadísticas\nde personal"
+
+@enduml 

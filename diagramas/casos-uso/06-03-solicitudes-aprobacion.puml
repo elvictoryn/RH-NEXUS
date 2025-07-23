@@ -1,0 +1,87 @@
+@startuml "Nexus RH - Submódulo aprobación de solicitudes"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam actor {
+    BackgroundColor #1e3a8a
+    BorderColor #1e3a8a
+    FontColor #000000
+}
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+    FontColor #1565C0
+}
+
+title "Módulo aprobación de solicitudes - Nexus RH"
+
+actor Candidato
+actor RH as "Recursos Humanos (RH)"
+actor Gerente
+actor JefeArea as "Jefe de Área"
+actor Sistema
+
+rectangle "Aprobación de Solicitudes" {
+    usecase "Aprobar Solicitud" as UC1
+    usecase "Rechazar Solicitud" as UC2
+    usecase "Notificar Candidato" as UC3
+    usecase "Reportar Progreso" as UC4
+    usecase "Generar Comunicado" as UC5
+    usecase "Registrar Decisión" as UC6
+    usecase "Enviar Correo" as UC7
+    usecase "Actualizar Estado" as UC8
+}
+
+' Relaciones del Candidato
+Candidato --> UC3
+
+' Relaciones de RH
+RH --> UC3
+RH --> UC4
+RH --> UC5
+RH --> UC7
+
+' Relaciones del Gerente
+Gerente --> UC1
+Gerente --> UC2
+Gerente --> UC4
+
+' Relaciones del Jefe de Área
+JefeArea --> UC1
+JefeArea --> UC2
+
+' Relaciones internas
+UC1 ..> UC3 : <<include>>
+UC1 ..> UC4 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC8 : <<include>>
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC2 ..> UC6 : <<include>>
+UC2 ..> UC8 : <<include>>
+
+UC3 ..> UC5 : <<include>>
+UC3 ..> UC7 : <<include>>
+
+UC4 ..> UC8 : <<include>>
+
+UC6 ..> Sistema : <<include>>
+
+UC7 ..> Sistema : <<include>>
+
+UC8 ..> Sistema : <<include>>
+
+' Notas explicativas
+note right of UC3 : "Notifica al candidato\nsobre la decisión"
+note right of UC4 : "Reporta progreso a\nsuperiores"
+note right of UC5 : "Genera comunicado\nformal"
+note right of UC6 : "Registra decisión en\nbase de datos"
+note right of UC7 : "Envía correo electrónico\nautomático"
+note right of UC8 : "Actualiza estado en\nel sistema"
+
+@enduml 

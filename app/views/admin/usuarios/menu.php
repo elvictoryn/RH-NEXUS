@@ -39,7 +39,9 @@ include_once __DIR__ . '/../../shared/header.php';
         <a href="lista.php" class="btn btn-primary w-100">Ver Usuarios</a>
       </div>
     </div>
-
+      <div class="mt-5 text-center">
+    <a href="../../admin/index.php" class="btn btn-outline-dark">⬅ Volver al panel principal</a>
+  </div>
   </div>
 </div>
 

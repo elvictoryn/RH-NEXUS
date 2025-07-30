@@ -6,67 +6,112 @@ require_once('../../../models/Sede.php');
 
 $sede = new Sede();
 $listaSedes = $sede->obtenerTodas();
+
+$mensaje_exito = $_SESSION['sede_guardada'] ?? $_SESSION['sede_editada'] ?? $_SESSION['sede_eliminada'] ?? null;
+$mensaje_error = $_SESSION['error_guardado'] ?? $_SESSION['error_edicion'] ?? $_SESSION['error_eliminacion'] ?? null;
+unset($_SESSION['sede_guardada'], $_SESSION['sede_editada'], $_SESSION['sede_eliminada'], $_SESSION['error_guardado'], $_SESSION['error_edicion'], $_SESSION['error_eliminacion']);
 ?>
 
 <div class="container mt-4">
   <div class="card shadow p-4 bg-light">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="text-primary">📋 Lista de Sedes</h2>
-      <a href="crear_sede.php" class="btn btn-success">+ Registrar Nueva Sede</a>
-      <a href="menu.php" class="btn btn-success">← Regresar</a>
+      <div>
+        <a href="crear_sede.php" class="btn btn-success me-2">+ Registrar Nueva Sede</a>
+        <a href="menu.php" class="btn btn-outline-secondary">← Regresar</a>
+      </div>
     </div>
 
-    <div class="mb-3">
-      <input type="text" class="form-control" id="buscador" placeholder="🔍 Buscar por nombre o municipio...">
-    </div>
+    <?php if ($mensaje_exito): ?>
+      <div class="alert alert-success text-center fw-bold"><?= htmlspecialchars($mensaje_exito) ?></div>
+    <?php elseif ($mensaje_error): ?>
+      <div class="alert alert-danger text-center fw-bold"><?= htmlspecialchars($mensaje_error) ?></div>
+    <?php endif; ?>
 
-    <div class="table-responsive">
-      <table class="table table-dark table-striped table-hover align-middle" id="tablaSedes">
-        <thead class="text-center">
-          <tr>
-            <th>Nombre</th>
-            <th>Dirección</th>
-            <th>Municipio</th>
-            <th>Estado</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="text-center">
-          <?php foreach ($listaSedes as $s): ?>
+    <?php if (empty($listaSedes)): ?>
+      <div class="alert alert-info text-center">No hay sedes registradas.</div>
+    <?php else: ?>
+      <div class="mb-3">
+        <input type="text" id="busqueda" class="form-control" placeholder="🔍 Buscar por nombre, municipio o estado...">
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle" id="tablaSedes">
+          <thead class="table-secondary text-center">
             <tr>
-              <td><?= htmlspecialchars($s['nombre']) ?></td>
-              <td><?= htmlspecialchars($s['domicilio']) . ' ' . htmlspecialchars($s['numero']) . ' ' . ($s['interior'] ? 'Int. ' . htmlspecialchars($s['interior']) : '') . ', ' . htmlspecialchars($s['colonia']) . ', CP ' . htmlspecialchars($s['cp']) ?></td>
-              <td><?= htmlspecialchars($s['municipio']) ?></td>
-              <td><?= htmlspecialchars($s['estado']) ?></td>
-              <td><?= htmlspecialchars($s['telefono']) ?></td>
-              <td>
-                <a href="editar_sede.php?id=<?= $s['id'] ?>" class="text-warning me-2" data-bs-toggle="tooltip" title="Editar">
-                  <i class="fas fa-pen"></i>
-                </a>
-                <a href="eliminar_sede.php?id=<?= $s['id'] ?>" class="text-danger" data-bs-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar esta sede?')">
-                  <i class="fas fa-trash"></i>
-                </a>
-              </td>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Municipio</th>
+              <th>Estado</th>
+              <th>Teléfono</th>
+              <th>Acciones</th>
             </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody class="text-center">
+            <?php foreach ($listaSedes as $index => $s): ?>
+              <tr>
+                <td><?= $index + 1 ?></td>
+                <td><?= htmlspecialchars($s['nombre']) ?></td>
+                <td><?= htmlspecialchars($s['municipio']) ?></td>
+                <td><?= htmlspecialchars($s['estado']) ?></td>
+                <td><?= htmlspecialchars($s['telefono']) ?></td>
+                <td>
+                  <a href="editar_sede.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar Sede">✏️</a>
+                  <a href="eliminar_sede.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirmarEliminacion()" title="Eliminar Sede">🗑️</a>
+                  <button type="button" class="btn btn-sm btn-outline-info" onclick="mostrarDetalles(this)" title="Ver Detalles">👁️‍🗨️</button>
+                </td>
+              </tr>
+              <tr class="detalles-row" style="display: none;">
+                <td colspan="6">
+                  <div class="border rounded p-3 bg-white text-start small">
+                    <strong>Nombre:</strong> <?= htmlspecialchars($s['nombre']) ?><br>
+                    <strong>Domicilio:</strong> <?= htmlspecialchars($s['domicilio']) ?><br>
+                    <strong>Número:</strong> <?= htmlspecialchars($s['numero']) ?><br>
+                    <strong>Interior:</strong> <?= $s['interior'] ? htmlspecialchars($s['interior']) : 'N/A' ?><br>
+                    <strong>Colonia:</strong> <?= htmlspecialchars($s['colonia']) ?><br>
+                    <strong>Municipio:</strong> <?= htmlspecialchars($s['municipio']) ?><br>
+                    <strong>Estado:</strong> <?= htmlspecialchars($s['estado']) ?><br>
+                    <strong>CP:</strong> <?= htmlspecialchars($s['cp']) ?><br>
+                    <strong>Teléfono:</strong> <?= htmlspecialchars($s['telefono']) ?>
+                  </div>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 
 <script>
-  const buscador = document.getElementById('buscador');
-  const tabla = document.getElementById('tablaSedes').getElementsByTagName('tbody')[0];
+  function confirmarEliminacion() {
+    return confirm("¿Estás seguro de que deseas eliminar esta sede?");
+  }
 
-  buscador.addEventListener('input', () => {
-    const texto = buscador.value.toLowerCase();
-    const filas = tabla.getElementsByTagName('tr');
+  function mostrarDetalles(boton) {
+    const fila = boton.closest('tr');
+    const filaDetalles = fila.nextElementSibling;
+    filaDetalles.style.display = filaDetalles.style.display === 'none' ? '' : 'none';
+  }
 
-    Array.from(filas).forEach(fila => {
-      const contenidoFila = fila.textContent.toLowerCase();
-      fila.style.display = contenidoFila.includes(texto) ? '' : 'none';
+  document.getElementById('busqueda').addEventListener('keyup', function () {
+    const filtro = this.value.toLowerCase();
+    const filas = document.querySelectorAll("#tablaSedes tbody tr");
+
+    filas.forEach((fila, index) => {
+      if (index % 2 === 0) {
+        const texto = fila.textContent.toLowerCase();
+        const detalles = fila.nextElementSibling;
+        const mostrar = texto.includes(filtro);
+        fila.style.display = mostrar ? '' : 'none';
+        detalles.style.display = 'none';
+      }
     });
   });
+
+  setTimeout(() => {
+    document.querySelector('.alert-success')?.remove();
+    document.querySelector('.alert-danger')?.remove();
+  }, 4000);
 </script>

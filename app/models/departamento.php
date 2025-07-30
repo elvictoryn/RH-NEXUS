@@ -9,38 +9,34 @@ class Departamento {
     }
 
     public function crear($data) {
-        try {
-            $sql = "INSERT INTO departamentos (nombre, descripcion, sede_id) 
-                    VALUES (:nombre, :descripcion, :sede_id)";
-            $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([
-                ':nombre'      => strtoupper($data['nombre']),
-                ':descripcion' => strtoupper($data['descripcion']),
-                ':sede_id'     => $data['sede_id']
-            ]);
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-
-    public function obtenerTodosConSede() {
-        $sql = "SELECT d.*, s.nombre AS sede_nombre 
-                FROM departamentos d
-                JOIN sedes s ON d.sede_id = s.id
-                ORDER BY d.nombre ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "INSERT INTO departamentos (nombre, descripcion, sede_id, estado, creado_en)
+                VALUES (:nombre, :descripcion, :sede_id, 1, NOW())";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':nombre'      => strtoupper(trim($data['nombre'])),
+            ':descripcion' => strtoupper(trim($data['descripcion'])),
+            ':sede_id'     => $data['sede_id']
+        ]);
     }
 
     public function existeNombreEnSede($nombre, $sede_id) {
-        $sql = "SELECT COUNT(*) FROM departamentos 
-                WHERE nombre = :nombre AND sede_id = :sede_id";
+        $sql = "SELECT COUNT(*) FROM departamentos WHERE nombre = :nombre AND sede_id = :sede_id AND estado = 1";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            ':nombre' => strtoupper($nombre),
-            ':sede_id' => $sede_id
+            ':nombre'   => strtoupper(trim($nombre)),
+            ':sede_id'  => $sede_id
         ]);
         return $stmt->fetchColumn() > 0;
+    }
+
+    public function obtenerTodosConSede() {
+        $sql = "SELECT d.*, s.nombre AS nombre_sede
+                FROM departamentos d
+                INNER JOIN sedes s ON d.sede_id = s.id
+                WHERE d.estado = 1
+                ORDER BY d.nombre ASC";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function obtenerPorId($id) {
@@ -50,26 +46,77 @@ class Departamento {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function actualizar($data) {
-        try {
-            $sql = "UPDATE departamentos 
-                    SET nombre = :nombre, descripcion = :descripcion, sede_id = :sede_id 
-                    WHERE id = :id";
-            $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([
-                ':nombre'      => strtoupper($data['nombre']),
-                ':descripcion' => strtoupper($data['descripcion']),
-                ':sede_id'     => $data['sede_id'],
-                ':id'          => $data['id']
-            ]);
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
+    public function actualizar($id, $data) {
+    $sql = "UPDATE departamentos SET
+                nombre = :nombre,
+                descripcion = :descripcion,
+                sede_id = :sede_id,
+                responsable_id = :responsable_id,
+                actualizado_en = NOW()
+            WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+        ':nombre'         => strtoupper(trim($data['nombre'])),
+        ':descripcion'    => strtoupper(trim($data['descripcion'])),
+        ':sede_id'        => $data['sede_id'],
+        ':responsable_id' => $data['responsable_id'],
+        ':id'             => $id
+    ]);
+}
 
-    public function eliminar($id) {
-        $sql = "DELETE FROM departamentos WHERE id = :id";
+    public function eliminarLogico($id) {
+        $sql = "UPDATE departamentos SET estado = 0 WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([':id' => $id]);
     }
+
+    public function listarSedesActivas() {
+        $sql = "SELECT id, nombre FROM sedes WHERE activo = 1 ORDER BY nombre ASC";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerTodosConSedeYResponsable() {
+        try {
+            $sql = "SELECT d.id, d.nombre, d.descripcion, d.sede_id, d.responsable_id, s.nombre AS sede_nombre,
+                           CONCAT(u.nombre_completo, ' (', u.numero_empleado, ')') AS responsable
+                    FROM departamentos d
+                    INNER JOIN sedes s ON d.sede_id = s.id
+                    LEFT JOIN usuarios u ON d.responsable_id = u.id
+                    WHERE d.estado = 1
+                    ORDER BY d.nombre ASC";
+            $stmt = $this->pdo->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener departamentos: " . $e->getMessage());
+            return [];
+        }
+    }
+
+public function obtenerUsuariosActivos() {
+        try {
+            $stmt = $this->pdo->prepare("SELECT id, nombre_completo, numero_empleado FROM usuarios WHERE estado = 1 ORDER BY nombre_completo ASC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener usuarios activos: " . $e->getMessage());
+            return [];
+        }
+    }
+    public function existeNombreEnSedeEditando($nombre, $sede_id, $id) {
+    $sql = "SELECT COUNT(*) FROM departamentos 
+            WHERE UPPER(nombre) = UPPER(:nombre) 
+              AND sede_id = :sede_id 
+              AND id != :id 
+              AND estado = 1";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        ':nombre' => strtoupper(trim($nombre)),
+        ':sede_id' => $sede_id,
+        ':id' => $id
+    ]);
+    return $stmt->fetchColumn() > 0;
+}
+
+
 }

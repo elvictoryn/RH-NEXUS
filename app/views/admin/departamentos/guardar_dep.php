@@ -1,44 +1,42 @@
 <?php
 if (!isset($_SESSION)) session_start();
-require_once('../../../models/Departamento.php');
+require_once('../../../models/departamento.php');
 
-// ✅ Validación AJAX en tiempo real
-if (isset($_GET['verificar']) && isset($_GET['nombre']) && isset($_GET['sede_id'])) {
-    $dep = new Departamento();
-    $nombre = strtoupper(trim($_GET['nombre']));
-    $sede_id = intval($_GET['sede_id']);
-    $existe = $dep->existeNombreEnSede($nombre, $sede_id);
-    echo json_encode(['existe' => $existe]);
-    exit;
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nombre      = strtoupper(trim($_POST['nombre'] ?? ''));
+    $descripcion = strtoupper(trim($_POST['descripcion'] ?? ''));
+    $sede_id     = intval($_POST['sede_id'] ?? 0);
 
-// ✅ Guardado normal al enviar formulario
-$nombre = strtoupper(trim($_POST['nombre'] ?? ''));
-$descripcion = strtoupper(trim($_POST['descripcion'] ?? ''));
-$sede_id = intval($_POST['sede_id'] ?? 0);
+    // Validación de campos requeridos
+    if (empty($nombre) || empty($descripcion) || $sede_id <= 0) {
+        $_SESSION['error_guardado'] = "❌ Todos los campos son obligatorios.";
+        header("Location: ../views/admin/departamentos/crear_dep.php");
+        exit;
+    }
 
-if ($nombre && $descripcion && $sede_id) {
     $departamento = new Departamento();
 
-    // Verificamos si ya existe ese nombre en esa sede
+    // Validar si ya existe el nombre en la misma sede
     if ($departamento->existeNombreEnSede($nombre, $sede_id)) {
-        $_SESSION['error_departamento'] = "❌ Ya existe un departamento con ese nombre en esa sede.";
-    } else {
-        $exito = $departamento->crear([
-            'nombre'      => $nombre,
-            'descripcion' => $descripcion,
-            'sede_id'     => $sede_id
-        ]);
-
-        if ($exito) {
-            $_SESSION['departamento_guardado'] = "✅ Departamento registrado correctamente.";
-        } else {
-            $_SESSION['error_departamento'] = "❌ Error al guardar el departamento.";
-        }
+        $_SESSION['error_guardado'] = "❌ Ya existe un departamento con ese nombre en la sede seleccionada.";
+        header("Location: ../views/admin/departamentos/crear_dep.php");
+        exit;
     }
-} else {
-    $_SESSION['error_departamento'] = "⚠️ Todos los campos son obligatorios.";
-}
 
-header("Location: crear_dep.php");
-exit;
+    $data = [
+        'nombre'      => $nombre,
+        'descripcion' => $descripcion,
+        'sede_id'     => $sede_id
+    ];
+
+    $exito = $departamento->crear($data);
+
+    if ($exito) {
+        $_SESSION['dep_creado'] = "✅ El departamento '{$data['nombre']}' fue registrado correctamente.";
+    } else {
+        $_SESSION['error_creacion'] = "❌ Ocurrió un error al guardar. Intenta nuevamente.";
+    }
+
+   header("Location: crear_dep.php");
+    exit;
+}

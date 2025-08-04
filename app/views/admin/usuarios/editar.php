@@ -1,8 +1,12 @@
 <?php
 if (!isset($_SESSION)) session_start();
 $titulo_pagina = "Editar Usuario - Nexus RH";
-include_once('../../shared/header.php');
-require_once('../../../models/Usuario.php');
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
+// Incluir header y modelo usando rutas dinámicas
+safe_include_once(shared_header_path());
+safe_require_once(model_path('Usuario'));
 
 $modelo = new Usuario();
 $id = $_GET['id'] ?? null;

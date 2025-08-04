@@ -1,5 +1,9 @@
 <?php
 session_start();
+
+// Incluir sistema de rutas dinámicas
+require_once __DIR__ . '/../app/config/paths.php';
+
 if (!isset($_SESSION['usuario'])) {
     header('Location: login.php');
     exit;

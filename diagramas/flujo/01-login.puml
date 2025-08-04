@@ -1,0 +1,73 @@
+@startuml "Nexus RH - Flujo de Login"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam diamond {
+    BackgroundColor #FFF3CD
+    BorderColor #FFC107
+    FontColor #856404
+}
+skinparam start {
+    BackgroundColor #D4EDDA
+    BorderColor #28A745
+    FontColor #155724
+}
+skinparam stop {
+    BackgroundColor #F8D7DA
+    BorderColor #DC3545
+    FontColor #721C24
+}
+
+title "Flujo de Login - Nexus RH"
+
+start
+
+:Usuario accede al sistema;
+
+:Ingresa credenciales;
+
+if (¿Credenciales completas?) then (Sí)
+    :Validar usuario en base de datos;
+    
+    if (¿Usuario existe?) then (Sí)
+        :Verificar contraseña;
+        
+        if (¿Contraseña correcta?) then (Sí)
+            :Crear sesión de usuario;
+            :Establecer variables de sesión;
+            :Determinar rol del usuario;
+            
+            if (¿Rol?) then (Administrador)
+                :Redireccionar a dashboard admin;
+            elseif (¿Rol?) then (RH)
+                :Redireccionar a dashboard RH;
+            elseif (¿Rol?) then (Gerente)
+                :Redireccionar a dashboard gerente;
+            else (Jefe de Área)
+                :Redireccionar a dashboard jefe;
+            endif
+            
+            :Mostrar dashboard específico;
+            stop
+        else (No)
+            :Mostrar error de contraseña;
+            :Limpiar campo contraseña;
+        endif
+    else (No)
+        :Mostrar error de usuario;
+        :Limpiar campo usuario;
+    endif
+else (No)
+    :Mostrar error de campos incompletos;
+    :Resaltar campos faltantes;
+endif
+
+:Permitir reintento;
+
+stop
+
+@enduml 

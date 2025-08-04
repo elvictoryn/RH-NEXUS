@@ -1,6 +1,10 @@
 <?php
 if (!isset($_SESSION)) session_start();
-require_once('../../../models/departamento.php');
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
+// Incluir modelo usando rutas dinámicas
+safe_require_once(model_path('departamento'));
 
 $departamento = new Departamento();
 $id = $_GET['id'] ?? null;
@@ -16,7 +20,8 @@ $usuarios = $departamento->obtenerUsuariosActivos();
 $sedes = $departamento->listarSedesActivas();
 
 $titulo_pagina = "Editar Departamento";
-include_once('../../shared/header.php');
+// Incluir header usando rutas dinámicas
+safe_include_once(shared_header_path());
 ?>
 
 <div class="container mt-4">

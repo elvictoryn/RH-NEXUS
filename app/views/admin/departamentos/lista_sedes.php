@@ -1,8 +1,13 @@
 <?php
 if (!isset($_SESSION)) session_start();
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
 $titulo_pagina = "Lista de Sedes";
-include_once('../../shared/header.php');
-require_once('../../../models/Sede.php');
+
+// Incluir header y modelo usando rutas dinámicas
+safe_include_once(shared_header_path());
+safe_require_once(model_path('Sede'));
 
 $sede = new Sede();
 $listaSedes = $sede->obtenerTodas();

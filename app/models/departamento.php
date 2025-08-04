@@ -1,5 +1,9 @@
 <?php
-require_once(__DIR__ . '/../../config/conexion.php');
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../config/paths.php');
+
+// Incluir conexión usando ruta dinámica
+safe_require_once(config_path('conexion.php'));
 
 class Departamento {
     private $pdo;

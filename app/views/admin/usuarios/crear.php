@@ -1,7 +1,11 @@
 <?php 
 if (!isset($_SESSION)) session_start();
 $titulo_pagina = "Crear Usuario"; // Cambia según la página
-include_once('../../shared/header.php');
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
+// Incluir header usando rutas dinámicas
+safe_include_once(shared_header_path());
 ?>
 <div class="d-flex gap-2">
   <a href="menu.php" class="btn btn-outline-light">← Regresar</a>

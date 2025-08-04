@@ -1,0 +1,85 @@
+@startuml "Nexus RH - Flujo de Crear Usuario"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam diamond {
+    BackgroundColor #FFF3CD
+    BorderColor #FFC107
+    FontColor #856404
+}
+skinparam start {
+    BackgroundColor #D4EDDA
+    BorderColor #28A745
+    FontColor #155724
+}
+skinparam stop {
+    BackgroundColor #F8D7DA
+    BorderColor #DC3545
+    FontColor #721C24
+}
+
+title "Flujo de Crear Usuario - Nexus RH"
+
+start
+
+:Administrador accede al formulario;
+
+:Completa datos del usuario;
+
+note right
+Validación en tiempo real:
+- Usuario único
+- Número empleado único
+end note
+
+if (¿Usuario ya existe?) then (Sí)
+    :Mostrar error de usuario duplicado;
+    :Limpiar campo usuario;
+    stop
+else (No)
+    if (¿Número empleado ya existe?) then (Sí)
+        :Mostrar error de número duplicado;
+        :Limpiar campo número empleado;
+        stop
+    else (No)
+        :Continuar con validación;
+    endif
+endif
+
+if (¿Todos los campos obligatorios?) then (Sí)
+    :Procesar datos del formulario;
+    :Encriptar contraseña;
+    
+    if (¿Hay fotografía?) then (Sí)
+        :Procesar imagen;
+        :Generar nombre único;
+        :Guardar archivo;
+    else (No)
+        :Asignar nombre vacío;
+    endif
+    
+    :Insertar usuario en base de datos;
+    
+    if (¿Usuario creado exitosamente?) then (Sí)
+        :Mostrar mensaje de éxito;
+        :Limpiar formulario;
+        :Ocultar vista previa;
+        stop
+    else (No)
+        :Mostrar error de creación;
+        :Mantener datos del formulario;
+        stop
+    endif
+else (No)
+    :Mostrar error de campos incompletos;
+    :Resaltar campos faltantes;
+    stop
+endif
+
+stop
+
+@enduml 

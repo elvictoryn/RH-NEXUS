@@ -1,5 +1,9 @@
 <?php
-require_once("../models/Usuario.php");
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../config/paths.php');
+
+// Incluir modelo de Usuario usando ruta dinámica
+safe_require_once(model_path('Usuario'));
 
 // Verificación duplicados
 if (isset($_POST['validar_usuario'])) {

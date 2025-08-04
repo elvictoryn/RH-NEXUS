@@ -1,9 +1,15 @@
 <?php
 if (!isset($_SESSION)) session_start();
-require_once('../../../models/departamento.php');
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
+// Incluir modelo usando rutas dinámicas
+safe_require_once(model_path('departamento'));
 
 $titulo_pagina = "Lista de Departamentos";
-include_once('../../shared/header.php');
+
+// Incluir header usando rutas dinámicas
+safe_include_once(shared_header_path());
 
 $departamento = new Departamento();
 $departamentos = $departamento->obtenerTodosConSedeYResponsable();

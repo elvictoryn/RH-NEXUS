@@ -1,7 +1,12 @@
 <?php
 if (!isset($_SESSION)) session_start();
-require_once($_SERVER['DOCUMENT_ROOT'] . '/sistema_rh/config/conexion.php'); 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/sistema_rh/app/models/Usuario.php');
+
+// Incluir sistema de rutas dinámicas
+require_once __DIR__ . '/../../../config/paths.php';
+
+// Incluir conexión y modelo usando rutas dinámicas
+safe_require_once(config_path('conexion.php'));
+safe_require_once(model_path('Usuario'));
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id = $_POST['id'];
@@ -17,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Si hay una nueva foto
     if (!empty($_FILES['fotografia']['name'])) {
         $nombre_foto = uniqid() . '_' . $_FILES['fotografia']['name'];
-        $ruta_destino = '../../../public/uploads/' . $nombre_foto;
+        $ruta_destino = uploads_path($nombre_foto);
         move_uploaded_file($_FILES['fotografia']['tmp_name'], $ruta_destino);
     } else {
         $nombre_foto = $_POST['foto_actual'];

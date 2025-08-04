@@ -1,6 +1,11 @@
 <?php
 session_start();
-require_once '../config/conexion.php';
+
+// Incluir sistema de rutas dinámicas
+require_once __DIR__ . '/../app/config/paths.php';
+
+// Incluir conexión usando rutas dinámicas
+safe_require_once(config_path('conexion.php'));
 
 $pdo = Conexion::getConexion(); // ← Esta línea es clave
 
@@ -16,23 +21,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION['usuario'] = $user['usuario'];
         $_SESSION['rol'] = $user['rol'];
 
-        // Redirección según el rol
-        switch ($user['rol']) {
-            case 'admin':
-                header("Location: ../app/views/admin/index.php");
-                break;
-            case 'rh':
-                header("Location: ../app/views/admin/rh/index.php");
-                break;
-            case 'gerente':
-                header("Location: ../app/views/admin/gerente/index.php");
-                break;
-            case 'jefe_area':
-                header("Location: ../app/views/admin/jefe_area/index.php");
-                break;
-            default:
-                echo "Rol no válido.";
-        }
+        // Redirección según el rol usando Auth class
+        safe_require_once(model_path('Auth'));
+        Auth::redirigirDashboard();
         exit;
     } else {
         $error = "Usuario o contraseña incorrectos.";

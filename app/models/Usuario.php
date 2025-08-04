@@ -1,9 +1,20 @@
 <?php
+// Incluir sistema de rutas dinámicas si no está ya incluido
+if (!defined('ROOT_PATH')) {
+    require_once(__DIR__ . '/../config/paths.php');
+    safe_require_once(config_path('conexion.php'));
+}
+
 class Usuario {
     private $conn;
 
     public function __construct() {
-        $this->conn = new mysqli('localhost', 'root', '', 'sistema_rh');
+        // Incluir configuración de rutas para obtener las constantes de DB
+        if (!defined('DB_HOST')) {
+            require_once __DIR__ . '/../config/paths.php';
+        }
+        
+        $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
         if ($this->conn->connect_error) {
             die("Conexión fallida: " . $this->conn->connect_error);
         }

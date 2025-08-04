@@ -1,6 +1,10 @@
 <?php
 if (!isset($_SESSION)) session_start();
-require_once('../../../models/Sede.php');
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
+// Incluir modelo usando rutas dinámicas
+safe_require_once(model_path('Sede'));
 
 
 if (isset($_GET['verificar_nombre'])) {
@@ -11,7 +15,8 @@ if (isset($_GET['verificar_nombre'])) {
 }
 
 $titulo_pagina = "Registrar Sede";
-include_once('../../shared/header.php');
+// Incluir header usando rutas dinámicas
+safe_include_once(shared_header_path());
 
 $mensaje_exito = $_SESSION['sede_guardada'] ?? null;
 $mensaje_error = $_SESSION['error_guardado'] ?? null;

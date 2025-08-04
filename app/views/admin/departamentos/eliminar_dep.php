@@ -1,6 +1,10 @@
 <?php
 if (!isset($_SESSION)) session_start();
-require_once('../../../models/departamento.php');
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
+// Incluir modelo usando rutas dinámicas
+safe_require_once(model_path('departamento'));
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     $_SESSION['error_departamento'] = "ID inválido.";

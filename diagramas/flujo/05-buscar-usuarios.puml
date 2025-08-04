@@ -1,0 +1,81 @@
+@startuml "Nexus RH - Flujo de Buscar Usuarios"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam diamond {
+    BackgroundColor #FFF3CD
+    BorderColor #FFC107
+    FontColor #856404
+}
+skinparam start {
+    BackgroundColor #D4EDDA
+    BorderColor #28A745
+    FontColor #155724
+}
+skinparam stop {
+    BackgroundColor #F8D7DA
+    BorderColor #DC3545
+    FontColor #721C24
+}
+
+title "Flujo de Buscar Usuarios - Nexus RH"
+
+start
+
+:Usuario accede a lista de usuarios;
+
+:Cargar todos los usuarios;
+
+:Mostrar tabla de usuarios;
+
+note right
+Funcionalidades disponibles:
+- Búsqueda en tiempo real
+- Filtros por rol/departamento
+- Acciones: Ver, Editar, Eliminar
+end note
+
+:Usuario interactúa con la lista;
+
+if (¿Escribe término de búsqueda?) then (Sí)
+    :Filtrar resultados en tiempo real;
+    :Mostrar usuarios que coinciden;
+else (No)
+    :Mostrar todos los usuarios;
+endif
+
+if (¿Selecciona acción?) then (Sí)
+    if (¿Acción?) then (Ver detalles)
+        :Cargar detalles del usuario;
+        :Mostrar información completa;
+        stop
+    elseif (¿Acción?) then (Editar)
+        :Cargar formulario de edición;
+        :Prellenar datos del usuario;
+        stop
+    else (Eliminar)
+        :Confirmar eliminación;
+        
+        if (¿Confirmar eliminación?) then (Sí)
+            :Eliminar usuario de base de datos;
+            :Mostrar mensaje de confirmación;
+            :Actualizar lista;
+            stop
+        else (No)
+            :Cancelar eliminación;
+            :Volver a lista;
+        endif
+    endif
+else (No)
+    :Continuar en lista;
+endif
+
+:Permitir navegación;
+
+stop
+
+@enduml 

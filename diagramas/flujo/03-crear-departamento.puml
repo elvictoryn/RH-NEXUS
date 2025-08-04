@@ -1,0 +1,76 @@
+@startuml "Nexus RH - Flujo de Crear Departamento"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam diamond {
+    BackgroundColor #FFF3CD
+    BorderColor #FFC107
+    FontColor #856404
+}
+skinparam start {
+    BackgroundColor #D4EDDA
+    BorderColor #28A745
+    FontColor #155724
+}
+skinparam stop {
+    BackgroundColor #F8D7DA
+    BorderColor #DC3545
+    FontColor #721C24
+}
+
+title "Flujo de Crear Departamento - Nexus RH"
+
+start
+
+:Administrador accede al formulario;
+
+:Completa datos del departamento;
+
+note right
+Validación en tiempo real:
+- Nombre único por sede
+- Campos obligatorios
+end note
+
+if (¿Nombre ya existe en la sede?) then (Sí)
+    :Mostrar error de nombre duplicado;
+    :Deshabilitar guardado;
+    stop
+else (No)
+    :Habilitar guardado;
+endif
+
+:Enviar formulario;
+
+if (¿Todos los campos completos?) then (Sí)
+    :Procesar datos del departamento;
+    :Validar nombre único por sede;
+    
+    if (¿Nombre único en la sede?) then (Sí)
+        :Insertar departamento en base de datos;
+        
+        if (¿Departamento creado exitosamente?) then (Sí)
+            :Establecer mensaje de éxito;
+            :Redireccionar con confirmación;
+            stop
+        else (No)
+            :Establecer mensaje de error;
+            :Redireccionar con error;
+            stop
+        endif
+    else (No)
+        :Establecer mensaje de duplicado;
+        :Redireccionar con error;
+        stop
+    endif
+else (No)
+    :Establecer mensaje de campos obligatorios;
+    :Redireccionar con error;
+    stop
+endif
+
+@enduml 

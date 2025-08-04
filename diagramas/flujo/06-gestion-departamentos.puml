@@ -1,0 +1,112 @@
+@startuml "Nexus RH - Flujo de Gestión de Departamentos"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam diamond {
+    BackgroundColor #FFF3CD
+    BorderColor #FFC107
+    FontColor #856404
+}
+skinparam start {
+    BackgroundColor #D4EDDA
+    BorderColor #28A745
+    FontColor #155724
+}
+skinparam stop {
+    BackgroundColor #F8D7DA
+    BorderColor #DC3545
+    FontColor #721C24
+}
+
+title "Flujo de Gestión de Departamentos - Nexus RH"
+
+start
+
+:Usuario accede al módulo de departamentos;
+
+:Determinar rol del usuario;
+
+if (¿Rol?) then (Administrador)
+    :Mostrar opciones completas;
+    :Crear, Editar, Eliminar, Listar;
+elseif (¿Rol?) then (RH)
+    :Mostrar opciones de consulta;
+    :Consultar, Asignar personal;
+elseif (¿Rol?) then (Gerente)
+    :Mostrar opciones de área;
+    :Consultar departamentos de área;
+else (Jefe de Área)
+    :Mostrar opciones limitadas;
+    :Consultar mi departamento;
+endif
+
+:Usuario selecciona acción;
+
+if (¿Acción?) then (Crear Departamento)
+    :Acceder a formulario de creación;
+    :Completar datos del departamento;
+    :Validar nombre único por sede;
+    
+    if (¿Datos válidos?) then (Sí)
+        :Guardar departamento;
+        :Mostrar confirmación;
+        stop
+    else (No)
+        :Mostrar errores;
+        :Permitir corrección;
+    endif
+    
+elseif (¿Acción?) then (Editar Departamento)
+    :Seleccionar departamento;
+    :Cargar datos actuales;
+    :Modificar información;
+    :Validar cambios;
+    
+    if (¿Cambios válidos?) then (Sí)
+        :Actualizar departamento;
+        :Mostrar confirmación;
+        stop
+    else (No)
+        :Mostrar errores;
+        :Permitir corrección;
+    endif
+    
+elseif (¿Acción?) then (Eliminar Departamento)
+    :Seleccionar departamento;
+    :Confirmar eliminación;
+    
+    if (¿Confirmar?) then (Sí)
+        :Verificar que no tenga usuarios;
+        
+        if (¿Sin usuarios?) then (Sí)
+            :Eliminar departamento;
+            :Mostrar confirmación;
+            stop
+        else (No)
+            :Mostrar error de dependencias;
+            :Cancelar eliminación;
+        endif
+    else (No)
+        :Cancelar eliminación;
+    endif
+    
+else (Listar Departamentos)
+    :Cargar lista de departamentos;
+    
+    if (¿Aplicar filtros?) then (Sí)
+        :Filtrar por sede/estado;
+        :Mostrar resultados filtrados;
+    else (No)
+        :Mostrar todos los departamentos;
+    endif
+    
+    :Permitir navegación;
+endif
+
+stop
+
+@enduml 

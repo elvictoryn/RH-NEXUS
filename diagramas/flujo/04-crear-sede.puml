@@ -1,0 +1,71 @@
+@startuml "Nexus RH - Flujo de Crear Sede"
+!theme plain
+skinparam backgroundColor #F8F9FA
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #6c757d
+    FontColor #212529
+}
+skinparam diamond {
+    BackgroundColor #FFF3CD
+    BorderColor #FFC107
+    FontColor #856404
+}
+skinparam start {
+    BackgroundColor #D4EDDA
+    BorderColor #28A745
+    FontColor #155724
+}
+skinparam stop {
+    BackgroundColor #F8D7DA
+    BorderColor #DC3545
+    FontColor #721C24
+}
+
+title "Flujo de Crear Sede - Nexus RH"
+
+start
+
+:Administrador accede al formulario;
+
+:Completa datos de la sede;
+
+note right
+Datos requeridos:
+- Nombre de la sede
+- Dirección completa
+- Información de contacto
+end note
+
+:Enviar formulario;
+
+if (¿Todos los campos completos?) then (Sí)
+    :Procesar datos de la sede;
+    :Validar nombre único;
+    
+    if (¿Nombre único?) then (Sí)
+        :Insertar sede en base de datos;
+        
+        if (¿Sede creada exitosamente?) then (Sí)
+            :Establecer mensaje de éxito;
+            :Redireccionar con confirmación;
+            stop
+        else (No)
+            :Establecer mensaje de error;
+            :Redireccionar con error;
+            stop
+        endif
+    else (No)
+        :Establecer mensaje de duplicado;
+        :Redireccionar con error;
+        stop
+    endif
+else (No)
+    :Establecer mensaje de campos obligatorios;
+    :Redireccionar con error;
+    stop
+endif
+
+stop
+
+@enduml 

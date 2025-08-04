@@ -1,8 +1,13 @@
 <?php 
+// Incluir sistema de rutas dinámicas
+require_once(__DIR__ . '/../../../config/paths.php');
+
 if (!isset($_SESSION)) session_start();
 $titulo_pagina = "Lista de Usuarios"; 
-include_once('../../shared/header.php');
-require_once('../../../models/Usuario.php');
+
+// Incluir header y modelo usando rutas dinámicas
+safe_include_once(shared_header_path());
+safe_require_once(model_path('Usuario'));
 $modelo = new Usuario();
 $usuarios = $modelo->obtenerTodos();
 ?>

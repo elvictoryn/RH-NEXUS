@@ -1,10 +1,12 @@
 
 <?php
-session_start();
-if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
-    header('Location: ../../../public/login.php');
-    exit;
-}
+// Incluir sistema de autenticación
+require_once __DIR__ . '/../../includes/auth_helpers.php';
+
+// Verificar que sea administrador
+soloAdmin();
+
+// Para admin no se requiere verificación de contexto (acceso total)
 ?>
 
 <!DOCTYPE html>
@@ -73,8 +75,17 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
          <!-- Resultados -->
         <div class="col-md-4">
             <div class="custom-card h-100">
-                <h5><i class="fas fa-chart-line me-2"></i>modulo de IA</h5>
-                <p>analisis y resultados de IA .</p>
+                <h5><i class="fas fa-chart-line me-2"></i>Resultados</h5>
+                <p>Estadísticas y desempeño del proceso.</p>
+                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
+            </div>
+        </div>
+
+        <!-- Módulo IA -->
+        <div class="col-md-4">
+            <div class="custom-card h-100">
+                <h5><i class="fas fa-robot me-2"></i>Módulo IA</h5>
+                <p>Análisis y resultados de inteligencia artificial.</p>
                 <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
             </div>
         </div>

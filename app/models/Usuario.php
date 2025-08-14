@@ -1,128 +1,92 @@
+
 <?php
+require_once(__DIR__ . '/../../config/conexion.php');
+// models/usuario.php
 class Usuario {
-    private $conn;
+    private $pdo;
 
     public function __construct() {
-        $this->conn = new mysqli('localhost', 'root', '', 'sistema_rh');
-        if ($this->conn->connect_error) {
-            die("Conexión fallida: " . $this->conn->connect_error);
-        }
+        $this->pdo = Conexion::getConexion();
     }
 
-    public function crear($usuario, $contrasena, $rol, $nombre_completo, $departamento, $sede, $numero_empleado, $correo, $estado, $foto_nombre) {
-        $sql = "INSERT INTO usuarios (
-            usuario, contrasena, rol, nombre_completo, departamento, sede,
-            numero_empleado, correo, estado, fotografia, fecha_registro
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    public function crear($datos) {
+        $sql = "INSERT INTO usuarios 
+            (nombre_completo, usuario, contrasena, rol, numero_empleado, correo, sede_id, departamento_id, telefono, fotografia, estado)
+            VALUES 
+            (:nombre_completo, :usuario, :contrasena, :rol, :numero_empleado, :correo, :sede_id, :departamento_id, :telefono, :fotografia, 'activo')";
 
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) return false;
-
-        $stmt->bind_param("ssssssssss", $usuario, $contrasena, $rol, $nombre_completo,
-            $departamento, $sede, $numero_empleado, $correo, $estado, $foto_nombre);
-
-        return $stmt->execute();
-    }
-    //funcion para revisar en el momento si el usuario, numero de empleado ya existe 
-    public function existeUsuario($usuario, $numero_empleado) {
-        $sql = "SELECT id FROM usuarios WHERE usuario = ? OR numero_empleado = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ss", $usuario, $numero_empleado);
-        $stmt->execute();
-        $stmt->store_result();
-        return $stmt->num_rows > 0;
-    }
-    //funcion para listar los usuarios creados 
-    public function listar() {
-    $sql = "SELECT * FROM usuarios ORDER BY fecha_registro DESC";
-    $result = $this->conn->query($sql);
-    $datos = [];
-    while ($fila = $result->fetch_assoc()) {
-        $datos[] = $fila;
-    }
-    return $datos;
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':nombre_completo'     => $datos['nombre_completo'],
+            ':usuario'             => $datos['usuario'],
+            ':contrasena'          => $datos['contrasena'],
+            ':rol'                 => $datos['rol'],
+            ':numero_empleado'     => $datos['numero_empleado'],
+            ':correo'              => $datos['correo'],
+            ':sede_id'             => $datos['sede_id'],
+            ':departamento_id'     => $datos['departamento_id'],
+            ':telefono'            => $datos['telefono'],
+            ':fotografia'          => $datos['fotografia']
+        ]);
     }
 
-    //funcion prara llamar los datos desde la base de datos al listado de usuarios 
-    public function obtenerTodos() {
-    $sql = "SELECT id, usuario, rol, nombre_completo, departamento, sede, numero_empleado, correo, estado FROM usuarios";
-    $resultado = $this->conn->query($sql);
-    $usuarios = [];
-
-    if ($resultado && $resultado->num_rows > 0) {
-        while ($fila = $resultado->fetch_assoc()) {
-            $usuarios[] = $fila;
-        }
+    public function existeUsuario($usuario) {
+        $stmt = $this->pdo->prepare("SELECT id FROM usuarios WHERE usuario = ?");
+        $stmt->execute([$usuario]);
+        return $stmt->fetch() ? true : false;
     }
 
-    return $usuarios;
+    public function existeNumeroEmpleado($numero) {
+        $stmt = $this->pdo->prepare("SELECT id FROM usuarios WHERE numero_empleado = ?");
+        $stmt->execute([$numero]);
+        return $stmt->fetch() ? true : false;
+    }
+
+    public function existeJefeEnDepartamento($sede_id, $departamento_id) {
+        $stmt = $this->pdo->prepare("SELECT id FROM usuarios WHERE rol = 'jefe_area' AND sede_id = ? AND departamento_id = ? AND estado = 'activo'");
+        $stmt->execute([$sede_id, $departamento_id]);
+        return $stmt->fetch() ? true : false;
+    }
+
+    public function existeGerenteEnSede($sede_id) {
+        $stmt = $this->pdo->prepare("SELECT id FROM usuarios WHERE rol = 'gerente' AND sede_id = ? AND estado = 'activo'");
+        $stmt->execute([$sede_id]);
+        return $stmt->fetch() ? true : false;
+    }
+    public function obtenerTodosActivos() {
+    $sql = "SELECT 
+                u.id,
+                u.nombre_completo,
+                u.usuario,
+                u.numero_empleado,
+                u.rol,
+                u.correo,
+                u.telefono,
+                u.fotografia,
+                u.estado,
+                d.nombre AS nombre_departamento,
+                s.nombre AS nombre_sede
+            FROM usuarios u
+            LEFT JOIN departamentos d ON u.departamento_id = d.id
+            LEFT JOIN sedes s ON u.sede_id = s.id
+            WHERE u.estado = 'activo'
+            ORDER BY u.nombre_completo ASC";
+
+    $stmt = $this->pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+public function eliminarLogico($id) {
+    $stmt = $this->pdo->prepare("UPDATE usuarios SET estado = 'inactivo' WHERE id = ?");
+    return $stmt->execute([$id]);
 }
 
-//metodo para ver los detalles de los usuarios 
+
+
 public function obtenerPorId($id) {
-    $sql = "SELECT * FROM usuarios WHERE id = ?";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-    return $resultado->fetch_assoc();
-}
-public function actualizar($id, $datos) {
-    $campos = [];
-    foreach ($datos as $key => $value) {
-        $campos[] = "$key = ?";
-    }
-
-    $sql = "UPDATE usuarios SET " . implode(", ", $campos) . " WHERE id = ?";
-    $stmt = $this->pdo->prepare($sql);
-    $valores = array_values($datos);
-    $valores[] = $id;
-    $stmt->execute($valores);
-}
-public function actualizarConPassword($id, $usuario, $contrasena, $rol, $nombre_completo, $departamento, $sede, $numero_empleado, $correo, $fotografia) {
-    $sql = "UPDATE usuarios SET 
-              usuario = ?, 
-              contrasena = ?, 
-              rol = ?, 
-              nombre_completo = ?, 
-              departamento = ?, 
-              sede = ?, 
-              numero_empleado = ?, 
-              correo = ?, 
-              fotografia = ? 
-            WHERE id = ?";
-
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("sssssssssi", $usuario, $contrasena, $rol, $nombre_completo, $departamento, $sede, $numero_empleado, $correo, $fotografia, $id);
-    return $stmt->execute();
-}
-
-public function actualizarSinPassword($id, $usuario, $rol, $nombre_completo, $departamento, $sede, $numero_empleado, $correo, $fotografia) {
-    $sql = "UPDATE usuarios SET 
-              usuario = ?, 
-              rol = ?, 
-              nombre_completo = ?, 
-              departamento = ?, 
-              sede = ?, 
-              numero_empleado = ?, 
-              correo = ?, 
-              fotografia = ? 
-            WHERE id = ?";
-
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("ssssssssi", $usuario, $rol, $nombre_completo, $departamento, $sede, $numero_empleado, $correo, $fotografia, $id);
-    return $stmt->execute();
-}
-///==================================================================================================================================
-public function obtenerPorRol($rol) {
-    $stmt = $this->conn->prepare("SELECT * FROM usuarios WHERE rol = ?");
-    $stmt->bind_param("s", $rol);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-    return $resultado->fetch_all(MYSQLI_ASSOC);
+    $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 
 }
-
-

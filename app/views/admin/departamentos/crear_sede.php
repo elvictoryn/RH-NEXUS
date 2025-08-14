@@ -20,7 +20,7 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
 
 <div class="container mt-4">
   <div class="card shadow p-4 bg-light">
-    <h2 class="text-primary mb-4">Registrar Nueva Sede</h2>
+    <h2 class="text-primary mb-4"> ➕ Registrar Nueva Sede</h2>
 
     <?php if ($mensaje_exito): ?>
       <div class="alert alert-success text-center fw-bold">

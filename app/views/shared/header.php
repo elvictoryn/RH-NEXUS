@@ -61,7 +61,7 @@
 
     <!-- Usuario logueado y botón de salir -->
     <div class="d-flex text-white">
-      <span class="me-3"><i class="fas fa-user-circle me-1"></i><?= $_SESSION['usuario'] ?></span>
+      <span class="me-3"><i class="fas fa-user-circle me-1"></i><?= $_SESSION['usuarios'] ?></span>
       <a href="/sistema_rh/public/logout.php" class="btn btn-light btn-sm">Cerrar sesión</a>
     </div>
   </div>

@@ -26,7 +26,7 @@ include_once __DIR__ . '/../../shared/header.php';
         <i class="fas fa-user-plus fa-2x mb-3 text-primary"></i>
         <h5>Nuevo Usuario</h5>
         <p>Registrar un nuevo usuario con su rol correspondiente.</p>
-        <a href="crear.php" class="btn btn-primary w-100">Crear Usuario</a>
+        <a href="crear_usuario.php" class="btn btn-primary w-100">Crear Usuario</a>
       </div>
     </div>
 
@@ -36,7 +36,7 @@ include_once __DIR__ . '/../../shared/header.php';
         <i class="fas fa-users-cog fa-2x mb-3 text-primary"></i>
         <h5>Administrar Usuarios</h5>
         <p>Consultar y gestionar los usuarios ya registrados.</p>
-        <a href="lista.php" class="btn btn-primary w-100">Ver Usuarios</a>
+        <a href="lista_usuario.php" class="btn btn-primary w-100">Ver Usuarios</a>
       </div>
     </div>
       <div class="mt-5 text-center">

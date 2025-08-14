@@ -116,7 +116,27 @@ public function obtenerUsuariosActivos() {
         ':id' => $id
     ]);
     return $stmt->fetchColumn() > 0;
+
+
+
+    
+    ///models para llamar a la tabla sedes y departamentos dentro del modulo de usuarios ///////////////
 }
+     public function obtenerSedes() {
+        $stmt = $this->pdo->prepare("SELECT id, nombre FROM sedes WHERE activo = 1 ORDER BY nombre ASC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
+    public function obtenerTodosActivos() {
+        $stmt = $this->pdo->query("SELECT * FROM departamentos WHERE estado = 1 ORDER BY nombre ASC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
+    public function obtenerPorSede($sede_id) {
+        $stmt = $this->pdo->prepare("SELECT id, nombre, responsable_id FROM departamentos WHERE sede_id = ? AND estado = 1 ORDER BY nombre ASC");
+        $stmt->execute([$sede_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 }

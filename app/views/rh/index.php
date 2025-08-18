@@ -34,6 +34,15 @@ verificarContextoRol();
     </div>
     
     <div class="row g-4">
+        <!-- Tarjeta Candidatos -->
+        <div class="col-md-4">
+            <div class="custom-card h-100">
+                <h5><i class="fas fa-user-plus me-2"></i>Candidatos</h5>
+                <p>Gestionar candidatos, crear, editar y evaluar perfiles.</p>
+                <a href="candidatos/menu.php" class="btn btn-primary w-100">Ir al módulo</a>
+            </div>
+        </div>
+
         <!-- Tarjeta Usuarios -->
         <div class="col-md-4">
             <div class="custom-card h-100">
@@ -46,9 +55,9 @@ verificarContextoRol();
         <!-- Tarjeta Solicitudes -->
         <div class="col-md-4">
             <div class="custom-card h-100">
-                <h5><i class="fas fa-envelope me-2"></i>Solicitudes</h5>
-                <p>Procesar solicitudes de nuevos candidatos.</p>
-                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
+                <h5><i class="fas fa-file-alt me-2"></i>Solicitudes</h5>
+                <p>Crear y gestionar solicitudes de personal para diferentes departamentos.</p>
+                <a href="solicitudes/menu.php" class="btn btn-primary w-100">Ir al módulo</a>
             </div>
         </div>
 
@@ -60,19 +69,23 @@ verificarContextoRol();
                 <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
             </div>
         </div>
-    </div>
-</div>
 
-</body>
-</html>
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Resultados</h5>
-                        <p class="card-text">Consultar estadísticas y desempeño del proceso de selección.</p>
-                        <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
-                    </div>
-                </div>
+        <!-- Resultados -->
+        <div class="col-md-4">
+            <div class="custom-card h-100">
+                <h5><i class="fas fa-chart-line me-2"></i>Resultados</h5>
+                <p>Consultar estadísticas y desempeño del proceso de selección.</p>
+                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
             </div>
+        </div>
 
+        <!-- Módulo IA -->
+        <div class="col-md-4">
+            <div class="custom-card h-100">
+                <h5><i class="fas fa-robot me-2"></i>Módulo IA</h5>
+                <p>Análisis y resultados de inteligencia artificial.</p>
+                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
+            </div>
         </div>
     </div>
 </div>

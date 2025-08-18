@@ -61,6 +61,12 @@ body {
     border-left-color: #008c4e;
 }
 
+.custom-card:has(.btn-success:hover) {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border-left-color: var(--verde-menta);
+}
+
 /* =========================
    Botones
    ========================= */
@@ -73,6 +79,17 @@ body {
 .btn-primary:hover {
     background-color: #008c4e;
     border-color: #008c4e;
+}
+
+.btn-success {
+    background-color: var(--verde-menta);
+    border-color: var(--verde-menta);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #07a876;
+    border-color: #07a876;
 }
 
 .btn-secondary {
@@ -104,38 +121,13 @@ body {
     color: white;
 }
 
-
 /* Efecto hover para filas de tabla */
 .table-hover tbody tr:hover {
-  background-color: #2a2a2a !important;
+  background-color: #f8f9fa !important;
   transition: background-color 0.2s ease;
   cursor: pointer;
 }
-/* Resaltado suave con cambio de color en hover */
-.table-hover tbody tr:hover {
-  background-color: #2f2f2f !important;
-  color: #f8f9fa !important;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  cursor: pointer;
-}
 
-/* Opcional: Mostrar ícono al hacer hover en fila */
-.table-hover tbody tr .hover-icon {
-  display: none;
-  margin-left: 8px;
-  font-size: 14px;
-  opacity: 0.6;
-}
-
-.table-hover tbody tr:hover {
-  background-color: #444c56 !important;
-  color: #ffffff !important;
-  border: 2px solid #17a2b8 !important;
-  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-
-}
 .modal-editar {
   position: fixed;
   top: 0; left: 0;

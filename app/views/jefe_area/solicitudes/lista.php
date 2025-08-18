@@ -191,7 +191,7 @@ unset($_SESSION['solicitud_creada'], $_SESSION['solicitud_editada'], $_SESSION['
                                         <?= ucfirst(str_replace('_', ' ', $solicitud['estado'])) ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td> 
                                     <?php if ($solicitud['estado'] === 'solicita cambios' && !empty($solicitud['cambios_solicitados'])): ?>
                                         
                                         <div class="text-start">

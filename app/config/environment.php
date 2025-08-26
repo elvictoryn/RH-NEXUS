@@ -1,8 +1,9 @@
 <?php
 /**
- * Configuración de Entorno - RH-NEXUS
+ * Configuración de Entorno - RH-NEXUS (Multi-Rama)
  * 
  * Este archivo permite configurar fácilmente el proyecto para diferentes entornos
+ * y ramas del mismo proyecto usando subcarpetas
  * Solo necesitas cambiar las variables según tu configuración
  */
 
@@ -11,12 +12,17 @@
 // ============================================================================
 
 // Nombre de la carpeta del proyecto en el servidor web
-// Ejemplos: 'RH-NEXUS', 'sistema_rh', 'nexus-rh', etc.
-define('PROJECT_FOLDER', 'RH-NEXUS');
+// Ejemplos: 'RH-NEXUS/produccion', 'RH-NEXUS/desarrollo', 'sistema_rh', etc.
+//define('PROJECT_FOLDER', 'RH-NEXUS');                    // Rama principal
+//define('PROJECT_FOLDER', 'RH-NEXUS/produccion');         // Rama de producción
+define('PROJECT_FOLDER', 'RH-NEXUS/bryan');          // Rama de desarrollo
+
 
 // Configuración de la base de datos
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'sistema_rh');
+//define('DB_NAME', 'sistema_rh');
+define('DB_NAME', 'rh_b');
+
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
@@ -122,6 +128,6 @@ function getEnvironmentInfo() {
 
 if (DEBUG_MODE) {
     // Log de configuración en desarrollo
-    error_log("RH-NEXUS Environment Loaded: " . PROJECT_FOLDER);
+    error_log("RH-NEXUS Multi-Rama Environment Loaded: " . PROJECT_FOLDER);
 }
 ?> 

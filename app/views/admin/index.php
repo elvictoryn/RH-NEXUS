@@ -27,7 +27,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
 
         <!-- Tarjeta Usuarios -->
         <div class="col-md-4">
-            <div class="custom-card h-100">
+            <div class="custom-card h-200">
                 <h5><i class="fas fa-users me-2"></i>Usuarios</h5>
                 <p>Alta, edición y control de usuarios del sistema.</p>
                 <a href="usuarios/menu.php" class="btn btn-primary w-100">Ir al módulo</a>
@@ -36,7 +36,7 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
 
         <!-- Tarjeta Requerimientos -->
         <div class="col-md-4">
-            <div class="custom-card h-100">
+            <div class="custom-card h-200">
                 <h5><i class="fas fa-sitemap me-2"></i>Departamentos y Sedes</h5>
                 <p>Administracion de sedes y departamentos </p>
                 <a href="departamentos/menu.php" class="btn btn-primary w-100">Ir al módulo</a>
@@ -45,39 +45,23 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
 
         <!-- Tarjeta Solicitudes -->
         <div class="col-md-4">
-            <div class="custom-card h-100">
+            <div class="custom-card h-200">
                 <h5><i class="fas fa-envelope me-2"></i>Solicitudes</h5>
                 <p>Solicitudes de nuevos candidatos.</p>
-                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
+                <a href="solicitudes/menu.php" class="btn btn-primary w-100">Ir al módulo</a>
             </div>
         </div>
 
         <!-- Evaluaciones -->
         <div class="col-md-4">
-            <div class="custom-card h-100">
-                <h5><i class="fas fa-check-circle me-2"></i>Evaluaciones</h5>
-                <p>Evaluar desempeño de candidatos.</p>
-                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
+            <div class="custom-card h-200">
+                <h5><i class="fas fa-check-circle me-2"></i>Candidatos</h5>
+                <p>Gestion y evaluacion de candidatos.</p>
+                <a href="candidatos/menu.php" class="btn btn-primary w-100">Ir al módulo</a>
             </div>
         </div>
 
-        <!-- Resultados -->
-        <div class="col-md-4">
-            <div class="custom-card h-100">
-                <h5><i class="fas fa-chart-line me-2"></i>Resultados</h5>
-                <p>Estadísticas y desempeño del proceso.</p>
-                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
-            </div>
-        </div>
-
-         <!-- Resultados -->
-        <div class="col-md-4">
-            <div class="custom-card h-100">
-                <h5><i class="fas fa-chart-line me-2"></i>modulo de IA</h5>
-                <p>analisis y resultados de IA .</p>
-                <a href="#" class="btn btn-secondary w-100 disabled">En desarrollo</a>
-            </div>
-        </div>
+        
 
     </div>
 </div>

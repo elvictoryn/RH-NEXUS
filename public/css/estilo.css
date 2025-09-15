@@ -1,169 +1,261 @@
 /* =========================
    Paleta de colores Nexus RH
    ========================= */
-:root {
-    --azul-petroleo: #87a1b7; 
-    --verde-esmeralda: #0D6EFD;
-    --naranja-coral: #FF6B35;
-    --verde-menta: #09BC8A;
-    --gris-azulado: #F5F7FA;
-    --amarillo-mostaza: #F6BD60;
-    --rojo-alerta: #E63946;
-    --texto-principal: #04181e;
-    --blanco-humo: #FAFAFA;
+:root{
+  --azul-petroleo:#87a1b7;
+  --verde-esmeralda:#0D6EFD;  /* tu "primario" (azul Bootstrap) */
+  --naranja-coral:#FF6B35;
+  --verde-menta:#09BC8A;
+  --gris-azulado:#F5F7FA;
+  --amarillo-mostaza:#F6BD60;
+  --rojo-alerta:#E63946;
+  --texto-principal:#04181e;
+  --blanco-humo:#FAFAFA;
 }
 
 /* =========================
-   General
+   Base / Layout
    ========================= */
-body {
-    background-color: var(--azul-petroleo);
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    color: var(--blanco-humo);
+html,body{height:100%}
+body{
+  margin:0; padding:0;
+  font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--blanco-humo);
+  /* Fondo con leve degradado para más “profundidad” */
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.0) 35%) ,
+    var(--azul-petroleo);
+}
+
+/* Contenedores principales */
+.container, .container-fluid{ position:relative; }
+
+
+/* =========================
+   Botones (tema)
+   ========================= */
+.btn-primary{
+  background:var(--verde-esmeralda);
+  border-color:var(--verde-esmeralda);
+  color:#fff;
+}
+.btn-primary:hover{ background:#0b5ed7; border-color:#0b5ed7; }
+
+.btn-secondary{
+  background:var(--naranja-coral);
+  border-color:var(--naranja-coral);
+  color:#fff;
+}
+.btn-secondary:hover{ background:#e85a27; border-color:#e85a27; }
+
+.btn-outline-primary{
+  color:var(--verde-esmeralda);
+  border-color:var(--verde-esmeralda);
+  background:transparent;
+}
+.btn-outline-primary:hover,.btn-outline-primary:focus{
+  color:#fff; background:var(--verde-esmeralda); border-color:var(--verde-esmeralda);
 }
 
 /* =========================
-   Navbar
+   Tarjetas generales (módulos)
    ========================= */
-.navbar {
-    background-color: var(--azul-petroleo);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+.custom-card{
+  background:var(--gris-azulado);
+  color:var(--texto-principal);
+  padding:20px;
+  border-radius:12px;
+  border-left:5px solid var(--verde-esmeralda);
+  box-shadow:0 4px 15px rgba(0,0,0,.2);
+  transition:transform .3s ease, box-shadow .3s ease;
 }
-
-.navbar-brand,
-.navbar .nav-link,
-.navbar .text-white {
-    color: var(--blanco-humo) !important;
-}
-
-.navbar .nav-link:hover {
-    color: var(--verde-menta) !important;
-}
-
-/* =========================
-   Tarjetas (Módulos)
-   ========================= */
-.custom-card {
-    background-color: var(--gris-azulado);
-    color: var(--texto-principal);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    border-left: 5px solid var(--verde-esmeralda);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.custom-card:has(.btn-primary:hover) {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    border-left-color: #008c4e;
-}
-
-/* =========================
-   Botones
-   ========================= */
-.btn-primary {
-    background-color: var(--verde-esmeralda);
-    border-color: var(--verde-esmeralda);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #008c4e;
-    border-color: #008c4e;
-}
-
-.btn-secondary {
-    background-color: var(--naranja-coral);
-    border-color: var(--naranja-coral);
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #e85a27;
-    border-color: #e85a27;
+.custom-card:has(.btn-primary:hover){
+  transform:translateY(-4px);
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+  border-left-color:#0b5ed7;
 }
 
 /* =========================
    Alertas
    ========================= */
-.alert-success {
-    background-color: var(--verde-menta);
-    color: var(--texto-principal);
+.alert-success{ background:var(--verde-menta); color:var(--texto-principal); }
+.alert-warning{ background:var(--amarillo-mostaza); color:var(--texto-principal); }
+.alert-danger{ background:var(--rojo-alerta); color:#fff; }
+
+/* =========================
+   Sub-header (Título + contador + switch + CTA)
+   Soporta .subhead y .page-head
+   ========================= */
+.subhead, .page-head{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; flex-wrap:wrap;
+  padding:.85rem 1rem;
+  border-radius:16px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.35);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
+}
+.subhead .title, .page-head .page-title, .page-title{
+  margin:0; color:#fff;
+  font-weight:800; letter-spacing:.2px;
+  font-size:clamp(1.6rem, 2vw + .8rem, 2.2rem);
+}
+.badge-soft{
+  background:#e9f2ff; /* claro azulado */
+  color:#1f2937;
+  border:1px solid #cfe0ff;
+  font-weight:600;
 }
 
-.alert-warning {
-    background-color: var(--amarillo-mostaza);
-    color: var(--texto-principal);
+/* Switch Tarjetas/Tabla: radios .btn-check o grupo .btn-group */
+.view-switch .btn{ padding:.45rem .9rem; border-radius:.6rem; }
+.view-switch .btn + .btn{ margin-left:.35rem; }
+.btn-check:checked + label.btn{
+  color:#fff; background:var(--verde-esmeralda); border-color:var(--verde-esmeralda);
+  box-shadow:0 0 0 .15rem rgba(13,110,253,.2);
+}
+/* fallback para botón activo sin radios */
+.view-switch .btn.active{
+  color:#fff; background:var(--verde-esmeralda); border-color:var(--verde-esmeralda);
 }
 
-.alert-danger {
-    background-color: var(--rojo-alerta);
-    color: white;
+/* =========================
+   Barra de filtros (soporta .filters y .toolbar)
+   ========================= */
+.filters, .toolbar{
+  margin-top:.75rem;
+  background:rgba(255,255,255,.86);
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  padding:.9rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  color:var(--texto-principal);
+}
+.h44 .form-control, .h44 .form-select, .h44 .btn{ height:44px; }
+.filters .form-control, .filters .form-select,
+.toolbar .form-control, .toolbar .form-select{
+  background:#fff; color:var(--texto-principal); border-color:#d1d5db;
+}
+.filters ::placeholder, .toolbar ::placeholder{ color:#9aa4b2; }
+.input-icon .input-group-text{ background:#fff; border-right:0; color:#94a3b8; }
+.input-icon .form-control{ border-left:0; }
+
+/* =========================
+   LISTA DE USUARIOS – Tarjetas (grid)
+   ========================= */
+.grid, .user-grid{
+  display:grid; grid-template-columns:repeat(1,1fr); gap:1rem;
+}
+@media (min-width:576px){ .grid, .user-grid{ grid-template-columns:repeat(2,1fr);} }
+@media (min-width:992px){ .grid, .user-grid{ grid-template-columns:repeat(3,1fr);} }
+@media (min-width:1200px){ .grid, .user-grid{ grid-template-columns:repeat(4,1fr);} }
+
+.user-card{
+  position:relative; overflow:hidden;
+  border:1px solid #e5e7eb; border-radius:16px; background:#fff; color:var(--texto-principal);
+}
+.user-card .banner{
+  height:70px;
+  background:linear-gradient(135deg, var(--verde-esmeralda), #6ea8fe 55%, var(--amarillo-mostaza));
+}
+.user-card .avatar-wrap{ position:relative; display:flex; justify-content:center; margin-top:-36px; }
+.user-card .avatar{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid #fff; background:#fff; }
+.user-card .body{ padding:.75rem .75rem 1rem; }
+.user-card .name{ font-weight:700; margin:.25rem 0 0; }
+.user-card .username{ color:#64748b; font-size:.9rem; }
+
+.pill{
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.25rem .6rem; border-radius:999px; font-size:.78rem;
+  border:1px solid #e5e7eb; background:#f8fafc; color:#334155;
+}
+.pill .dot{ width:.5rem; height:.5rem; border-radius:50%; }
+
+.pill-role-admin   { background:#fff1f2; border-color:#ffe4e6; }
+.pill-role-rh      { background:#f0fdf4; border-color:#dcfce7; }
+.pill-role-jefe    { background:#eef2ff; border-color:#e0e7ff; }
+.pill-role-gerente { background:#fff7ed; border-color:#ffedd5; }
+
+.role-dot-admin{ background:#ef4444; }
+.role-dot-rh{ background:var(--verde-menta); }
+.role-dot-jefe{ background:#6366f1; }
+.role-dot-gerente{ background:#f59e0b; }
+
+.tag{
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.25rem .5rem; border-radius:.5rem; background:#f1f5f9; color:#334155; font-size:.78rem;
+}
+.tag i{ font-style:normal; opacity:.7; }
+
+.uc-actions{ position:absolute; top:.5rem; right:.5rem; display:flex; gap:.35rem; }
+.uc-actions .btn{ padding:.25rem .5rem; border-radius:.5rem; }
+.uc-footer{ display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.5rem .75rem .9rem; }
+.uc-footer .meta{ font-size:.8rem; color:#64748b; }
+
+/* =========================
+   LISTA DE USUARIOS – Tabla
+   ========================= */
+.table > :not(caption) > * > *{ vertical-align:middle; }
+.thumb{ width:48px; height:48px; border-radius:.5rem; object-fit:cover; border:1px solid #e5e7eb; background:#fff; }
+.actions-col{ white-space:nowrap; }
+
+/* ÚNICA regla de hover (reemplaza a las anteriores duplicadas) */
+.table-hover tbody tr:hover{
+  background-color: rgba(13,110,253,.10) !important; /* 10% de primario */
+  color: var(--texto-principal) !important;
+  box-shadow: inset 0 0 0 1px rgba(13,110,253,.25);
+  transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+  cursor:pointer;
 }
 
+/* =========================
+   Modales (mantén tu estructura)
+   ========================= */
+.modal-editar{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.6); z-index:1050;
+  display:flex; justify-content:center; align-items:center;
+}
+.contenido-modal{
+  background:#fff; color:var(--texto-principal);
+  padding:20px; border-radius:12px; max-width:700px; width:90%;
+  position:relative; animation:slideDown .3s ease-out;
+}
+.btn-cerrar{ position:absolute; top:10px; right:10px; }
+@keyframes slideDown{ from{ transform:translateY(-50px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
 
-/* Efecto hover para filas de tabla */
-.table-hover tbody tr:hover {
-  background-color: #2a2a2a !important;
-  transition: background-color 0.2s ease;
-  cursor: pointer;
+/* ====== Detalles expandibles en la tarjeta ====== */
+.details {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .35s ease;
+  border-top: 1px dashed #e5e7eb;
+  background: #fcfdff;
 }
-/* Resaltado suave con cambio de color en hover */
-.table-hover tbody tr:hover {
-  background-color: #2f2f2f !important;
-  color: #f8f9fa !important;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  cursor: pointer;
-}
+.details.open { /* se maneja la altura por JS; la clase es decorativa por si quieres estilos extra */ }
 
-/* Opcional: Mostrar ícono al hacer hover en fila */
-.table-hover tbody tr .hover-icon {
-  display: none;
-  margin-left: 8px;
-  font-size: 14px;
-  opacity: 0.6;
+.details-body { padding: .75rem 1rem 1rem; color:#04181e; }
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: .5rem .75rem;
 }
+@media (min-width: 768px) {
+  .details-grid { grid-template-columns: 1fr 1fr; }
+}
+.kv { display: flex; gap: .5rem; align-items: baseline; }
+.kv .k { color: #64748b; min-width: 160px; font-weight: 600; }
+.kv .v { color: #04181e; }
 
-.table-hover tbody tr:hover {
-  background-color: #444c56 !important;
-  color: #ffffff !important;
-  border: 2px solid #17a2b8 !important;
-  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
+.btn-details .chev { display:inline-block; transition: transform .25s ease; }
+.btn-details[aria-expanded="true"] .chev { transform: rotate(180deg); }
 
+.details .muted { color:#64748b; font-size:.92rem; }
+.details .error { color: #b91c1c; background: #fee2e2; border:1px solid #fecaca; padding:.5rem .75rem; border-radius:.5rem; }
+.details .spinner {
+  display:inline-block; width:16px; height:16px; border-radius:50%;
+  border:2px solid #cfe0ff; border-top-color:#0D6EFD; animation: spin .8s linear infinite; vertical-align:middle;
 }
-.modal-editar {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1050;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.contenido-modal {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 700px;
-  width: 90%;
-  position: relative;
-  animation: slideDown 0.3s ease-out;
-}
-
-.btn-cerrar {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-@keyframes slideDown {
-  from { transform: translateY(-50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+@keyframes spin { to { transform: rotate(360deg); } }

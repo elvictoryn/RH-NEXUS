@@ -13,8 +13,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($contrasena, $user['contrasena'])) {
-        $_SESSION['usuario'] = $user['usuario'];
-        $_SESSION['rol'] = $user['rol'];
+       $_SESSION['user_id']        = $user['id'];            // ← NUEVO
+       $_SESSION['usuario']        = $user['usuario'];
+       $_SESSION['nombre_completo']= $user['nombre_completo'];
+       $_SESSION['foto']           = $user['fotografia'];
+       $_SESSION['rol']            = $user['rol'];
 
         // Redirección según el rol
         switch ($user['rol']) {

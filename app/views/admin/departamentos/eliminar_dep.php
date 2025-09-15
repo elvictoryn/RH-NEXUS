@@ -1,22 +1,17 @@
 <?php
 if (!isset($_SESSION)) session_start();
-require_once('../../../models/departamento.php');
+header('Content-Type: application/json; charset=utf-8');
+require_once dirname(__DIR__, 4) . '/config/conexion.php';
+$db = Conexion::getConexion();
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    $_SESSION['error_departamento'] = "ID inválido.";
-    header("Location: lista_dep.php");
-    exit;
+try {
+  $id = (int)($_POST['id'] ?? 0);
+  if ($id<=0) throw new Exception('ID inválido');
+
+  $st = $db->prepare("UPDATE departamentos SET estado='inactivo', actualizado_en=NOW() WHERE id=:id");
+  $st->execute([':id'=>$id]);
+
+  echo json_encode(['ok'=>true, 'msg'=>'Departamento inactivado']);
+} catch (Throwable $e) {
+  echo json_encode(['ok'=>false, 'msg'=>$e->getMessage()]);
 }
-
-$id = intval($_GET['id']);
-$departamento = new Departamento();
-$resultado = $departamento->eliminarLogico($id);
-
-if ($resultado) {
-    $_SESSION['departamento_guardado'] = "Departamento eliminado correctamente.";
-} else {
-    $_SESSION['error_departamento'] = "No se pudo eliminar el departamento.";
-}
-
-header("Location: lista_dep.php");
-exit;

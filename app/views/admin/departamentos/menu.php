@@ -1,103 +1,244 @@
 <?php
 if (!isset($_SESSION)) session_start();
-$titulo_pagina = "Gestión de Departamentos y Sedes - Nexus RH";
+$titulo_pagina = "Nexus RH · Panel";
 include_once('../../shared/header.php');
 ?>
 <style>
-/* ===== Base y paleta claras ===== */
+/* ====== PALETA ====== */
 :root{
-  --bg:#f2f4f6;
-  --panel:#ffffff;
-  --line:#e3e7ee;
-  --ink:#143047;
-  --muted:#6a7a8b;
-  --blue:#0D6EFD;     /* Departamentos */
-  --green:#0a9f7f;    /* Sedes */
-  --neutral:#cbd5e1;  /* Neutro */
+  --ink:#102a43; --muted:#5d6f82;
+  --line:#e6e9ef; --panel:#ffffff; --bg:#f5f7fb;
+  --brand:#0D6EFD; --brand2:#7c4dff; --mint:#09BC8A; --pink:#ff5ea8;
 }
+
+/* ====== RESETEOS BREVES ====== */
 body{ background:var(--bg); }
-.wrapper{ max-width:1200px; margin-inline:auto; padding:24px 16px }
+a{ text-decoration:none }
 
-/* ===== Banner superior (como el ejemplo) ===== */
-.welcome{
-  max-width:1060px; margin:12px auto 28px; background:var(--panel);
-  border:1px solid var(--line); border-radius:18px; padding:16px 18px;
-  text-align:center; box-shadow:0 8px 22px rgba(0,0,0,.08);
+/* ====== TOPBAR (estilo del ejemplo) ====== */
+.topbar{
+  position:relative; z-index:5;
+  background: radial-gradient(1200px 420px at -10% -40%, #7bd3ff 0%, transparent 60%),
+              linear-gradient(90deg, #2e7bff, #6f77ff 55%, #8e5bff);
+  color:#fff;
+  padding:10px 0;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
 }
-.welcome h1{
-  margin:0; font-weight:900; color:var(--ink);
-  font-size:clamp(1.4rem, 2.2vw + .6rem, 2.2rem);
-}
-.welcome p{ margin:.35rem 0 0; color:#8b6b2c; font-weight:800 } /* tono dorado como ejemplo */
+.nav-wrap{ max-width:1200px; margin:auto; padding:0 16px; display:flex; align-items:center; gap:14px }
+.brand{ display:flex; align-items:center; gap:10px; font-weight:900; font-size:1.1rem }
+.brand .logo{ width:34px; height:34px; border-radius:9px; background:#fff; display:grid; place-items:center; color:#2e7bff; font-weight:900 }
+.nav{ display:none; gap:18px; margin-left:14px }
+.nav a{ color:#eaf1ff; font-weight:700 }
+.nav a:hover{ color:#fff }
+@media (min-width: 992px){ .nav{ display:flex } }
 
-/* ===== Tarjetas “pastilla” con semicírculo izquierdo ===== */
-.pill{
-  position:relative; display:flex; align-items:center; gap:14px;
+.search{ margin-left:auto; display:flex; gap:8px; align-items:center }
+.search input{
+  height:38px; border:none; border-radius:10px; padding:0 12px; width:180px;
+}
+.cta-login{ height:38px; padding:0 14px; border-radius:10px; font-weight:800; color:#2e7bff; background:#fff; border:none }
+
+/* ====== HERO ====== */
+.hero{
+  max-width:1200px; margin:22px auto 24px; padding:0 16px;
+  display:grid; gap:18px; grid-template-columns:1fr; align-items:stretch;
+}
+@media (min-width: 992px){ .hero{ grid-template-columns: 1.15fr .85fr } }
+
+/* “feature card” a la izquierda (tarjeta visual) */
+.card-visual{
+  background:linear-gradient(135deg,#233852,#314a6a);
+  border-radius:18px; padding:18px; color:#fff; box-shadow:0 12px 28px rgba(0,0,0,.18);
+  display:flex; flex-direction:column; justify-content:space-between; min-height:220px;
+}
+.card-visual .fake-card{
+  height:120px; border-radius:12px;
+  background:linear-gradient(135deg,#4d6b93,#24364d 65%, #5f8de8);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);
+  margin-top:10px;
+}
+
+/* texto + CTAs (derecha en desktop) */
+.card-hero{
   background:var(--panel); border:1px solid var(--line); border-radius:18px;
-  padding:16px 16px 16px calc(16px + clamp(68px, 14vw, 110px));
-  box-shadow:0 10px 24px rgba(0,0,0,.10); min-height:110px; overflow:hidden;
+  padding:18px; box-shadow:0 10px 24px rgba(0,0,0,.08);
 }
-.pill::before{
-  /* semicírculo izquierdo responsivo */
-  content:""; position:absolute; left:0; top:0; bottom:0; width:clamp(68px, 14vw, 110px);
-  background:var(--blue); border-top-left-radius:18px; border-bottom-left-radius:18px;
-  border-top-right-radius:56px; border-bottom-right-radius:56px;
+.card-hero h1{ margin:0; font-weight:900; color:var(--ink); font-size:clamp(1.3rem,2vw + .7rem,2rem) }
+.card-hero p{ color:var(--muted); margin:.4rem 0 1rem }
+.chips{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px }
+.chip{ padding:.3rem .6rem; border-radius:999px; background:#eef4ff; color:#2b4f87; font-weight:800; font-size:.82rem; border:1px solid #d6e4ff }
+.btn{ height:44px; font-weight:800; border-radius:10px }
+.btn-primary{ background:var(--brand); border-color:var(--brand) }
+.btn-primary:hover{ filter:brightness(.95) }
+.btn-outline-dark{ background:#fff }
+
+/* ====== BLOQUE: Submenús tipo “cards” (como el carrusel inferior del ejemplo) ====== */
+.section{
+  max-width:1200px; margin:10px auto 12px; padding:0 16px;
 }
-.pill.is-green::before{ background:var(--green) }
-.pill.is-neutral::before{ background:var(--neutral) }
-
-.pill .icon{
-  position:absolute; left:12px; top:50%; transform:translateY(-50%);
-  width:56px; height:56px; border-radius:14px; display:grid; place-items:center;
-  color:#fff; font-size:1.35rem; background:rgba(255,255,255,.18);
-  border:2px solid rgba(255,255,255,.35);
+.section h2{ text-align:center; color:var(--ink); font-weight:900; font-size:clamp(1.2rem,1.6vw + .6rem,1.6rem); margin:16px 0 }
+.cards{
+  display:grid; gap:16px; grid-template-columns:1fr;
 }
-.pill .content{ flex:1; display:flex; flex-direction:column; gap:4px }
-.pill .title{
-  margin:0; font-weight:900; letter-spacing:.2px; color:var(--ink);
-  text-transform:uppercase;
+@media (min-width: 768px){ .cards{ grid-template-columns:repeat(2,1fr) } }
+@media (min-width: 1200px){ .cards{ grid-template-columns:repeat(3,1fr) } }
+
+.card-mini{
+  border:1px solid var(--line); border-radius:16px; background:var(--panel);
+  padding:14px; box-shadow:0 8px 20px rgba(0,0,0,.06);
+  display:flex; gap:12px; align-items:center; justify-content:space-between;
 }
-.pill .subtitle{ margin:0; color:var(--muted); font-weight:600 }
+.card-mini .left{
+  display:flex; gap:12px; align-items:center;
+}
+.card-mini .ico{
+  width:46px; height:46px; border-radius:12px; color:#fff; font-size:1.1rem;
+  display:grid; place-items:center;
+  background:linear-gradient(135deg,var(--brand),#6ea8fe);
+  box-shadow:0 6px 16px rgba(13,110,253,.25);
+}
+.card-mini.mint .ico{ background:linear-gradient(135deg,var(--mint),#57e2c8) }
+.card-mini.violet .ico{ background:linear-gradient(135deg,var(--brand2),#a88bff) }
+.card-mini.pink .ico{ background:linear-gradient(135deg,var(--pink),#ff96c8) }
 
-/* CTAs dentro de la tarjeta */
-.actions{ display:grid; grid-template-columns:1fr; gap:8px; max-width:420px; margin-top:10px }
-.btn{ height:44px; font-weight:800; border-radius:12px }
-.btn-outline-primary{ color:var(--blue); border-color:var(--blue); background:#fff }
-.btn-outline-primary:hover{ color:#fff; background:var(--blue); border-color:var(--blue) }
-.btn-primary{ background:var(--blue); border-color:var(--blue) }
+.card-mini .h{ margin:0; color:var(--ink); font-weight:900 }
+.card-mini .d{ margin:0; color:var(--muted); font-weight:600; font-size:.92rem }
 
-.btn-outline-success{ color:var(--green); border-color:var(--green); background:#fff }
-.btn-outline-success:hover{ color:#fff; background:var(--green); border-color:var(--green) }
-.btn-success{ background:var(--green); border-color:var(--green) }
+.card-mini .cta{ display:flex; gap:8px; flex-wrap:wrap }
+.cta .btn{ height:40px; border-radius:10px }
 
-/* ===== Grid responsive como el ejemplo (1 col / 2 col) ===== */
-.grid{ display:grid; gap:18px; grid-template-columns:1fr }
-@media (min-width: 992px){ .grid{ grid-template-columns:1fr 1fr } }
+/* ====== BLOQUE: Catálogos principales (Departamentos / Sedes) ====== */
+.catalog{
+  max-width:1200px; margin:18px auto 40px; padding:0 16px;
+}
+.catalog .grid{ display:grid; gap:18px; grid-template-columns:1fr }
+@media (min-width: 992px){ .catalog .grid{ grid-template-columns:1fr 1fr } }
 
-/* ===== Barra inferior visible para “Volver” ===== */
-.back-rail{ position:sticky; bottom:0; background:var(--panel);
-  border-top:1px solid var(--line); box-shadow:0 -6px 18px rgba(0,0,0,.06); margin-top:30px }
-.back-rail .inner{ max-width:980px; margin-inline:auto; padding:12px 16px; display:flex; justify-content:center }
-.back-rail .btn{ min-width:280px; border-radius:12px }
+.big-card{
+  position:relative; border:1px solid var(--line); background:var(--panel); border-radius:18px; overflow:hidden;
+  box-shadow:0 10px 26px rgba(0,0,0,.07);
+}
+.big-card .accent{ height:5px; background:var(--brand) }
+.big-card.mint .accent{ background:var(--mint) }
+.big-card .body{ padding:18px }
+.big-card .title{ margin:0; display:flex; gap:.6rem; align-items:center; color:var(--ink); font-weight:900; font-size:1.12rem }
+.big-card .badge-ico{ width:40px; height:40px; border-radius:10px; color:#fff; display:grid; place-items:center; background:linear-gradient(135deg,var(--brand),#6ea8fe) }
+.big-card.mint .badge-ico{ background:linear-gradient(135deg,var(--mint),#57e2c8) }
+.big-card .text{ color:var(--muted); margin:.35rem 0 .65rem }
+.big-card .actions{ display:grid; grid-template-columns:1fr; gap:8px; max-width:420px }
 </style>
 
-<div class="wrapper">
+<!-- ====== TOPBAR ====== -->
+<header class="topbar">
+  <div class="nav-wrap">
+    <div class="brand">
+      <div class="logo">NRH</div>
+      Nexus RH
+    </div>
+    <nav class="nav" aria-label="Navegación principal">
+      <a href="#">Inicio</a>
+      <a href="#">RRHH</a>
+      <a href="#">Catálogos</a>
+      <a href="#">Reportes</a>
+      <a href="#">Ajustes</a>
+    </nav>
+    <div class="search">
+      <input type="search" placeholder="Buscar…">
+      <button class="cta-login">Entrar</button>
+    </div>
+  </div>
+</header>
 
-  <!-- Banner tipo saludo -->
-  <div class="welcome">
-    <h1>Gestión de Departamentos y Sedes</h1>
-    <p><span>Bienvenido</span> · Nexus RH</p>
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <!-- Tarjeta visual (izquierda) -->
+  <div class="card-visual">
+    <div>
+      <strong style="opacity:.85">Resumen rápido</strong>
+      <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap">
+        <span class="chip">🧩 Deps</span>
+        <span class="chip">🏢 Sedes</span>
+        <span class="chip">👥 Empleados</span>
+      </div>
+    </div>
+    <div class="fake-card"></div>
   </div>
 
-  <!-- Tarjetas -->
+  <!-- Texto + CTAs (derecha) -->
+  <div class="card-hero">
+    <h1>Gestiona todo con MyHR Nexus</h1>
+    <p>Catálogos claros, procesos rápidos y una interfaz que no estorba. Crea, edita y consulta sin perderte.</p>
+    <div class="chips">
+      <span class="chip">Catálogos</span>
+      <span class="chip">Reportes</span>
+      <span class="chip">Accesos rápidos</span>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <a href="lista_dep.php" class="btn btn-primary">📄 Ver Departamentos</a>
+      <a href="lista_sedes.php" class="btn btn-outline-dark">🗂 Ver Sedes</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====== SUBMENÚS (cards pequeñas) ====== -->
+<section class="section">
+  <h2>Nuestros módulos</h2>
+  <div class="cards">
+
+    <article class="card-mini">
+      <div class="left">
+        <div class="ico">🧩</div>
+        <div>
+          <p class="h">Departamentos</p>
+          <p class="d">Estructura de áreas y responsables.</p>
+        </div>
+      </div>
+      <div class="cta">
+        <a href="crear_dep.php" class="btn btn-primary">➕ Crear</a>
+        <a href="lista_dep.php" class="btn btn-outline-dark">Ver</a>
+      </div>
+    </article>
+
+    <article class="card-mini mint">
+      <div class="left">
+        <div class="ico">🏢</div>
+        <div>
+          <p class="h">Sedes</p>
+          <p class="d">Ubicaciones y datos de contacto.</p>
+        </div>
+      </div>
+      <div class="cta">
+        <a href="crear_sede.php" class="btn btn-success" style="background:var(--mint); border-color:var(--mint)">➕ Crear</a>
+        <a href="lista_sedes.php" class="btn btn-outline-dark">Ver</a>
+      </div>
+    </article>
+
+    <article class="card-mini violet">
+      <div class="left">
+        <div class="ico">👥</div>
+        <div>
+          <p class="h">Empleados</p>
+          <p class="d">Altas, bajas y expedientes.</p>
+        </div>
+      </div>
+      <div class="cta">
+        <a href="#" class="btn btn-primary" style="background:var(--brand2); border-color:var(--brand2)">Entrar</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ====== CATÁLOGOS PRINCIPALES (cards grandes) ====== -->
+<section class="catalog">
+  <h2 style="text-align:center; color:var(--ink); font-weight:900; margin-bottom:8px">Catálogos clave</h2>
   <div class="grid">
 
-    <!-- Departamentos -->
-    <article class="pill">
-      <div class="icon" aria-hidden="true">📁</div>
-      <div class="content">
-        <h3 class="title">Departamentos</h3>
-        <p class="subtitle">Crea, edita o elimina departamentos. Asigna responsables y controla su información.</p>
+    <article class="big-card">
+      <div class="accent"></div>
+      <div class="body">
+        <h3 class="title"><span class="badge-ico">📁</span> Departamentos</h3>
+        <p class="text">Crea, edita o elimina departamentos. Asigna responsables y controla su información.</p>
         <div class="actions">
           <a href="crear_dep.php" class="btn btn-outline-primary">➕ Nuevo Departamento</a>
           <a href="lista_dep.php" class="btn btn-primary">📄 Ver Departamentos</a>
@@ -105,25 +246,17 @@ body{ background:var(--bg); }
       </div>
     </article>
 
-    <!-- Sedes -->
-    <article class="pill is-green">
-      <div class="icon" aria-hidden="true">🏢</div>
-      <div class="content">
-        <h3 class="title">Sedes</h3>
-        <p class="subtitle">Registra nuevas ubicaciones, verifica duplicados y administra datos de contacto.</p>
+    <article class="big-card mint">
+      <div class="accent"></div>
+      <div class="body">
+        <h3 class="title"><span class="badge-ico">🏢</span> Sedes</h3>
+        <p class="text">Registra ubicaciones y datos de contacto con consistencia.</p>
         <div class="actions">
-          <a href="crear_sede.php" class="btn btn-outline-success">➕ Nueva Sede</a>
-          <a href="lista_sedes.php" class="btn btn-success">📄 Ver Sedes</a>
+          <a href="crear_sede.php" class="btn btn-outline-success" style="--bs-border-color:var(--mint)">➕ Nueva Sede</a>
+          <a href="lista_sedes.php" class="btn btn-success" style="background:var(--mint); border-color:var(--mint)">📄 Ver Sedes</a>
         </div>
       </div>
     </article>
 
   </div>
-</div>
-
-<!-- Rail inferior para “Volver” (siempre visible) -->
-<div class="back-rail">
-  <div class="inner">
-    <a href="../../admin/index.php" class="btn btn-outline-dark">⬅ Volver al panel principal</a>
-  </div>
-</div>
+</section>

@@ -1,6 +1,13 @@
 <?php
-if (!isset($_SESSION)) session_start();
-require_once('../../../models/departamento.php');
+// ============================================================
+// Editar Departamento - Nexus RH (con activar/inactivar)
+// Ruta sugerida: /app/views/admin/departamentos/editar_dep.php
+// ============================================================
+
+define('BASE_PATH','/sistema_rh'); // <-- AJUSTAr si la  carpeta cambia
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+require_once __DIR__ . '/../../../models/departamento.php';
 
 $departamento = new Departamento();
 $id = $_GET['id'] ?? null;
@@ -11,25 +18,34 @@ if (!$id || !is_numeric($id)) {
     exit;
 }
 
-$dep   = $departamento->obtenerPorId($id);
+$dep = $departamento->obtenerPorId($id);
+if (!$dep) {
+    $_SESSION['mensaje_error'] = "Departamento no encontrado.";
+    header("Location: lista_dep.php");
+    exit;
+}
+
 $sedes = $departamento->listarSedesActivas();
 
-$titulo_pagina = "Editar Departamento";
-include_once('../../shared/header.php');
-
-/* Mensajes (opcional, si tu controlador los setea) */
-$flash_ok    = $_SESSION['dep_editado']    ?? null;   // opcional
-$flash_error = $_SESSION['error_edicion']  ?? null;   // opcional
+/* Mensajes “flash” opcionales desde actualiza_dep.php */
+$flash_ok    = $_SESSION['dep_editado']   ?? null;
+$flash_error = $_SESSION['error_edicion'] ?? null;
 unset($_SESSION['dep_editado'], $_SESSION['error_edicion']);
-?>
 
+/* Header global (navbar + fondo) */
+$tituloPagina = "Editar Departamento";
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/header.php';
+?>
 <style>
-/* ====== Hero y contenedor, consistente con el resto ====== */
+:root{ --nav-h: 64px; }
+
+/* ====== Hero y contenedor ====== */
 .page-head{
   display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
   padding:.85rem 1rem;border-radius:16px;
   background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px);
-  box-shadow:0 6px 16px rgba(0,0,0,.12)
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
+  position: relative; z-index: 2;
 }
 .hero{display:flex;align-items:center;gap:.8rem}
 .hero .hero-icon{
@@ -46,6 +62,11 @@ unset($_SESSION['dep_editado'], $_SESSION['error_edicion']);
 }
 .hero .subtitle{margin:0;color:#e8eef7;font-size:.95rem;font-weight:500;opacity:.95}
 
+/* Estado */
+.badge-soft{background:#eef2ff;border:1px solid #dbe3ff;color:#1f2937;font-weight:700;border-radius:999px;padding:.35rem .6rem}
+.badge-soft.ok{background:#f0fdf4;border-color:#dcfce7}
+.badge-soft.off{background:#f8fafc;border-color:#e5e7eb;color:#334155}
+
 /* Tarjeta formulario */
 .form-card{background:rgba(255,255,255,.9);border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
 .form-title{font-weight:800;color:#0D6EFD}
@@ -61,7 +82,7 @@ unset($_SESSION['dep_editado'], $_SESSION['error_edicion']);
 .form-actions{display:flex;gap:.5rem;justify-content:space-between;flex-wrap:wrap}
 .form-actions .right{display:flex;gap:.5rem}
 
-/* Mayúsculas con UX */
+/* Mayúsculas UX */
 .text-uppercase{ text-transform: uppercase; }
 </style>
 
@@ -76,6 +97,19 @@ unset($_SESSION['dep_editado'], $_SESSION['error_edicion']);
       </div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
+      <!-- Estado actual -->
+      <?php $isActive = (strtolower($dep['estado'] ?? '') === 'activo'); ?>
+      <span id="estadoPill" class="badge-soft <?= $isActive ? 'ok' : 'off' ?>">
+        <?= $isActive ? '🟢 Activo' : '⚪ Inactivo' ?>
+      </span>
+
+      <!-- Botón activar/inactivar -->
+      <?php if ($isActive): ?>
+        <button id="btnToggleEstado" class="btn btn-outline-danger" data-action="inactivar">Inactivar</button>
+      <?php else: ?>
+        <button id="btnToggleEstado" class="btn btn-outline-success" data-action="activar">Activar</button>
+      <?php endif; ?>
+
       <a href="lista_dep.php" class="btn btn-outline-secondary">📋 Lista</a>
       <a href="lista_dep.php" class="btn btn-outline-dark">← Regresar</a>
     </div>
@@ -85,7 +119,7 @@ unset($_SESSION['dep_editado'], $_SESSION['error_edicion']);
   <div class="form-card p-4">
     <h2 class="form-title mb-3">Datos del departamento</h2>
 
-    <!-- (Si tu backend coloca mensajes, los mostramos como inline ocultos y también vía SweetAlert) -->
+    <!-- Mensajes flash inline (opcional) -->
     <?php if ($flash_ok): ?>
       <div class="alert alert-success text-center fw-bold d-none" id="alert-inline-ok">
         ✅ <?= htmlspecialchars($flash_ok) ?>
@@ -158,23 +192,24 @@ Swal.fire({
 </script>
 <?php endif; ?>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Mantén tu comportamiento de MAYÚSCULAS con soporte de acentos/ñ
+// MAYÚSCULAS (con soporte ES-MX)
 document.querySelectorAll('.text-uppercase').forEach(input => {
   input.addEventListener('input', () => {
     input.value = input.value.toLocaleUpperCase('es-MX');
   });
 });
 
+// Validación de duplicados durante edición (usa tu actualiza_dep.php)
 const nombreInput   = document.getElementById("nombreDep");
 const sedeSelect    = document.getElementById("sedeDep");
 const mensajeNombre = document.getElementById("mensajeNombre");
+const ID_DEP        = <?= (int)$dep['id'] ?>;
 
-// ✅ Validación de duplicados (sin cambiar el endpoint: actualiza_dep.php)
 function validarNombreEditando() {
   const nombre = (nombreInput.value || '').trim().toUpperCase();
   const sedeId = (sedeSelect.value || '').trim();
-  const id     = <?= (int)$dep['id'] ?>;
 
   if (nombre === '' || sedeId === '') {
     mensajeNombre.textContent = '';
@@ -182,7 +217,7 @@ function validarNombreEditando() {
     return;
   }
 
-  fetch(`actualiza_dep.php?verificar_nombre=${encodeURIComponent(nombre)}&sede_id=${encodeURIComponent(sedeId)}&id=${encodeURIComponent(id)}`)
+  fetch(`actualiza_dep.php?verificar_nombre=${encodeURIComponent(nombre)}&sede_id=${encodeURIComponent(sedeId)}&id=${encodeURIComponent(ID_DEP)}`)
     .then(res => res.json())
     .then(data => {
       if (data.existe) {
@@ -203,4 +238,53 @@ function validarNombreEditando() {
 
 nombreInput.addEventListener('blur', validarNombreEditando);
 sedeSelect.addEventListener('change', validarNombreEditando);
+
+// Toggle activar/inactivar
+const btnToggle = document.getElementById('btnToggleEstado');
+const pill      = document.getElementById('estadoPill');
+
+if (btnToggle) {
+  btnToggle.addEventListener('click', async () => {
+    const action = btnToggle.dataset.action; // 'activar' | 'inactivar'
+    const confirmText = action === 'activar'
+      ? '¿Reactivar este departamento?'
+      : '¿Inactivar este departamento? Podrás reactivarlo después.';
+
+    const conf = await Swal.fire({
+      icon: 'question',
+      title: confirmText,
+      showCancelButton: true,
+      confirmButtonText: action === 'activar' ? 'Sí, activar' : 'Sí, inactivar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (!conf.isConfirmed) return;
+
+    const fd = new FormData();
+    fd.append('id', ID_DEP);
+    fd.append('action', action);
+
+    try {
+      const r = await fetch('eliminar_dep.php', { method: 'POST', body: fd });
+      const data = await r.json();
+
+      if (data.ok) {
+        await Swal.fire({
+          icon: 'success',
+          title: data.msg || (action === 'activar' ? 'Departamento activado' : 'Departamento inactivado'),
+          timer: 1200, showConfirmButton: false
+        });
+        // Refrescar para que el estado sea consistente
+        location.reload();
+      } else {
+        Swal.fire({ icon: 'error', title: data.msg || 'No se pudo actualizar el estado' });
+      }
+    } catch (e) {
+      Swal.fire({ icon: 'error', title: 'Error de red' });
+    }
+  });
+}
 </script>
+
+<?php
+/* Footer global */
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/footer.php';

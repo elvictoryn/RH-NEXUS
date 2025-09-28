@@ -1,8 +1,11 @@
 <?php
-if (!isset($_SESSION)) session_start();
-$titulo_pagina = "Editar Sede";
-include_once('../../shared/header.php');
+if (session_status() === PHP_SESSION_NONE) session_start();
+
 require_once('../../../models/Sede.php');
+
+/* ====== Título + Header compartido ====== */
+$tituloPagina = "Editar Sede"; // usar camelCase igual que en header.php
+include_once('../../shared/header.php');
 
 $sede = new Sede();
 
@@ -17,12 +20,22 @@ if (!$datos) {
     exit;
 }
 
+/* ====== Mensajes de sesión ====== */
 $mensaje_exito = $_SESSION['sede_editada'] ?? null;
 $mensaje_error = $_SESSION['error_edicion'] ?? null;
 unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
 ?>
 
 <style>
+:root{ --nav-h: 64px; }
+
+/* Hotfix navbar siempre arriba e interactuable */
+.navbar-nexus{
+  position: sticky;
+  top: 0;
+  z-index: 1100 !important;
+}
+
 /* ====== Hero/Encabezado interno ====== */
 .page-head{
   display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
@@ -31,6 +44,7 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
   border: 1px solid rgba(255,255,255,.35);
   backdrop-filter: blur(8px);
   box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  position: relative; z-index: 3; /* sobre fondo */
 }
 .hero{display:flex;align-items:center;gap:.8rem}
 .hero .hero-icon{
@@ -52,6 +66,7 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
   border-radius:16px;border:1px solid #e5e7eb;
   box-shadow:0 8px 24px rgba(0,0,0,.08);
   background: rgba(255,255,255,.88);
+  position: relative; z-index: 2;
 }
 .section-title{
   font-weight:800;color:#0D6EFD;letter-spacing:.2px;margin-bottom:.75rem;
@@ -81,7 +96,7 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
 .bootstrap-flash { display:none; }
 </style>
 
-<div class="container py-4" style="max-width:1100px">
+<div class="container py-4" style="max-width:1100px; position:relative; z-index:2;">
   <!-- Encabezado interno -->
   <div class="page-head">
     <div class="hero">
@@ -112,7 +127,7 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
     <h2 class="section-title"><span class="dot"></span>Datos de la sede</h2>
 
     <form id="formEditarSede" method="POST" action="actualiza_sede.php" autocomplete="off" class="mt-3">
-      <input type="hidden" name="id" value="<?= $datos['id'] ?>">
+      <input type="hidden" name="id" value="<?= (int)$datos['id'] ?>">
 
       <div class="row g-3">
         <div class="col-md-6">
@@ -212,9 +227,11 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
 <!-- SweetAlert para mensajes y validaciones visuales -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // Uppercase en tiempo real
+  // Uppercase con soporte ES-MX (incluye ñ/tildes)
   document.querySelectorAll('.text-uppercase').forEach(input => {
-    input.addEventListener('input', () => { input.value = input.value.toUpperCase(); });
+    input.addEventListener('input', () => {
+      input.value = input.value.toLocaleUpperCase('es-MX');
+    });
   });
 
   // Helpers de mensajes inline
@@ -225,7 +242,7 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
     el.style.fontSize = ".9rem";
   }
 
-  // Verificación de nombre (usa tu endpoint actual SIN cambios)
+  // Verificación de nombre (usa tu endpoint actual)
   const nombreInput = document.getElementById("nombreSede");
   const mensajeNombre = document.getElementById("mensajeNombre");
   const boton = document.getElementById("btnGuardar");
@@ -241,6 +258,7 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
     }
 
     boton.disabled = true;
+    // Si tu actualiza_sede.php soporta la verificación, mantenemos este endpoint:
     fetch("actualiza_sede.php?verificar_nombre=1&nombre=" + encodeURIComponent(nombre) + "&id=" + sedeId)
       .then(response => response.json())
       .then(data => {
@@ -271,14 +289,20 @@ unset($_SESSION['sede_editada'], $_SESSION['error_edicion']);
     });
   }
 
-  // UX de envío: deshabilita botón y muestra spinner textual (no altera endpoints)
+  // UX de envío
   document.getElementById('formEditarSede').addEventListener('submit', function(){
     boton.disabled = true;
     boton.innerText = 'Actualizando…';
   });
-
-  // Fallback: oculta alertas bootstrap si existieran
-  setTimeout(() => {
-    document.querySelectorAll('.bootstrap-flash').forEach(n=>n.remove());
-  }, 3000);
 </script>
+
+<?php
+// ===== Footer compartido (carga Bootstrap Bundle JS para navbar/dropdowns) =====
+$footer = __DIR__ . '/../../shared/footer.php';
+if (is_file($footer)) {
+  require_once $footer;
+} else {
+  // Fallback: incluir Bootstrap Bundle desde CDN si no tienes footer
+  echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>';
+}
+?>

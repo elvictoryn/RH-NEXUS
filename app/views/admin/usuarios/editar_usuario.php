@@ -2,6 +2,9 @@
 if (!isset($_SESSION)) session_start();
 require_once dirname(__DIR__, 4) . '/config/conexion.php';
 
+/* BASE_PATH para rutas absolutas en vistas/recursos */
+if (!defined('BASE_PATH')) define('BASE_PATH', '/sistema_rh');
+
 class UsuarioEdita {
     private PDO $db;
     public function __construct(){ $this->db = Conexion::getConexion(); }
@@ -10,7 +13,7 @@ class UsuarioEdita {
         $st = $this->db->prepare("SELECT id, usuario, nombre_completo, numero_empleado, correo, rol,
                                          departamento_id, sede_id, estado, telefono, fotografia
                                   FROM usuarios WHERE id=:id LIMIT 1");
-        $st->execute([':id'=>$id]); $r=$st->fetch(); return $r?:null;
+        $st->execute([':id'=>$id]); $r=$st->fetch(PDO::FETCH_ASSOC); return $r?:null;
     }
     public function existeUsuarioEditando(string $u, int $id): bool {
         $st=$this->db->prepare("SELECT 1 FROM usuarios WHERE UPPER(usuario)=UPPER(:u) AND id<>:id LIMIT 1");
@@ -74,16 +77,16 @@ class UsuarioEdita {
 
     /* Catálogos */
     public function sedesActivas(): array {
-        return $this->db->query("SELECT id, nombre FROM sedes WHERE activo=1 ORDER BY nombre")->fetchAll();
+        return $this->db->query("SELECT id, nombre FROM sedes WHERE activo=1 ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
     }
     public function departamentosActivos(?int $sedeId=null): array {
         if ($sedeId) {
             $st=$this->db->prepare("SELECT id, nombre FROM departamentos
                                      WHERE LOWER(estado)='activo' AND sede_id=:s ORDER BY nombre");
-            $st->execute([':s'=>$sedeId]); return $st->fetchAll();
+            $st->execute([':s'=>$sedeId]); return $st->fetchAll(PDO::FETCH_ASSOC);
         }
         return $this->db->query("SELECT id, nombre FROM departamentos
-                                  WHERE LOWER(estado)='activo' ORDER BY nombre")->fetchAll();
+                                  WHERE LOWER(estado)='activo' ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 
@@ -117,9 +120,9 @@ if (isset($_GET['ajax'])) {
 
 /* ===== POST ===== */
 $mensaje=""; $tipo="";
-$root = dirname(__DIR__, 4);
+$root  = dirname(__DIR__, 4);
 $dirFs = $root.'/public/img/usuarios/';
-$dirWeb = '../../../../public/img/usuarios/';
+$dirWeb = BASE_PATH . '/public/img/usuarios/';
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $id               = (int)($_POST['id'] ?? 0);
@@ -248,7 +251,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 }
 
 /* ===== HEADER + VISTA ===== */
-$titulo_pagina = "Editar Usuario";
+$tituloPagina = "Editar Usuario";  // <- camelCase para que el header lo lea
 include_once('../../shared/header.php');
 
 $sedes = $M->sedesActivas();
@@ -257,6 +260,11 @@ $deps  = $M->departamentosActivos($usuarioData['sede_id'] ?? null);
 function selected($a,$b){ return (string)$a===(string)$b ? 'selected' : ''; }
 ?>
 <style>
+:root{ --nav-h: 64px; }
+
+/* Navbar fijo y por encima de todo */
+.navbar-nexus{ position: sticky; top: 0; z-index: 1100 !important; }
+
 .card{border-radius:1rem}
 .section-title{font-weight:700;margin:8px 0 4px;display:flex;align-items:center;gap:.5rem}
 .section-title .dot{width:.5rem;height:.5rem;border-radius:50%;background:#06b6d4}
@@ -267,7 +275,7 @@ function selected($a,$b){ return (string)$a===(string)$b ? 'selected' : ''; }
 .invalid-feedback{display:block}
 </style>
 
-<div class="container py-4" style="max-width:1040px">
+<div class="container py-4" style="max-width:1040px; position:relative; z-index:2;">
   <div class="card shadow-sm p-4">
     <form method="POST" action="" id="formEditar" enctype="multipart/form-data" autocomplete="off" novalidate>
       <input type="hidden" name="id" id="id" value="<?= htmlspecialchars($usuarioData['id']) ?>">
@@ -412,7 +420,8 @@ Swal.fire({
 <?php endif; ?>
 
 <script>
-document.querySelectorAll('.text-upper').forEach(el=>el.addEventListener('input',()=> el.value=el.value.toUpperCase()));
+// Mayúsculas con soporte ES-MX
+document.querySelectorAll('.text-upper').forEach(el=>el.addEventListener('input',()=> el.value=el.value.toLocaleUpperCase('es-MX')));
 
 const id=document.getElementById('id').value, btn=document.getElementById('btnGuardar');
 const usuario=document.getElementById('usuario'), fbUser=document.getElementById('fb-usuario');
@@ -426,15 +435,23 @@ const fotoInput=document.getElementById('fotografia'), fotoPrev=document.getElem
 tPass.addEventListener('change', ()=> passBox.style.display = tPass.checked ? 'flex' : 'none');
 
 function setErr(el, fb, msg){ fb.textContent=msg||''; el?.classList?.toggle('is-invalid', !!msg); btn.disabled=!!document.querySelector('.is-invalid'); }
-async function jget(params){ const url=new URL(location.href); Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v)); const r=await fetch(url.toString(), {headers:{'X-Requested-With':'fetch'}}); return r.json(); }
+async function jget(params){
+  const url=new URL(location.href);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  const r=await fetch(url.toString(), {headers:{'X-Requested-With':'fetch'}});
+  return r.json();
+}
 
-async function vUsuario(){ const v=usuario.value.trim().toUpperCase(); if(!v){fbUser.textContent='';return;} const r=await jget({ajax:'validar_usuario', id, usuario:v}); setErr(usuario, fbUser, r.ok?'':'Usuario ya existe'); }
-async function vNe(){ const v=ne.value.trim(); if(!v){fbNe.textContent='';return;} const r=await jget({ajax:'validar_ne', id, ne:v}); setErr(ne, fbNe, r.ok?'':'Número de empleado duplicado'); }
+async function vUsuario(){ const v=usuario.value.trim().toUpperCase(); if(!v){fbUser.textContent='';return;}
+  const r=await jget({ajax:'validar_usuario', id, usuario:v}); setErr(usuario, fbUser, r.ok?'':'Usuario ya existe'); }
+async function vNe(){ const v=ne.value.trim(); if(!v){fbNe.textContent='';return;}
+  const r=await jget({ajax:'validar_ne', id, ne:v}); setErr(ne, fbNe, r.ok?'':'Número de empleado duplicado'); }
 function vCorreo(){ const v=correo.value.trim(); if(!v) return setErr(correo, fbCorreo, ''); const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); setErr(correo, fbCorreo, ok?'':'Correo inválido'); }
 
 async function vRolGerJefe(e){
   const rRol=rol.value, sede=sedeSel.value, dep=depSel.value;
 
+  // actualizar departamentos si cambia sede
   if (e && e.type==='change' && e.target===sedeSel){
     const res=await jget({ajax:'departamentos_por_sede', sede_id:sede});
     const cur=depSel.value; depSel.innerHTML='<option value="">— Sin departamento —</option>';
@@ -470,6 +487,16 @@ fotoInput.addEventListener('change', ()=>{ const f=fotoInput.files && fotoInput.
   const rd=new FileReader(); rd.onload=e=>fotoPrev.src=e.target.result; rd.readAsDataURL(f);
 });
 
-// Disparo inicial
+// Disparo inicial para validar y poblar deps
 vRolGerJefe();
 </script>
+
+<?php
+// ===== Footer compartido / fallback (Bootstrap Bundle para navbar/dropdowns) =====
+$footer = __DIR__ . '/../../shared/footer.php';
+if (is_file($footer)) {
+  require_once $footer;
+} else {
+  echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>';
+}
+?>

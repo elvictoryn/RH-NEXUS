@@ -1,6 +1,14 @@
 <?php
-if (!isset($_SESSION)) session_start();
-require_once dirname(__DIR__, 4) . '/config/conexion.php';
+// ============================================================
+// Lista de Sedes - Nexus RH (con mapa + inspector)
+// ============================================================
+
+/* Base + sesión */
+define('BASE_PATH','/sistema_rh'); // <-- AJUSTA si tu carpeta cambia
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+/* Conexión */
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/config/conexion.php';
 $db = Conexion::getConexion();
 
 /* ============================================================
@@ -25,6 +33,7 @@ if (isset($_GET['sedes_json'])) {
     $q          = trim($_GET['q'] ?? '');
     $estado_nom = trim($_GET['estado_nom'] ?? '');
     $estatus    = $_GET['estatus'] ?? 'activo'; // activo|inactivo|''
+
     $where = []; $p = [];
 
     if ($q !== '') {
@@ -39,8 +48,10 @@ if (isset($_GET['sedes_json'])) {
       $where[] = "s.activo = :act";
       $p[':act'] = ($estatus==='activo') ? 1 : 0;
     }
+
     $cols = "s.id, s.nombre, s.municipio, s.estado, s.telefono, s.activo";
     if ($HAS_LAT && $HAS_LNG) $cols .= ", s.latitud, s.longitud";
+
     $sql = "SELECT $cols, u.nombre_completo AS gerente
             FROM sedes s
             LEFT JOIN usuarios u ON u.id = s.gerente_id
@@ -80,7 +91,7 @@ if (isset($_GET['detalles_id'])) {
     $h = fn($v)=> htmlspecialchars((string)$v ?? '', ENT_QUOTES, 'UTF-8');
     $v = function($x){ $x = trim((string)$x); return $x!=='' ? $x : '—'; };
 
-    // Contadores por sección
+    // Contadores por sección (como lo tenías)
     $ubTotal=5; $ubFilled = 0
       + (trim((string)$s['municipio'])!==''?1:0)
       + (trim((string)$s['estado'])!==''?1:0)
@@ -89,8 +100,7 @@ if (isset($_GET['detalles_id'])) {
       + (trim((string)$s['cp'])!==''?1:0);
 
     $contTotal=1; $contFilled = 0 + (trim((string)$s['telefono'])!==''?1:0);
-
-    $admTotal=1; $admFilled = 0 + (trim((string)$s['gerente'])!==''?1:0);
+    $admTotal=1;  $admFilled = 0 + (trim((string)$s['gerente'])!==''?1:0);
 
     ob_start(); ?>
     <div class="insp-head">
@@ -183,10 +193,10 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action'] ?? '') === 'toggle_
    LISTA NORMAL (HTML)
    ============================================================ */
 
-/* Filtros */
+/* Filtros (por defecto, mostrar Activas) */
 $q          = trim($_GET['q'] ?? '');
 $estado_nom = trim($_GET['estado_nom'] ?? '');
-$estatus    = $_GET['estatus'] ?? 'activo'; // activo|inactivo|''
+$estatus    = isset($_GET['estatus']) ? $_GET['estatus'] : 'activo'; // default "activo"
 
 /* Catálogo de estados (para filtro) */
 $estadosOpts = $db->query("SELECT DISTINCT estado FROM sedes ORDER BY estado")->fetchAll(PDO::FETCH_COLUMN);
@@ -231,31 +241,66 @@ $flash_ok = $_SESSION['sede_ok'] ?? ($_SESSION['sede_guardada'] ?? $_SESSION['se
 $flash_error = $_SESSION['sede_error'] ?? ($_SESSION['error_guardado'] ?? $_SESSION['error_edicion'] ?? $_SESSION['error_eliminacion'] ?? null);
 unset($_SESSION['sede_ok'], $_SESSION['sede_error'], $_SESSION['sede_guardada'], $_SESSION['sede_editada'], $_SESSION['sede_eliminada'], $_SESSION['error_guardado'], $_SESSION['error_edicion'], $_SESSION['error_eliminacion']);
 
-/* Header global */
-$titulo_pagina = "Sedes";
-include_once('../../shared/header.php');
+/* Header global (MISMO HEADER QUE EN DEPARTAMENTOS) */
+$tituloPagina = "Sedes"; // <-- usa el mismo nombre de variable que header.php
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/header.php';
 ?>
 <style>
+:root{ --nav-h: 64px; } /* altura aprox del navbar */
+
 /* ====== Hero & Toolbar ====== */
-.page-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.85rem 1rem;border-radius:16px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.page-head{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  padding:.85rem 1rem;border-radius:16px;background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.12);
+  position: relative; z-index: 2;
+}
 .hero{display:flex;align-items:center;gap:.8rem}
 .hero .hero-icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#0D6EFD,#6ea8fe);color:#fff;font-size:1.25rem;box-shadow:0 6px 14px rgba(13,110,253,.35)}
 .hero .title{margin:0;line-height:1.1;font-weight:900;letter-spacing:.2px;font-size:clamp(1.9rem, 2.6vw + .6rem, 2.6rem);background:linear-gradient(90deg,#ffffff 0%, #e6f0ff 60%, #fff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 1px 0 rgba(0,0,0,.12)}
 .hero .subtitle{margin:0;color:#e8eef7;font-size:.95rem;font-weight:500;opacity:.95}
 .badge-soft{background:#e9f2ff;color:#1f2937;border:1px solid #cfe0ff;font-weight:600}
-.toolbar{background:rgba(255,255,255,.86);border:1px solid #e5e7eb;border-radius:16px;padding:.9rem;color:#04181e;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+
+.toolbar{
+  background:rgba(255,255,255,.86);
+  border:1px solid #e5e7eb;border-radius:16px;padding:.9rem;color:#04181e;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  position:relative; z-index:1;
+}
 .btn-primary{background:#0D6EFD;border-color:#0D6EFD}
 .btn-primary:hover{background:#0b5ed7;border-color:#0b5ed7}
 
-/* ====== Mapa ====== */
-#mapCard{border-radius:16px; overflow:hidden; border:1px solid #e5e7eb; box-shadow:0 8px 24px rgba(0,0,0,.08);}
+/* Switch de vista */
+.view-switch .btn{ min-width:130px; }
+
+/* ====== MAPA ====== */
+#mapCard{
+  border-radius:16px; overflow:hidden; border:1px solid #e5e7eb;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  position:relative; z-index:1;
+  margin-top:.5rem;
+}
 #mapMX{height:380px;}
-.map-legend{position:absolute; right:12px; bottom:12px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:.4rem .6rem; font-size:.85rem; color:#334155}
-.map-toolbar{position:absolute; left:12px; top:12px; display:flex; gap:.5rem;}
+.map-legend{
+  position:absolute; right:12px; bottom:12px;
+  background:#fff; border:1px solid #e5e7eb; border-radius:10px;
+  padding:.4rem .6rem; font-size:.85rem; color:#334155; z-index: 2;
+}
+.map-toolbar{
+  position:absolute; left:12px; top:12px; display:flex; gap:.5rem; z-index: 2;
+}
 .map-toolbar .btn{padding:.35rem .6rem; border-radius:.5rem}
 
+/* Leaflet por debajo del navbar */
+.leaflet-container,
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom{
+  z-index: 400 !important;
+}
+
 /* ====== Grid Tarjetas ====== */
-.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1rem}
+.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1rem; position:relative; z-index:1;}
 @media (min-width:576px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media (min-width:992px){.grid{grid-template-columns:repeat(3,1fr)}}
 @media (min-width:1200px){.grid{grid-template-columns:repeat(4,1fr)}}
@@ -265,7 +310,7 @@ include_once('../../shared/header.php');
 .sede-card .body{padding:.75rem .75rem 1rem;color:#04181e}
 .sede-card .name{font-weight:800; font-size:1.05rem}
 .sede-card .meta{color:#64748b; font-size:.9rem}
-.sede-actions{position:absolute;top:.5rem;right:.5rem;display:flex;gap:.35rem}
+.sede-actions{position:absolute;top:.5rem;right:.5rem;display:flex;gap:.35rem; z-index:2;}
 .sede-actions .btn{padding:.25rem .5rem;border-radius:.5rem}
 .sede-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.5rem .75rem .9rem}
 .tag{display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .5rem; border-radius:.5rem; background:#f1f5f9; font-size:.78rem; color:#334155}
@@ -275,11 +320,25 @@ include_once('../../shared/header.php');
 .table > :not(caption) > * > *{vertical-align:middle}
 .actions-col{white-space:nowrap}
 
-/* ====== Panel lateral (inspector) – mismo estilo que usuarios ====== */
-.insp-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:1055}
+/* ====== Inspector – debajo del navbar ====== */
+.insp-backdrop{
+  position:fixed; left:0; right:0; bottom:0;
+  top: var(--nav-h);
+  background:rgba(0,0,0,.45); backdrop-filter:blur(2px);
+  opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:900;
+}
 .insp-backdrop.show{opacity:1; pointer-events:auto}
-.inspector{position:fixed; top:0; right:-720px; height:100%; width:min(720px,96vw); background:#fff; color:#04181e; box-shadow:-10px 0 30px rgba(0,0,0,.25); transition:right .35s ease; z-index:1060; display:flex; flex-direction:column}
+.inspector{
+  position:fixed; right:-720px;
+  top: calc(var(--nav-h) + 8px);
+  height: calc(100% - var(--nav-h) - 16px);
+  width:min(720px,96vw);
+  background:#fff; color:#04181e; box-shadow:-10px 0 30px rgba(0,0,0,.25);
+  transition:right .35s ease; z-index:950; display:flex; flex-direction:column; border-top-left-radius:14px;
+}
 .inspector.open{right:0}
+
+/* tema oscuro dinámico del inspector */
 .inspector.dark{ background:#0f172a; color:#e5e7eb; }
 .inspector.dark .insp-head{ background: linear-gradient(180deg, #0b1220, #0f172a); border-bottom-color:#1f2937;}
 .inspector.dark .insp-pill{ background:#101826; border-color:#1f2937; color:#e5e7eb; }
@@ -316,6 +375,61 @@ include_once('../../shared/header.php');
 .kv{display:flex;gap:.5rem;align-items:baseline}
 .kv .k{color:#64748b;min-width:160px;font-weight:600}
 .kv .v{color:#04181e}
+
+/* ===== HOTFIX Navbar vs Leaflet (lista_sedes.php) ===== */
+
+/* 1) El navbar manda SIEMPRE (usa la misma clase del navbar del sitio) */
+.navbar-nexus{
+  position: sticky;
+  top: 0;
+  z-index: 9999 !important; /* por encima de cualquier capa local */
+}
+
+/* 2) Menús/collapse/offcanvas del navbar por encima de overlays */
+.navbar-nexus .dropdown-menu,
+.navbar-nexus .navbar-collapse,
+.navbar-nexus .collapse,
+.navbar-nexus .offcanvas{
+  position: relative;
+  z-index: 10000 !important;
+}
+
+/* 3) El card del mapa crea su propio “mundo” y no invade fuera */
+#mapCard{
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate;       /* crea stacking context propio */
+  z-index: 1 !important;    /* muy por debajo del navbar */
+}
+
+/* 4) El contenedor del mapa NO se sale del card */
+#mapMX{
+  position: relative !important;
+  height: 380px;            /* ya lo tenías, lo reforzamos */
+}
+
+/* 5) Inspector/backdrop debajo del navbar (como en departamentos) */
+.insp-backdrop{
+  top: var(--nav-h) !important;
+  z-index: 900 !important;   /* < navbar */
+}
+.inspector{
+  top: calc(var(--nav-h) + 8px) !important;
+  height: calc(100% - var(--nav-h) - 16px) !important;
+  z-index: 950 !important;   /* < navbar */
+}
+
+/* 6) Por si alguna capa absoluta se estira, la recortamos al card */
+#mapCard > .leaflet-container,
+#mapCard > .leaflet-container .leaflet-pane{
+  inset: 0 !important;
+}
+
+/* 7) Fondo global JAMÁS tapa nada (refuerzo por si el global no cargó) */
+body::before{
+  z-index: -1 !important;
+  pointer-events: none !important;
+}
 </style>
 
 <div class="container py-4" style="max-width:1300px">
@@ -330,6 +444,15 @@ include_once('../../shared/header.php');
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <span class="badge-soft">Total: <?= number_format($total) ?></span>
       <a href="crear_sede.php" class="btn btn-primary">➕ Nueva sede</a>
+      <a href="menu.php" class="btn btn-outline-secondary">← Regresar</a>
+    </div>
+  </div>
+
+  <!-- Switch centrado (Tarjetas / Tabla) -->
+  <div class="d-flex justify-content-center mt-3">
+    <div class="btn-group view-switch" role="group" aria-label="Cambiar vista">
+      <button type="button" class="btn btn-outline-primary" id="btnViewCards">▦ Tarjetas</button>
+      <button type="button" class="btn btn-outline-primary" id="btnViewTable">☰ Tabla</button>
     </div>
   </div>
 
@@ -345,9 +468,12 @@ include_once('../../shared/header.php');
 
   <!-- FILTROS -->
   <form class="toolbar mt-3" method="get" id="filtros">
-    <div class="row g-2">
+    <div class="row g-2 align-items-end">
       <div class="col-12 col-lg-6">
-        <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" class="form-control" placeholder="Buscar: nombre, municipio o estado">
+        <div class="input-group">
+          <span class="input-group-text">🔎</span>
+          <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" class="form-control" placeholder="Buscar: nombre, municipio o estado">
+        </div>
       </div>
       <div class="col-6 col-lg-3">
         <select name="estado_nom" class="form-select">
@@ -360,12 +486,20 @@ include_once('../../shared/header.php');
       <div class="col-6 col-lg-2">
         <select name="estatus" class="form-select">
           <option value="">— Todas —</option>
-          <option value="activo" <?= ($estatus==='activo'?'selected':'') ?>>Activas</option>
+          <option value="activo"   <?= ($estatus==='activo'?'selected':'') ?>>Activas</option>
           <option value="inactivo" <?= ($estatus==='inactivo'?'selected':'') ?>>Inactivas</option>
         </select>
       </div>
       <div class="col-12 col-lg-1 d-grid">
         <button class="btn btn-outline-primary">Filtrar</button>
+      </div>
+
+      <div class="col-12 d-flex justify-content-between mt-2">
+        <div></div>
+        <div class="d-flex gap-2">
+          <?php $qsClear = basename($_SERVER['PHP_SELF']); ?>
+          <a class="btn btn-outline-secondary" href="<?= $qsClear ?>">Limpiar</a>
+        </div>
       </div>
     </div>
   </form>
@@ -382,7 +516,6 @@ include_once('../../shared/header.php');
         <div class="sede-card">
           <div class="banner"></div>
 
-          <!-- Acciones -->
           <div class="sede-actions">
             <a href="editar_sede.php?id=<?= (int)$s['id'] ?>" class="btn btn-light btn-sm" title="Editar">✏️</a>
             <?php if ((int)$s['activo']===1): ?>
@@ -413,7 +546,7 @@ include_once('../../shared/header.php');
     </div>
   </div>
 
-  <!-- VISTA TABLA (si quieres, puedes añadir el switch como en usuarios) -->
+  <!-- VISTA TABLA -->
   <div id="viewTable" class="mt-3" style="display:none">
     <div class="card shadow-sm p-2">
       <div class="table-responsive">
@@ -499,6 +632,27 @@ Swal.fire({
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+/* ====== Preferencia de vista (como Departamentos) ====== */
+const KEY='sedesView';
+const btnCards=document.getElementById('btnViewCards');
+const btnTable=document.getElementById('btnViewTable');
+const viewCards=document.getElementById('viewCards');
+const viewTable=document.getElementById('viewTable');
+function applyView(v){
+  if(v==='table'){ viewCards.style.display='none'; viewTable.style.display='';
+    btnTable.classList.add('btn-primary'); btnTable.classList.remove('btn-outline-primary');
+    btnCards.classList.add('btn-outline-primary'); btnCards.classList.remove('btn-primary');
+  } else { viewCards.style.display=''; viewTable.style.display='none';
+    btnCards.classList.add('btn-primary'); btnCards.classList.remove('btn-outline-primary');
+    btnTable.classList.add('btn-outline-primary'); btnTable.classList.remove('btn-primary');
+  }
+  try{ localStorage.setItem(KEY,v); }catch(e){}
+}
+let pref='cards'; try{ pref=localStorage.getItem(KEY)||'cards'; }catch(e){}
+applyView(pref);
+btnCards.addEventListener('click',()=>applyView('cards'));
+btnTable.addEventListener('click',()=>applyView('table'));
+
 /* ====== Inspector ====== */
 const insp = document.getElementById('inspector');
 const inspBackdrop = document.getElementById('inspBackdrop');
@@ -591,7 +745,6 @@ const markersLayer = L.layerGroup().addTo(map);
 let bounds = [];
 
 async function loadMapData(){
-  // armamos QS actual para que el JSON respete los filtros
   const params = new URLSearchParams({
     sedes_json: '1',
     q: '<?= htmlspecialchars($q, ENT_QUOTES) ?>',
@@ -608,16 +761,14 @@ async function loadMapData(){
   data.data.forEach(s=>{
     let lat=null, lng=null;
 
-    // Preferimos columnas lat/long si existen
     if ('latitud' in s && 'longitud' in s && s.latitud!==null && s.longitud!==null){
       lat = parseFloat(s.latitud); lng = parseFloat(s.longitud);
     }
-    // fallback: centroide del estado
     if ((lat===null || isNaN(lat) || isNaN(lng)) && s.estado){
       const key = String(s.estado).trim().toUpperCase();
       if (MX_CENTROIDS[key]) { [lat,lng] = MX_CENTROIDS[key]; }
     }
-    if (lat===null || lng===null) return; // no sabemos dónde colocar
+    if (lat===null || lng===null) return;
 
     const active = Number(s.activo)===1;
     const mk = L.circleMarker([lat,lng], {
@@ -658,5 +809,8 @@ document.getElementById('btnFit').addEventListener('click', fitToMarkers);
 document.getElementById('btnClearSel').addEventListener('click', ()=>{ map.closePopup(); });
 
 loadMapData(); // inicial
-
 </script>
+
+<?php
+// (opcional) footer unificado
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/footer.php';

@@ -1,23 +1,35 @@
 <?php
-if (!isset($_SESSION)) session_start();
-require_once('../../../models/Sede.php');
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../../../models/Sede.php';
 
+/* ====== Endpoint AJAX: verificar nombre único ====== */
 if (isset($_GET['verificar_nombre'])) {
     $nombre = strtoupper(trim($_GET['verificar_nombre']));
     $sede = new Sede();
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['existe' => $sede->existeNombre($nombre)]);
     exit;
 }
 
-$titulo_pagina = "Registrar Sede";
-include_once('../../shared/header.php');
+/* ====== Título + Header compartido ====== */
+$tituloPagina = "Registrar Sede"; // camelCase (coincide con header.php)
+require_once __DIR__ . '/../../shared/header.php';
 
+/* ====== Mensajes de sesión ====== */
 $mensaje_exito = $_SESSION['sede_guardada'] ?? null;
 $mensaje_error = $_SESSION['error_guardado'] ?? null;
 unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
 ?>
-
 <style>
+:root{ --nav-h: 64px; }
+
+/* Hotfix mínimo: navbar siempre arriba e interactuable */
+.navbar-nexus{
+  position: sticky;
+  top: 0;
+  z-index: 1100 !important;
+}
+
 /* ====== Hero/Encabezado interno ====== */
 .page-head{
   display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
@@ -26,6 +38,7 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
   border: 1px solid rgba(255,255,255,.35);
   backdrop-filter: blur(8px);
   box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  position: relative; z-index: 3;
 }
 .hero{display:flex;align-items:center;gap:.8rem}
 .hero .hero-icon{
@@ -46,7 +59,8 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
 .form-card{
   border-radius:16px;border:1px solid #e5e7eb;
   box-shadow:0 8px 24px rgba(0,0,0,.08);
-  background: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.9);
+  position: relative; z-index: 2;
 }
 .section-title{
   font-weight:800;color:#0D6EFD;letter-spacing:.2px;margin-bottom:.75rem;
@@ -76,7 +90,7 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
 .bootstrap-flash { display:none; }
 </style>
 
-<div class="container py-4" style="max-width:1100px">
+<div class="container py-4" style="max-width:1100px; position:relative; z-index:2;">
   <!-- Encabezado interno -->
   <div class="page-head">
     <div class="hero">
@@ -86,7 +100,7 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
         <p class="subtitle">Captura de datos y validaciones</p>
       </div>
     </div>
-    <div class="d-flex gap-2 flex-wrap">
+    <div class="d-flex align-items-center gap-2">
       <a href="lista_sedes.php" class="btn btn-outline-info">📋 Lista de Sedes</a>
       <a href="menu.php" class="btn btn-outline-secondary">← Regresar</a>
     </div>
@@ -109,7 +123,7 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
           <label class="form-label">Nombre de la sede</label>
           <div class="input-group input-icon">
             <span class="input-group-text">🏷️</span>
-            <input type="text" name="nombre" class="form-control text-uppercase" id="nombreSede" required>
+            <input type="text" name="nombre" class="form-control text-uppercase" id="nombreSede" required placeholder="EJ. MATRIZ CENTRO">
           </div>
           <div id="mensajeNombre" class="mt-1"></div>
           <div class="help">Debe ser único en el sistema.</div>
@@ -182,12 +196,16 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
         </div>
       </div>
 
-      <div class="mt-4 d-flex justify-content-between flex-wrap gap-2">
-        <a href="menu.php" class="btn btn-outline-secondary">← Cancelar</a>
-        <a href="lista_sedes.php" class="btn btn-outline-info">📋 Lista de Sedes</a>
-        <button type="submit" class="btn btn-primary" id="btnGuardar">
-          Guardar Sede
-        </button>
+      <div class="row g-2 mt-4 justify-content-center actions-3">
+        <div class="col-12 col-md-4 d-grid">
+          <a href="menu.php" class="btn btn-outline-secondary btn-eq">← Cancelar</a>
+        </div>
+        <div class="col-12 col-md-4 d-grid">
+          <a href="lista_sedes.php" class="btn btn-outline-info btn-eq">📋 Lista de Sedes</a>
+        </div>
+        <div class="col-12 col-md-4 d-grid">
+          <button class="btn btn-primary btn-eq" id="btnGuardar">Crear</button>
+        </div>
       </div>
     </form>
   </div>
@@ -196,12 +214,14 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
 <!-- SweetAlert para mensajes y validaciones visuales -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // Uppercase en tiempo real
+  // Uppercase con soporte ES-MX (incluye ñ/tildes)
   document.querySelectorAll('.text-uppercase').forEach(input => {
-    input.addEventListener('input', () => { input.value = input.value.toUpperCase(); });
+    input.addEventListener('input', () => {
+      input.value = input.value.toLocaleUpperCase('es-MX');
+    });
   });
 
-  // Verificación de nombre (misma lógica, pero con feedback visual)
+  // Verificación de nombre (AJAX)
   const nombreInput = document.getElementById("nombreSede");
   const btnGuardar  = document.getElementById("btnGuardar");
   const msgNombre   = document.getElementById("mensajeNombre");
@@ -215,7 +235,6 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
 
   nombreInput.addEventListener("blur", verificarNombre);
   nombreInput.addEventListener("keyup", (e)=>{
-    // si borra el campo, limpiamos mensaje
     if (e.target.value.trim()==="") { setMsg(msgNombre, "", "ok"); btnGuardar.disabled = false; }
   });
 
@@ -227,7 +246,7 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
       return;
     }
     btnGuardar.disabled = true;
-    fetch("?verificar_nombre=" + encodeURIComponent(nombre))
+    fetch(window.location.pathname + "?verificar_nombre=" + encodeURIComponent(nombre))
       .then(r => r.json())
       .then(data => {
         if (data.existe) {
@@ -244,10 +263,9 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
       });
   }
 
-  // Toasts de éxito/error desde PHP (mismas alertas que venimos usando)
-  const flashOK = <?= $mensaje_exito ? json_encode($mensaje_exito, JSON_UNESCAPED_UNICODE) : 'null' ?>;
+  // Toasts de éxito/error desde PHP
+  const flashOK  = <?= $mensaje_exito ? json_encode($mensaje_exito, JSON_UNESCAPED_UNICODE) : 'null' ?>;
   const flashERR = <?= $mensaje_error ? json_encode($mensaje_error, JSON_UNESCAPED_UNICODE) : 'null' ?>;
-
   if (flashOK || flashERR){
     Swal.fire({
       icon: flashOK ? 'success' : 'error',
@@ -257,14 +275,20 @@ unset($_SESSION['sede_guardada'], $_SESSION['error_guardado']);
     });
   }
 
-  // UX de envío: deshabilita botón y muestra spinner textual (no altera endpoints)
+  // UX de envío
   document.getElementById('formSede').addEventListener('submit', function(){
     btnGuardar.disabled = true;
     btnGuardar.innerHTML = 'Guardando…';
   });
-
-  // Fallback: oculta alertas bootstrap si existieran
-  setTimeout(() => {
-    document.querySelectorAll('.bootstrap-flash').forEach(n=>n.remove());
-  }, 3000);
 </script>
+
+<?php
+// ===== Footer compartido (carga Bootstrap Bundle JS para navbar/dropdowns) =====
+$footer = __DIR__ . '/../../shared/footer.php';
+if (is_file($footer)) {
+  require_once $footer;
+} else {
+  // Fallback: incluir Bootstrap Bundle desde CDN si no tienes footer
+  echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>';
+}
+?>

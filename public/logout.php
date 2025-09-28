@@ -1,7 +1,12 @@
 <?php
-session_start();
-session_unset();    // Limpia las variables de sesión
-session_destroy();  // Destruye la sesión actual
+if (session_status() === PHP_SESSION_NONE) session_start();
+define('BASE_PATH','/sistema_rh');
 
-header("Location: login.php"); // Redirige al login
-exit;
+$_SESSION = [];
+if (ini_get('session.use_cookies')) {
+  $params = session_get_cookie_params();
+  setcookie(session_name(), '', time()-42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+}
+session_destroy();
+
+header('Location: ' . BASE_PATH . '/public/login.php'); exit;

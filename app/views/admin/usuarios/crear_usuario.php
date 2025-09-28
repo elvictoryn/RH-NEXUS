@@ -1,6 +1,7 @@
 <?php
 if (!isset($_SESSION)) session_start();
 require_once dirname(__DIR__, 4) . '/config/conexion.php';
+if (!defined('BASE_PATH')) define('BASE_PATH','/sistema_rh');
 
 class UsuarioCrea {
     private PDO $db;
@@ -31,16 +32,16 @@ class UsuarioCrea {
 
     /* ===== Catálogos ===== */
     public function sedesActivas(): array {
-        return $this->db->query("SELECT id, nombre FROM sedes WHERE activo=1 ORDER BY nombre")->fetchAll();
+        return $this->db->query("SELECT id, nombre FROM sedes WHERE activo=1 ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
     }
     public function departamentosActivos(?int $sedeId=null): array {
         if ($sedeId) {
             $st = $this->db->prepare("SELECT id, nombre FROM departamentos
                                        WHERE LOWER(estado)='activo' AND sede_id=:s ORDER BY nombre");
-            $st->execute([':s'=>$sedeId]); return $st->fetchAll();
+            $st->execute([':s'=>$sedeId]); return $st->fetchAll(PDO::FETCH_ASSOC);
         }
         return $this->db->query("SELECT id, nombre FROM departamentos
-                                  WHERE LOWER(estado)='activo' ORDER BY nombre")->fetchAll();
+                                  WHERE LOWER(estado)='activo' ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /* ===== Crear (transacción) ===== */
@@ -108,9 +109,8 @@ if (isset($_GET['ajax'])) {
 
 /* ===== POST ===== */
 $msg=""; $type="";
-$root = dirname(__DIR__, 4);
-$dirFs = $root.'/public/img/usuarios/';
-$dirWeb = '../../../../public/img/usuarios/';
+$root  = dirname(__DIR__, 4);
+$dirFs = $root . '/public/img/usuarios/';
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $usuario = strtoupper(trim($_POST['usuario'] ?? ''));
@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 }
 
 /* ===== HEADER + VISTA ===== */
-$titulo_pagina = "Registrar Usuario";
+$tituloPagina = "Registrar Usuario"; // <— camelCase para que el header lo lea
 include_once('../../shared/header.php');
 
 /* Catálogos para selects */
@@ -197,7 +197,11 @@ $sedes = $M->sedesActivas();
 $deps  = isset($sede) ? $M->departamentosActivos($sede) : $M->departamentosActivos();
 ?>
 <style>
-/* ====== Estilo del formulario que te gustó ====== */
+:root{ --nav-h: 64px; }
+
+/* Navbar fijado arriba y sobre todo */
+.navbar-nexus{ position: sticky; top: 0; z-index: 1100 !important; }
+
 .card{border-radius:1rem}
 .section-title{font-weight:700;margin:8px 0 4px;display:flex;align-items:center;gap:.5rem}
 .section-title .dot{width:.5rem;height:.5rem;border-radius:50%;background:#06b6d4}
@@ -208,7 +212,7 @@ $deps  = isset($sede) ? $M->departamentosActivos($sede) : $M->departamentosActiv
 .invalid-feedback{display:block}
 </style>
 
-<div class="container py-4" style="max-width:1040px">
+<div class="container py-4" style="max-width:1040px; position:relative; z-index:2;">
   <div class="card shadow-sm p-4">
     <div class="section-title"><span class="dot"></span>Datos generales</div>
     <form method="POST" enctype="multipart/form-data" id="formCrear" autocomplete="off" novalidate>
@@ -308,10 +312,16 @@ $deps  = isset($sede) ? $M->departamentosActivos($sede) : $M->departamentosActiv
         </div>
       </div>
 
-      <div class="d-flex gap-2 mt-4">
-        <a href="menu.php" class="btn btn-outline-secondary">← Cancelar</a>
-        <a href="lista_usuario.php" class="btn btn-outline-info">📋 Lista de usuarios</a>
-        <button class="btn btn-primary" id="btnGuardar">Crear</button>
+      <div class="row g-2 mt-4 justify-content-center actions-3">
+        <div class="col-12 col-md-4 d-grid">
+          <a href="menu.php" class="btn btn-outline-secondary btn-eq">← Cancelar</a>
+        </div>
+        <div class="col-12 col-md-4 d-grid">
+          <a href="lista_usuario.php" class="btn btn-outline-info btn-eq">📋 Lista de usuarios</a>
+        </div>
+        <div class="col-12 col-md-4 d-grid">
+          <button class="btn btn-primary btn-eq" id="btnGuardar">Crear</button>
+        </div>
       </div>
     </form>
   </div>
@@ -346,11 +356,19 @@ const fbDep = document.getElementById('fb-dep');
 const foto = document.getElementById('foto');
 const fotoPreview = document.getElementById('fotoPreview');
 
-document.querySelectorAll('.text-upper').forEach(el=>el.addEventListener('input',()=>el.value=el.value.toUpperCase()));
+document.querySelectorAll('.text-upper').forEach(el=>{
+  el.addEventListener('input',()=>el.value=el.value.toLocaleUpperCase('es-MX'));
+});
 
-function setErr(el, fb, msg){ fb.textContent = msg||''; el?.classList?.toggle('is-invalid', !!msg); btn.disabled = !!document.querySelector('.is-invalid'); }
+function setErr(el, fb, msg){
+  fb.textContent = msg||'';
+  el?.classList?.toggle('is-invalid', !!msg);
+  // deshabilita si existe alguna invalid
+  btn.disabled = !!document.querySelector('.is-invalid');
+}
 async function jget(params){
   const url = new URL(location.href);
+  ['ajax','u','ne','sede_id','departamento_id'].forEach(k=>url.searchParams.delete(k));
   Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
   const r = await fetch(url, {headers:{'X-Requested-With':'fetch'}});
   return r.json();
@@ -375,6 +393,62 @@ correo.addEventListener('input', ()=>{
   setErr(correo, fbCorreo, ok ? '' : 'Correo inválido');
 });
 
+/* ===========================
+   FILTRADO RH POR SEDE — ROBUSTO
+   =========================== */
+function norm(s){
+  return (s||'').toString()
+    .toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[.\-]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function esDeptoRH(nombre){
+  const t = norm(nombre);
+  if (t === 'RH' || t === 'R H') return true;
+  if (t === 'RRHH' || t === 'RR HH') return true;
+  if (t.includes('RECURSOS HUMANOS')) return true;
+  return false;
+}
+let depsRequestToken = 0;
+
+function renderDepartamentos(items){
+  const prev = dep.value;
+  dep.innerHTML = '<option value="">— Sin departamento —</option>';
+
+  let lista = Array.isArray(items) ? items : [];
+  if (rol.value === 'rh') {
+    lista = lista.filter(d => esDeptoRH(d.nombre));
+  }
+
+  let restauro = false;
+  for (const d of lista){
+    const o=document.createElement('option');
+    o.value=String(d.id);
+    o.textContent=d.nombre;
+    if (String(d.id) === String(prev)) { o.selected = true; restauro = true; }
+    dep.appendChild(o);
+  }
+  if (!restauro && lista.length === 1){
+    dep.value = String(lista[0].id);
+  }
+}
+
+async function cargarDepartamentosPorSede(){
+  const token = ++depsRequestToken;
+  if (!sede.value) {
+    dep.innerHTML = '<option value="">— Sin departamento —</option>';
+    return;
+  }
+  const r = await jget({ajax:'deps_por_sede', sede_id:sede.value});
+  if (token !== depsRequestToken) return;
+  renderDepartamentos(r.items || []);
+}
+
+/* ===========================
+   VALIDACIONES DE ROL
+   =========================== */
 async function validarRol(){
   fbRol.textContent = fbSede.textContent = fbDep.textContent = '';
   rol.classList.remove('is-invalid'); sede.classList.remove('is-invalid'); dep.classList.remove('is-invalid');
@@ -392,18 +466,22 @@ async function validarRol(){
   }
   btn.disabled = !!document.querySelector('.is-invalid');
 }
-rol.addEventListener('change', validarRol);
+
+/* ===========================
+   EVENTOS
+   =========================== */
+rol.addEventListener('change', async ()=>{
+  if (sede.value) await cargarDepartamentosPorSede();
+  else dep.innerHTML = '<option value="">— Sin departamento —</option>';
+  validarRol();
+});
 sede.addEventListener('change', async ()=>{
-  const s = sede.value;
-  const r = await jget({ajax:'deps_por_sede', sede_id:s});
-  dep.innerHTML = '<option value="">— Sin departamento —</option>';
-  (r.items||[]).forEach(d=>{
-    const o=document.createElement('option'); o.value=d.id; o.textContent=d.nombre; dep.appendChild(o);
-  });
+  await cargarDepartamentosPorSede();
   validarRol();
 });
 dep.addEventListener('change', validarRol);
 
+/* Foto preview */
 foto.addEventListener('change', ()=>{
   const f = foto.files && foto.files[0];
   if(!f) return;
@@ -412,3 +490,13 @@ foto.addEventListener('change', ()=>{
   const rd=new FileReader(); rd.onload=e=>fotoPreview.src=e.target.result; rd.readAsDataURL(f);
 });
 </script>
+
+<?php
+// ===== Footer compartido / fallback (Bootstrap Bundle JS para navbar/dropdowns) =====
+$footer = __DIR__ . '/../../shared/footer.php';
+if (is_file($footer)) {
+  require_once $footer;
+} else {
+  echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>';
+}
+?>

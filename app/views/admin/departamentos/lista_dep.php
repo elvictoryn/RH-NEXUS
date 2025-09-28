@@ -1,11 +1,16 @@
 <?php
-if (!isset($_SESSION)) session_start();
-require_once dirname(__DIR__, 4) . '/config/conexion.php';
+// ============================================================
+// Lista de Departamentos - Nexus RH (inspector adaptado + filtros activos por defecto)
+// ============================================================
 
+define('BASE_PATH','/sistema_rh'); // <-- AJUSTA si tu carpeta cambia
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/config/conexion.php';
 $db = Conexion::getConexion();
 
 /* ============================================================
-   ENDPOINT AJAX: Detalles (antes de imprimir HTML)
+   ENDPOINT AJAX: Detalles (JSON) - DEBE IR ANTES DEL HTML
    ============================================================ */
 if (isset($_GET['detalles_id'])) {
   header('Content-Type: application/json; charset=utf-8');
@@ -26,13 +31,13 @@ if (isset($_GET['detalles_id'])) {
     $d = $st->fetch(PDO::FETCH_ASSOC);
     if (!$d) throw new Exception('Departamento no encontrado');
 
-    // Conteo de usuarios asignados (si existe la columna)
+    // Conteo de usuarios asignados (tolerante)
     $countUsers = 0;
     try {
       $cst = $db->prepare("SELECT COUNT(*) FROM usuarios WHERE departamento_id=:id");
       $cst->execute([':id'=>$id]);
       $countUsers = (int)$cst->fetchColumn();
-    } catch (\Throwable $e) { /* ignorar si no existe columna */ }
+    } catch (\Throwable $e) {}
 
     $h = fn($v)=>htmlspecialchars((string)$v ?? '', ENT_QUOTES, 'UTF-8');
     $v = fn($x)=> trim((string)$x) !== '' ? $x : '—';
@@ -51,7 +56,7 @@ if (isset($_GET['detalles_id'])) {
         </div>
       </div>
       <div class="insp-actions">
-        <a href="editar_dep.php?id=<?= (int)$d['id'] ?>" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
+        <a href="<?= BASE_PATH; ?>/app/views/admin/departamentos/editar_dep.php?id=<?= (int)$d['id'] ?>" class="btn btn-sm btn-outline-secondary">✏️ Editar</a>
       </div>
     </div>
 
@@ -91,12 +96,13 @@ if (isset($_GET['detalles_id'])) {
 }
 
 /* ============================================================
-   Filtros + Datos
+   Filtros + Datos (server)
+   - Por defecto mostrar SOLO ACTIVOS
    ============================================================ */
 $q       = trim($_GET['q'] ?? '');
+$estado  = array_key_exists('estado', $_GET) ? ($_GET['estado'] ?? '') : 'activo'; // <-- por defecto "activo"
 $sede_id = $_GET['sede_id'] ?? '';
 $resp_id = $_GET['resp_id'] ?? '';
-$estado  = $_GET['estado']  ?? '';
 
 $where=[]; $p=[];
 if ($q!==''){
@@ -107,7 +113,7 @@ if ($sede_id!==''){ $where[]="d.sede_id=:sede"; $p[':sede']=(int)$sede_id; }
 if ($resp_id!==''){ $where[]="d.responsable_id=:resp"; $p[':resp']=(int)$resp_id; }
 if ($estado!==''){  $where[]="LOWER(d.estado)=:est"; $p[':est']=strtolower($estado); }
 
-$whereSql = $where?('WHERE '.implode(' AND ', $where)):'';
+$whereSql = $where?('WHERE '.implode(' AND ', $where)):''; 
 
 $pag   = max(1, (int)($_GET['pag'] ?? 1));
 $limit = 12;
@@ -126,11 +132,23 @@ $sql = "SELECT d.id, d.nombre, d.descripcion, d.estado,
                u.nombre_completo AS responsable
         FROM departamentos d
         LEFT JOIN sedes s ON s.id=d.sede_id
+        LEFT JOIN usuarios u ON u.id=d.resresponsable_id
+        $whereSql
+        ORDER BY d.nombre ASC
+        LIMIT :lim OFFSET :off";
+$st = $db->prepare($sql);
+// ¡ojo! typo corregido en la línea de arriba:
+$sql = "SELECT d.id, d.nombre, d.descripcion, d.estado,
+               s.nombre AS sede_nombre,
+               u.nombre_completo AS responsable
+        FROM departamentos d
+        LEFT JOIN sedes s ON s.id=d.sede_id
         LEFT JOIN usuarios u ON u.id=d.responsable_id
         $whereSql
         ORDER BY d.nombre ASC
         LIMIT :lim OFFSET :off";
 $st = $db->prepare($sql);
+
 foreach($p as $k=>$v) $st->bindValue($k,$v);
 $st->bindValue(':lim',$limit,PDO::PARAM_INT);
 $st->bindValue(':off',$off,PDO::PARAM_INT);
@@ -141,33 +159,80 @@ $deps = $st->fetchAll(PDO::FETCH_ASSOC);
 $sedes = $db->query("SELECT id, nombre FROM sedes ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 $resps = $db->query("SELECT id, nombre_completo FROM usuarios WHERE rol='jefe_area' ORDER BY nombre_completo")->fetchAll(PDO::FETCH_ASSOC);
 
-/* Mensajes (Sesión) */
-$flash_ok    = $_SESSION['mensaje_exito'] ?? null;
-$flash_error = $_SESSION['mensaje_error'] ?? null;
-unset($_SESSION['mensaje_exito'], $_SESSION['mensaje_error']);
-
-/* Header global */
-$titulo_pagina = "Departamentos";
-include_once('../../shared/header.php');
-
-/* Ruta para imágenes (si usas alguna más adelante) */
+/* Render */
+$tituloPagina = "Departamentos";
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/header.php';
+$selfUrl = htmlspecialchars(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 ?>
 <style>
-/* ====== Estilos utilitarios (coherentes con Sedes/Usuarios) ====== */
-.page-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.85rem 1rem;border-radius:16px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
-.hero{display:flex;align-items:center;gap:.8rem}
-.hero .hero-icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#0D6EFD,#6ea8fe);color:#fff;font-size:1.25rem;box-shadow:0 6px 14px rgba(13,110,253,.35)}
-.hero .title{margin:0;line-height:1.1;font-weight:900;letter-spacing:.2px;font-size:clamp(1.8rem, 2.6vw + .6rem, 2.6rem);background:linear-gradient(90deg,#ffffff 0%, #e6f0ff 60%, #fff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 1px 0 rgba(0,0,0,.12)}
-.hero .subtitle{margin:0;color:#e8eef7;font-size:.95rem;font-weight:500;opacity:.95}
-.badge-soft{background:#e9f2ff;color:#1f2937;border:1px solid #cfe0ff;font-weight:600}
-.toolbar{background:rgba(255,255,255,.86);border:1px solid #e5e7eb;border-radius:16px;padding:.9rem;color:#04181e;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-.view-switch .btn{min-width:130px}
-.btn-primary{background:#0D6EFD;border-color:#0D6EFD}
-.btn-primary:hover{background:#0b5ed7;border-color:#0b5ed7}
-.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1rem}
-@media (min-width:576px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:992px){.grid{grid-template-columns:repeat(3,1fr)}}
-@media (min-width:1200px){.grid{grid-template-columns:repeat(4,1fr)}}
+/* ====== Ajustes globales útiles ====== */
+:root{ --nav-h: 64px; } /* altura aprox. de tu navbar */
+
+/* ====== FILTROS AISLADOS (no dependen de Bootstrap) ====== */
+.deps-filters {
+  background: rgba(255,255,255,.9);
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+  align-items: end;
+  position: relative;
+  z-index: 5; /* por encima de hero/tarjetas */
+}
+.deps-filters .f-group { display: grid; gap: 6px; }
+.deps-filters .f-label { font-weight: 600; }
+.deps-filters .f-inline {
+  display: grid; gap: 8px;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+.deps-filters .f-search { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; }
+.deps-filters .f-ico {
+  display: inline-grid; place-items: center;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: #eef2ff; color: #334155; font-weight: 700;
+}
+/* Reset + estilo básico de controles dentro de la barra */
+.deps-filters input[type="text"],
+.deps-filters select,
+.deps-filters button,
+.deps-filters a.btn-clean {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #fff;
+  color: #0f172a;
+  cursor: pointer;
+}
+.deps-filters input[type="text"] { cursor: text; }
+/* Botones */
+.deps-filters .btn-apply {
+  background: #0D6EFD; color: #fff; border-color: #0D6EFD;
+  text-align: center; font-weight: 700;
+}
+.deps-filters .btn-apply:hover { filter: brightness(0.95); }
+.deps-filters .btn-clean {
+  text-align: center; border-color: #94a3b8; color: #334155; background:#f8fafc;
+}
+.deps-filters .btn-clean:hover { filter: brightness(0.97); }
+/* Desktop: 5 columnas (q | sede | resp | estado | botones) */
+@media (min-width: 992px){
+  .deps-filters {
+    grid-template-columns: 5fr 3fr 3fr 1fr auto;
+    align-items: end;
+  }
+  .deps-filters .f-inline { grid-template-columns: auto auto; gap: 8px; }
+}
+
+/* ====== Tarjetas / Tabla ====== */
 .dep-card{position:relative;overflow:hidden;border:1px solid #e5e7eb;border-radius:1rem;background:#fff}
 .dep-card .banner{height:64px;background:linear-gradient(135deg,#0D6EFD,#6ea8fe 60%, #F6BD60)}
 .dep-card .body{padding:.75rem .75rem 1rem;color:#04181e}
@@ -181,11 +246,31 @@ include_once('../../shared/header.php');
 .table > :not(caption) > * > *{vertical-align:middle}
 .actions-col{white-space:nowrap}
 
-/* Inspector lateral */
-.insp-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:1055}
+/* ====== Inspector ADAPTADO AL NAVBAR ====== */
+.insp-backdrop{
+  position:fixed;
+  left:0; right:0; top:var(--nav-h); bottom:0;     /* inicia debajo del navbar */
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(2px);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  z-index:1090; /* navbar = 1100 en tu CSS global */
+}
 .insp-backdrop.show{opacity:1; pointer-events:auto}
-.inspector{position:fixed; top:0; right:-720px; height:100%; width:min(720px,96vw); background:#fff; color:#04181e; box-shadow:-10px 0 30px rgba(0,0,0,.25); transition:right .35s ease; z-index:1060; display:flex; flex-direction:column}
-.inspector.open{right:0}
+
+.inspector{
+  position:fixed;
+  top:var(--nav-h);                                  /* inicia debajo del navbar */
+  right:-720px;
+  height: calc(100vh - var(--nav-h));               /* no queda detrás */
+  width:min(720px,96vw);
+  background:#fff; color:#04181e;
+  box-shadow:-10px 0 30px rgba(0,0,0,.25);
+  transition:right .35s ease;
+  z-index:1095;                                      /* debajo del navbar, encima del contenido */
+  display:flex; flex-direction:column;
+}
+.inspector.open{ right:0 }
 .insp-head{padding:1rem 1.25rem; border-bottom:1px solid #e5e7eb; background:linear-gradient(180deg,#f8fbff,#fff); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap}
 .sd-avatar{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;background:#0D6EFD; color:#fff; font-size:1.3rem}
 .insp-name{font-weight:800;font-size:1.1rem;line-height:1.2}
@@ -209,105 +294,117 @@ include_once('../../shared/header.php');
 </style>
 
 <div class="container py-4" style="max-width:1300px">
-  <!-- Hero -->
-  <div class="page-head">
-    <div class="hero">
-      <div class="hero-icon">🧩</div>
+  <!-- Encabezado -->
+  <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap glass-card p-3"
+       style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:16px;backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.12)">
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-grid place-items-center rounded-3 px-3 py-2 text-white"
+           style="background:linear-gradient(135deg,#0D6EFD,#6ea8fe);">🧩</div>
       <div>
-        <h1 class="title">Departamentos</h1>
-        <p class="subtitle">Catálogo por sede y responsable</p>
+        <h1 class="h3 mb-0 fw-bold text-dark">Departamentos</h1>
+       <p class="text-subtitle mb-0">Catálogo por sede y responsable</p>
       </div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <span class="badge-soft">Total: <?= number_format($total) ?></span>
-      <a href="crear_dep.php" class="btn btn-primary">➕ Nuevo</a>
-      <a href="menu.php" class="btn btn-outline-secondary">← Regresar</a>
+      <span class="badge bg-light text-dark border">Total: <?= number_format($total) ?></span>
+      <a href="<?= BASE_PATH; ?>/app/views/admin/departamentos/crear_dep.php" class="btn btn-primary">➕ Nuevo</a>
+      <a href="<?= BASE_PATH; ?>/app/views/admin/departamentos/menu.php" class="btn btn-outline-secondary">← Regresar</a>
     </div>
   </div>
 
-  <!-- Switch centrado (igual que Usuarios) -->
+  <!-- Cambiar vista -->
   <div class="d-flex justify-content-center mt-3">
-    <div class="btn-group view-switch" role="group" aria-label="Cambiar vista">
+    <div class="btn-group" role="group" aria-label="Cambiar vista">
       <button type="button" class="btn btn-outline-primary" id="btnViewCards">▦ Tarjetas</button>
       <button type="button" class="btn btn-outline-primary" id="btnViewTable">☰ Tabla</button>
     </div>
   </div>
 
-  <!-- Filtros -->
-  <form class="toolbar mt-3" method="get" id="filtros">
-    <div class="row g-2 align-items-end">
-      <div class="col-12 col-lg-5">
-        <div class="input-group input-icon">
-          <span class="input-group-text">🔎</span>
-          <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" class="form-control" placeholder="Buscar: nombre, descripción, sede o responsable">
-        </div>
+  <!-- ======= FILTROS (por defecto Activos) ======= -->
+  <form class="deps-filters mt-3" method="get" id="filtros">
+    <!-- Buscar -->
+    <div class="f-group">
+      <label class="f-label" for="f_q">Buscar</label>
+      <div class="f-search">
+        <span class="f-ico">🔎</span>
+        <input type="text" id="f_q" name="q" value="<?= htmlspecialchars($q) ?>"
+               placeholder="Nombre, descripción, sede o responsable">
       </div>
-      <div class="col-6 col-lg-3">
-        <select name="sede_id" class="form-select">
-          <option value="">— Todas las sedes —</option>
-          <?php foreach($sedes as $s): ?>
-            <option value="<?= (int)$s['id'] ?>" <?= ($sede_id!=='' && (int)$sede_id===(int)$s['id'])?'selected':''; ?>>
-              <?= htmlspecialchars($s['nombre']) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="col-6 col-lg-3">
-        <select name="resp_id" class="form-select">
-          <option value="">— Todos los responsables —</option>
-          <?php foreach($resps as $r): ?>
-            <option value="<?= (int)$r['id'] ?>" <?= ($resp_id!=='' && (int)$resp_id===(int)$r['id'])?'selected':''; ?>>
-              <?= htmlspecialchars($r['nombre_completo']) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="col-6 col-lg-1">
-        <select name="estado" class="form-select">
-          <option value="">— Todos —</option>
-          <option value="activo"   <?= ($estado==='activo'?'selected':'') ?>>Activos</option>
-          <option value="inactivo" <?= ($estado==='inactivo'?'selected':'') ?>>Inactivos</option>
-        </select>
-      </div>
-      <div class="col-12 d-flex justify-content-between mt-2">
-        <div></div>
-        <div class="d-flex gap-2">
-          <a class="btn btn-outline-secondary" href="<?= basename($_SERVER['PHP_SELF']) ?>">Limpiar</a>
-          <button class="btn btn-outline-primary">Aplicar filtros</button>
-        </div>
-      </div>
+    </div>
+
+    <!-- Sede -->
+    <div class="f-group">
+      <label class="f-label" for="f_sede">Sede</label>
+      <select id="f_sede" name="sede_id">
+        <option value="">— Todas las sedes —</option>
+        <?php foreach($sedes as $s): ?>
+          <option value="<?= (int)$s['id'] ?>" <?= ($sede_id!=='' && (int)$sede_id===(int)$s['id'])?'selected':''; ?>>
+            <?= htmlspecialchars($s['nombre']) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <!-- Responsable -->
+    <div class="f-group">
+      <label class="f-label" for="f_resp">Responsable</label>
+      <select id="f_resp" name="resp_id">
+        <option value="">— Todos —</option>
+        <?php foreach($resps as $r): ?>
+          <option value="<?= (int)$r['id'] ?>" <?= ($resp_id!=='' && (int)$resp_id===(int)$r['id'])?'selected':''; ?>>
+            <?= htmlspecialchars($r['nombre_completo']) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <!-- Estado (por defecto activo) -->
+    <div class="f-group">
+      <label class="f-label" for="f_estado">Estado</label>
+      <select id="f_estado" name="estado">
+        <option value="activo"   <?= ($estado==='activo'?'selected':'') ?>>Activos</option>
+        <option value="inactivo" <?= ($estado==='inactivo'?'selected':'') ?>>Inactivos</option>
+        <option value=""         <?= ($estado===''?'selected':'') ?>>Todos</option>
+      </select>
+    </div>
+
+    <!-- Botonera -->
+    <div class="f-inline">
+      <a href="<?= $selfUrl ?>" class="btn-clean">Limpiar</a>
+      <button class="btn-apply" type="submit">Aplicar filtros</button>
     </div>
   </form>
 
   <!-- VISTA TARJETAS -->
   <div id="viewCards" class="mt-3">
-    <div class="grid">
+    <div class="row g-3">
       <?php if (!$deps): ?>
-        <div class="empty col-12">
-          <div style="font-size:2rem;line-height:1">🗂️</div>
-          <div class="mt-2">No hay resultados con los filtros actuales.</div>
+        <div class="col-12">
+          <div class="empty">
+            <div style="font-size:2rem;line-height:1">🗂️</div>
+            <div class="mt-2">No hay resultados con los filtros actuales.</div>
+          </div>
         </div>
       <?php else: foreach ($deps as $d): ?>
-        <div class="dep-card">
-          <div class="banner"></div>
-
-          <div class="dep-actions">
-            <a href="editar_dep.php?id=<?= (int)$d['id'] ?>" class="btn btn-light btn-sm" title="Editar">✏️</a>
-            <button type="button" class="btn btn-outline-danger btn-sm btn-del" data-id="<?= (int)$d['id'] ?>" title="Eliminar">🗑️</button>
-          </div>
-
-          <div class="body">
-            <div class="name"><?= htmlspecialchars($d['nombre']) ?></div>
-            <div class="meta">📍 <?= htmlspecialchars($d['sede_nombre'] ?? '—') ?></div>
-            <div class="d-flex flex-wrap gap-2 mt-2">
-              <span class="tag">👤 <?= htmlspecialchars($d['responsable'] ?: 'No asignado') ?></span>
-              <span class="tag"><?= ($d['estado']==='activo'?'🟢 Activo':'⚪ Inactivo') ?></span>
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+          <div class="dep-card">
+            <div class="banner"></div>
+            <div class="dep-actions">
+              <a href="<?= BASE_PATH; ?>/app/views/admin/departamentos/editar_dep.php?id=<?= (int)$d['id'] ?>" class="btn btn-light btn-sm" title="Editar">✏️</a>
+              <button type="button" class="btn btn-outline-danger btn-sm btn-del" data-id="<?= (int)$d['id'] ?>" title="Eliminar">🗑️</button>
             </div>
-          </div>
-
-          <div class="dep-footer">
-            <div class="meta"></div>
-            <button type="button" class="btn btn-sm btn-outline-primary btn-open-inspector" data-id="<?= (int)$d['id'] ?>">👁️ Detalles</button>
+            <div class="body">
+              <div class="name"><?= htmlspecialchars($d['nombre']) ?></div>
+              <div class="meta">📍 <?= htmlspecialchars($d['sede_nombre'] ?? '—') ?></div>
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <span class="tag">👤 <?= htmlspecialchars($d['responsable'] ?: 'No asignado') ?></span>
+                <span class="tag"><?= ($d['estado']==='activo'?'🟢 Activo':'⚪ Inactivo') ?></span>
+              </div>
+            </div>
+            <div class="dep-footer">
+              <div class="meta"></div>
+              <button type="button" class="btn btn-sm btn-outline-primary btn-open-inspector" data-id="<?= (int)$d['id'] ?>">👁️ Detalles</button>
+            </div>
           </div>
         </div>
       <?php endforeach; endif; ?>
@@ -318,7 +415,7 @@ include_once('../../shared/header.php');
   <div id="viewTable" class="mt-3" style="display:none">
     <div class="card shadow-sm p-2">
       <div class="table-responsive">
-        <table class="table align-middle mb-0 table-hover" id="tablaDepartamentos">
+        <table class="table align-middle mb-0 table-hover">
           <thead>
             <tr class="text-center">
               <th>Nombre</th>
@@ -339,7 +436,7 @@ include_once('../../shared/header.php');
                 <td><?= ($d['estado']==='activo'?'🟢 Activo':'⚪ Inactivo') ?></td>
                 <td class="text-end actions-col">
                   <button type="button" class="btn btn-sm btn-outline-primary btn-open-inspector" data-id="<?= (int)$d['id'] ?>" title="Detalles">👁️</button>
-                  <a href="editar_dep.php?id=<?= (int)$d['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Editar">✏️</a>
+                  <a href="<?= BASE_PATH; ?>/app/views/admin/departamentos/editar_dep.php?id=<?= (int)$d['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Editar">✏️</a>
                   <button type="button" class="btn btn-sm btn-outline-danger btn-del" data-id="<?= (int)$d['id'] ?>" title="Eliminar">🗑️</button>
                 </td>
               </tr>
@@ -377,20 +474,8 @@ include_once('../../shared/header.php');
   <div id="inspContent"><div class="p-3 text-muted">Selecciona un departamento…</div></div>
 </aside>
 
-<?php if ($flash_ok || $flash_error): ?>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-Swal.fire({
-  icon: '<?= $flash_ok ? 'success' : 'error' ?>',
-  title: '<?= addslashes($flash_ok ?: $flash_error) ?>',
-  timer: 1800, showConfirmButton: false
-});
-</script>
-<?php endif; ?>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-// Preferencia de vista (igual que Usuarios)
+// Preferencia de vista
 const KEY='depsView';
 const btnCards=document.getElementById('btnViewCards');
 const btnTable=document.getElementById('btnViewTable');
@@ -406,12 +491,11 @@ function applyView(v){
   }
   try{ localStorage.setItem(KEY,v); }catch(e){}
 }
-let pref='cards'; try{ pref=localStorage.getItem(KEY)||'cards'; }catch(e){}
-applyView(pref);
+applyView(localStorage.getItem(KEY)||'cards');
 btnCards.addEventListener('click',()=>applyView('cards'));
 btnTable.addEventListener('click',()=>applyView('table'));
 
-// Inspector lateral (Ver detalles)
+// Inspector (adaptado al navbar)
 const insp=document.getElementById('inspector');
 const inspBackdrop=document.getElementById('inspBackdrop');
 const inspClose=document.getElementById('inspClose');
@@ -424,7 +508,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeInspector();
 
 async function fetchDetalles(id){
   const r = await fetch(`?detalles_id=${encodeURIComponent(id)}`, {credentials:'same-origin'});
-  const data = await r.json(); // asegurado porque no hubo HTML antes del JSON
+  const data = await r.json();
   if(!data.ok) throw new Error(data.msg||'Error');
   return data.html;
 }
@@ -432,14 +516,14 @@ async function openDetalles(id){
   inspContent.innerHTML = `<div class="p-3 text-muted">Cargando…</div>`;
   openInspector();
   try{ const html = await fetchDetalles(id); inspContent.innerHTML = html; }
-  catch(e){ inspContent.innerHTML = `<div class="p-3 text-danger">⚠️ ${ (e?.message||'No se pudo cargar') }</div>`; }
+  catch(e){ inspContent.innerHTML = `<div class="p-3 text-danger">⚠️ ${(e?.message||'No se pudo cargar')}</div>`; }
 }
 document.addEventListener('click', e=>{
   const b=e.target.closest('.btn-open-inspector'); if(!b) return;
   openDetalles(b.dataset.id);
 });
 
-// Eliminar = INACTIVAR (igual que Usuarios)
+// Inactivar (soft-delete)
 document.querySelectorAll('.btn-del').forEach(btn=>{
   btn.addEventListener('click', async ()=>{
     const id=btn.dataset.id;
@@ -462,3 +546,6 @@ document.querySelectorAll('.btn-del').forEach(btn=>{
   });
 });
 </script>
+
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/footer.php';

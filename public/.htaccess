@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /sistema_rh/public/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+<FilesMatch "\.(env|sql|yml|yaml|ini)$">
+  Require all denied
+</FilesMatch>

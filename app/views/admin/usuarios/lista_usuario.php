@@ -29,7 +29,8 @@ if (isset($_GET['detalles_id'])) {
     $h = fn($v)=> htmlspecialchars((string)$v ?? '', ENT_QUOTES, 'UTF-8');
     $v = function($x){ $x = trim((string)$x); return $x!=='' ? $x : '—'; };
 
-    $imgBase = '../../../../public/img/usuarios/';
+    // Ruta web de fotos
+    $imgBase = (defined('BASE_PATH') ? BASE_PATH : '/sistema_rh') . '/public/img/usuarios/';
     $foto = !empty($u['fotografia'])
       ? $imgBase . $h($u['fotografia'])
       : 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2296%22 height=%2296%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23f1f5f9%22/></svg>';
@@ -60,7 +61,6 @@ if (isset($_GET['detalles_id'])) {
       + (trim((string)$u['numero_empleado']) !== '' ? 1 : 0)
       + (trim((string)$u['estado']) !== '' ? 1 : 0);
 
-    /* ------- HTML del panel lateral con secciones, iconos y contadores ------- */
     ob_start(); ?>
     <!-- HEADER -->
     <div class="insp-head">
@@ -87,10 +87,9 @@ if (isset($_GET['detalles_id'])) {
       </div>
     </div>
 
-    <!-- BODY: SECCIONES EN GRID -->
+    <!-- BODY -->
     <div class="insp-body">
       <div class="insp-sections">
-        <!-- Organización -->
         <section class="insp-section">
           <div class="sec-title">
             <div class="sec-left"><span class="sec-ico">🏢</span><span>Organización</span></div>
@@ -103,7 +102,6 @@ if (isset($_GET['detalles_id'])) {
           </div>
         </section>
 
-        <!-- Contacto -->
         <section class="insp-section">
           <div class="sec-title">
             <div class="sec-left"><span class="sec-ico">✉️</span><span>Contacto</span></div>
@@ -112,24 +110,15 @@ if (isset($_GET['detalles_id'])) {
           <div class="kv-grid">
             <div class="kv">
               <div class="k">Correo</div>
-              <div class="v">
-                <?php if (!empty($u['correo'])): ?>
-                  <a href="mailto:<?= $h($u['correo']) ?>"><?= $h($u['correo']) ?></a>
-                <?php else: ?>—<?php endif; ?>
-              </div>
+              <div class="v"><?= !empty($u['correo']) ? '<a href="mailto:'.$h($u['correo']).'">'.$h($u['correo']).'</a>' : '—' ?></div>
             </div>
             <div class="kv">
               <div class="k">Teléfono</div>
-              <div class="v">
-                <?php if (!empty($u['telefono'])): ?>
-                  <a href="tel:<?= $h($u['telefono']) ?>"><?= $h($u['telefono']) ?></a>
-                <?php else: ?>—<?php endif; ?>
-              </div>
+              <div class="v"><?= !empty($u['telefono']) ? '<a href="tel:'.$h($u['telefono']).'">'.$h($u['telefono']).'</a>' : '—' ?></div>
             </div>
           </div>
         </section>
 
-        <!-- Acceso -->
         <section class="insp-section">
           <div class="sec-title">
             <div class="sec-left"><span class="sec-ico">🔐</span><span>Acceso</span></div>
@@ -144,8 +133,7 @@ if (isset($_GET['detalles_id'])) {
       </div>
     </div>
     <?php
-    $html = ob_get_clean();
-    echo json_encode(['ok'=>true,'html'=>$html], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok'=>true,'html'=>ob_get_clean()], JSON_UNESCAPED_UNICODE);
   } catch(Throwable $e){
     echo json_encode(['ok'=>false,'msg'=>$e->getMessage()]);
   }
@@ -189,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['action'] ?? '') === 'desacti
    ============================================================ */
 
 /* Catálogos para filtros */
-$sedes = $db->query("SELECT id, nombre FROM sedes ORDER BY nombre")->fetchAll();
+$sedes = $db->query("SELECT id, nombre FROM sedes ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 $roles = [
   '' => '— Todos —',
   'admin' => 'Administrador',
@@ -251,24 +239,33 @@ foreach ($p as $k=>$v) $st->bindValue($k, $v);
 $st->bindValue(':lim', $limit, PDO::PARAM_INT);
 $st->bindValue(':off', $off, PDO::PARAM_INT);
 $st->execute();
-$usuarios = $st->fetchAll();
+$usuarios = $st->fetchAll(PDO::FETCH_ASSOC);
 
 /* Mensajes flash */
 $flash_ok    = $_SESSION['usuario_ok']    ?? null;
 $flash_error = $_SESSION['usuario_error'] ?? null;
 unset($_SESSION['usuario_ok'], $_SESSION['usuario_error']);
 
-/* Header global */
-$titulo_pagina = "Usuarios";
+/* Header global (USAR camelCase para el título) */
+$tituloPagina = "Usuarios";
 include_once('../../shared/header.php');
 
-/* Carpeta de fotos */
-$dirWeb = '../../../../public/img/usuarios/';
+/* Carpeta de fotos (ruta web estable) */
+$dirWeb = BASE_PATH . '/public/img/usuarios/';
 ?>
 <style>
-/* ====== Estilos locales + PANEL LATERAL con iconos/contadores y modo oscuro ====== */
+:root{ --nav-h: 64px; }
+
+/* ===== Navbar SIEMPRE arriba ===== */
+.navbar-nexus{
+  position: sticky;
+  top: 0;
+  z-index: 1100 !important;
+}
+
+/* ===== Estilos locales + Inspector ===== */
 .card{border-radius:1rem}
-.page-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.85rem 1rem;border-radius:16px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.85rem 1rem;border-radius:16px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.12);position:relative;z-index:3}
 .hero{display:flex;align-items:center;gap:.8rem}
 .hero .hero-icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#0D6EFD,#6ea8fe);color:#fff;font-size:1.25rem;box-shadow:0 6px 14px rgba(13,110,253,.35)}
 .hero .title{margin:0;line-height:1.1;font-weight:900;letter-spacing:.2px;font-size:clamp(1.9rem, 2.6vw + .6rem, 2.6rem);background:linear-gradient(90deg,#ffffff 0%, #e6f0ff 60%, #fff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 1px 0 rgba(0,0,0,.12)}
@@ -282,7 +279,7 @@ $dirWeb = '../../../../public/img/usuarios/';
 .btn-primary:hover{background:#0b5ed7;border-color:#0b5ed7}
 
 /* GRID tarjetas */
-.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1rem}
+.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1rem;position:relative;z-index:1}
 @media (min-width:576px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media (min-width:992px){.grid{grid-template-columns:repeat(3,1fr)}}
 @media (min-width:1200px){.grid{grid-template-columns:repeat(4,1fr)}}
@@ -316,25 +313,35 @@ $dirWeb = '../../../../public/img/usuarios/';
 .table > :not(caption) > * > *{vertical-align:middle}
 .thumb{width:48px;height:48px;border-radius:.5rem;object-fit:cover;border:1px solid #e5e7eb;background:#fff}
 .actions-col{white-space:nowrap}
-@media (max-width:575.98px){.actions-col{white-space:nowrap}}
 
-/* ====== PANEL LATERAL (INSPECTOR) con modo oscuro ====== */
+/* ===== Inspector debajo del navbar ===== */
 .insp-backdrop{
-  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  position:fixed;
+  left:0; right:0;
+  top: var(--nav-h);               /* inicia debajo del navbar */
+  bottom:0;
+  background:rgba(0,0,0,.45);
   backdrop-filter: blur(2px);
-  opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:1055;
+  opacity:0; pointer-events:none; transition:opacity .3s ease;
+  z-index: 1090;                   /* < navbar (1100) */
 }
 .insp-backdrop.show{ opacity:1; pointer-events:auto; }
 
 .inspector{
-  position:fixed; top:0; right:-720px; height:100%; width:min(720px,96vw);
+  position:fixed;
+  top: var(--nav-h);               /* debajo del navbar */
+  right:-720px;
+  height: calc(100% - var(--nav-h));
+  width:min(720px,96vw);
   background:#fff; color:#04181e;
   box-shadow:-10px 0 30px rgba(0,0,0,.25);
-  transition:right .35s ease; z-index:1060; display:flex; flex-direction:column;
+  transition:right .35s ease;
+  z-index: 1095;                   /* < navbar (1100), > contenido */
+  display:flex; flex-direction:column;
 }
 .inspector.open{ right:0; }
 
-/* Modo oscuro SOLO panel */
+/* Modo oscuro del inspector */
 .inspector.dark{ background:#0f172a; color:#e5e7eb; }
 .inspector.dark .insp-head{ background: linear-gradient(180deg, #0b1220, #0f172a); border-bottom-color:#1f2937;}
 .inspector.dark .insp-avatar{ border-color:#1f2937; }
@@ -343,7 +350,6 @@ $dirWeb = '../../../../public/img/usuarios/';
 .inspector.dark .insp-status{ border-color:#1f2937; }
 .inspector.dark .insp-status.ok{ background:#052e25; border-color:#064e3b; }
 .inspector.dark .insp-status.off{ background:#0b1220; }
-
 .inspector.dark .insp-section{ background:#0b1220; border-color:#1f2937; box-shadow:none; }
 .inspector.dark .sec-title{ color:#cfe0ff; }
 .inspector.dark .sec-count{ background:#0f1b2e; border-color:#1e3a8a; color:#cfe0ff; }
@@ -351,11 +357,7 @@ $dirWeb = '../../../../public/img/usuarios/';
 .inspector.dark .kv .v{ color:#e5e7eb; }
 .inspector.dark a{ color:#93c5fd; }
 
-.insp-head{
-  padding:1rem 1.25rem; border-bottom:1px solid #e5e7eb;
-  background: linear-gradient(180deg, #f8fbff, #ffffff);
-  display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
-}
+.insp-head{ padding:1rem 1.25rem; border-bottom:1px solid #e5e7eb; background: linear-gradient(180deg, #f8fbff, #ffffff); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
 .insp-avatar{ width:64px; height:64px; border-radius:12px; object-fit:cover; border:2px solid #e5e7eb; background:#fff; }
 .insp-name{ font-weight:800; font-size:1.1rem; line-height:1.2; }
 .insp-username{ color:#64748b; font-size:.9rem; }
@@ -366,60 +368,24 @@ $dirWeb = '../../../../public/img/usuarios/';
 .insp-status.off{ background:#f8fafc; }
 
 .insp-actions{ display:flex; gap:.5rem; align-items:center; margin-left:auto; }
-.insp-close{
-  position:absolute; right:.5rem; top:.5rem;
-  background:transparent; border:none; font-size:1.4rem; line-height:1; color:#64748b;
-}
+.insp-close{ position:absolute; right:.5rem; top:.5rem; background:transparent; border:none; font-size:1.4rem; line-height:1; color:#64748b; }
 
-.insp-body{
-  padding:1rem 1.25rem; overflow:auto; flex:1;
-}
+.insp-body{ padding:1rem 1.25rem; overflow:auto; flex:1; }
 
-/* Secciones en dos columnas en pantallas grandes */
-.insp-sections{
-  display:grid; gap:1rem;
-  grid-template-columns: 1fr;
-}
-@media (min-width: 992px){
-  .insp-sections{ grid-template-columns: 1fr 1fr; }
-}
+.insp-sections{ display:grid; gap:1rem; grid-template-columns: 1fr; }
+@media (min-width: 992px){ .insp-sections{ grid-template-columns: 1fr 1fr; } }
 
-.insp-section{
-  background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,.04);
-  padding:1rem;
-}
+.insp-section{ background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.04); padding:1rem; }
 
-/* Títulos con icono y contador */
-.sec-title{
-  font-weight:700; font-size:.95rem; color:#0D6EFD; margin-bottom:.6rem;
-  letter-spacing:.2px;
-  display:flex; align-items:center; justify-content:space-between;
-}
+.sec-title{ font-weight:700; font-size:.95rem; color:#0D6EFD; margin-bottom:.6rem; letter-spacing:.2px; display:flex; align-items:center; justify-content:space-between; }
 .sec-left{ display:flex; align-items:center; gap:.4rem; }
 .sec-ico{ font-size:1.05rem; line-height:1; }
-.sec-count{
-  font-weight:700; background:#eef2ff; padding:.1rem .5rem; border-radius:999px;
-  border:1px solid #e0e7ff; color:#334155; font-size:.78rem;
-}
+.sec-count{ font-weight:700; background:#eef2ff; padding:.1rem .5rem; border-radius:999px; border:1px solid #e0e7ff; color:#334155; font-size:.78rem; }
 
-/* Grid de pares clave-valor */
 .kv-grid{ display:grid; grid-template-columns:1fr; gap:.45rem .75rem; }
-@media (min-width:576px){ .kv-grid{ grid-template-columns: 1fr; } }
 .kv{ display:flex; gap:.5rem; align-items:baseline; }
 .kv .k{ color:#64748b; min-width:160px; font-weight:600; }
 .kv .v{ color:#04181e; }
-
-/* Loading */
-.insp-loading{
-  padding:1rem; color:#64748b; display:flex; align-items:center; gap:.5rem;
-}
-.insp-spinner{
-  width:16px; height:16px; border-radius:50%;
-  border:2px solid #cfe0ff; border-top-color:#0D6EFD;
-  animation:spin .8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 
 <div class="container py-4" style="max-width:1300px">
@@ -434,6 +400,7 @@ $dirWeb = '../../../../public/img/usuarios/';
     <div class="page-meta">
       <span class="badge badge-soft">Total: <?= number_format($total) ?></span>
       <a href="crear_usuario.php" class="btn btn-primary">➕ Nuevo usuario</a>
+      <a href="menu.php" class="btn btn-outline-secondary">← Regresar</a>
     </div>
   </div>
 
@@ -475,7 +442,7 @@ $dirWeb = '../../../../public/img/usuarios/';
           <?php endforeach; ?>
         </select>
       </div>
-      <div class="col-6 col-md-12 d-flex justify-content-between">
+      <div class="col-12 d-flex justify-content-between">
         <div class="d-flex flex-wrap gap-2 mt-1">
           <?php if ($q!==''): ?>
             <span class="badge rounded-pill text-bg-light filter-chip">🔎 <?= htmlspecialchars($q) ?></span>
@@ -524,7 +491,6 @@ $dirWeb = '../../../../public/img/usuarios/';
         <div class="user-card">
           <div class="banner"></div>
 
-          <!-- Acciones (una por función) -->
           <div class="uc-actions">
             <a href="editar_usuario.php?id=<?= (int)$u['id'] ?>" class="btn btn-light btn-sm" title="Editar">✏️</a>
             <button type="button" class="btn btn-outline-danger btn-sm btn-del" data-id="<?= (int)$u['id'] ?>" title="Desactivar">🚫</button>
@@ -647,7 +613,7 @@ $dirWeb = '../../../../public/img/usuarios/';
 <aside class="inspector" id="inspector" aria-hidden="true" aria-label="Detalles de usuario" role="dialog">
   <button class="insp-close" id="inspClose" aria-label="Cerrar">×</button>
   <div id="inspContent">
-    <div class="insp-loading"><span class="insp-spinner"></span> Cargando detalles…</div>
+    <div class="p-3 text-muted">Selecciona un usuario…</div>
   </div>
 </aside>
 
@@ -690,45 +656,41 @@ btnCards?.addEventListener('click', ()=>applyView('cards'));
 btnTable?.addEventListener('click', ()=>applyView('table'));
 
 // ---- Desactivar (soft delete) desde el mismo archivo ----
-document.querySelectorAll('.btn-del').forEach(btn=>{
-  btn.addEventListener('click', async ()=>{
-    const id = btn.dataset.id;
-    const conf = await Swal.fire({
-      icon:'warning',
-      title:'¿Desactivar usuario?',
-      text:'Podrás reactivarlo más tarde desde la edición.',
-      showCancelButton:true,
-      confirmButtonText:'Sí, desactivar',
-      cancelButtonText:'Cancelar'
-    });
-    if (!conf.isConfirmed) return;
-
-    const fd = new FormData();
-    fd.append('action','desactivar');
-    fd.append('id', id);
-
-    btn.disabled = true;
-    try{
-      const r = await fetch(location.pathname, {
-        method:'POST',
-        body: fd,
-        credentials: 'same-origin'
-      });
-      const ct = r.headers.get('content-type') || '';
-      const data = ct.includes('application/json') ? await r.json() : {ok:false, msg: await r.text()};
-
-      if (data.ok){
-        await Swal.fire({icon:'success', title: data.msg || 'Usuario desactivado', timer:1300, showConfirmButton:false});
-        location.reload();
-      } else {
-        throw new Error(data.msg || 'No se pudo desactivar');
-      }
-    }catch(e){
-      Swal.fire({icon:'error', title:'Error', text: e.message.slice(0,300)});
-    }finally{
-      btn.disabled = false;
-    }
+document.addEventListener('click', async (ev)=>{
+  const btn = ev.target.closest('.btn-del');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const conf = await Swal.fire({
+    icon:'warning',
+    title:'¿Desactivar usuario?',
+    text:'Podrás reactivarlo más tarde desde la edición.',
+    showCancelButton:true,
+    confirmButtonText:'Sí, desactivar',
+    cancelButtonText:'Cancelar'
   });
+  if (!conf.isConfirmed) return;
+
+  const fd = new FormData();
+  fd.append('action','desactivar');
+  fd.append('id', id);
+
+  btn.disabled = true;
+  try{
+    const r = await fetch(location.pathname, { method:'POST', body: fd, credentials: 'same-origin' });
+    const ct = r.headers.get('content-type') || '';
+    const data = ct.includes('application/json') ? await r.json() : {ok:false, msg: await r.text()};
+
+    if (data.ok){
+      await Swal.fire({icon:'success', title: data.msg || 'Usuario desactivado', timer:1300, showConfirmButton:false});
+      location.reload();
+    } else {
+      throw new Error(data.msg || 'No se pudo desactivar');
+    }
+  }catch(e){
+    Swal.fire({icon:'error', title:'Error', text: e.message.slice(0,300)});
+  }finally{
+    btn.disabled = false;
+  }
 });
 
 // ---- Panel lateral (inspector) ----
@@ -738,7 +700,6 @@ const inspClose = document.getElementById('inspClose');
 const inspContent = document.getElementById('inspContent');
 
 function openInspector(){
-  // Tema automático solo para el panel, según fondo del body
   updateInspectorTheme();
   insp.classList.add('open');
   inspBackdrop.classList.add('show');
@@ -769,13 +730,12 @@ async function fetchDetalles(id){
   return data.html;
 }
 
-// Abrir inspector
 document.addEventListener('click', async (e)=>{
   const btn = e.target.closest('.btn-open-inspector');
   if (!btn) return;
   const id = btn.dataset.id;
 
-  inspContent.innerHTML = `<div class="insp-loading"><span class="insp-spinner"></span> Cargando detalles…</div>`;
+  inspContent.innerHTML = `<div class="p-3 text-muted">Cargando…</div>`;
   openInspector();
 
   try{
@@ -812,8 +772,7 @@ document.addEventListener('click', async (e)=>{
     const data = await r.json();
     if (data.ok){
       await Swal.fire({icon:'success', title: data.msg || 'Usuario desactivado', timer:1200, showConfirmButton:false});
-      closeInspector();
-      location.reload();
+      closeInspector(); location.reload();
     } else {
       throw new Error(data.msg || 'No se pudo desactivar');
     }
@@ -834,12 +793,12 @@ function relLuma([r,g,b]){
   r/=255; g/=255; b/=255;
   const lin = v => v <= .03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
   r=lin(r); g=lin(g); b=lin(b);
-  return 0.2126*r + 0.7152*g + 0.0722*b; // 0 (oscuro) .. 1 (claro)
+  return 0.2126*r + 0.7152*g + 0.0722*b;
 }
 function updateInspectorTheme(){
   const bg = getComputedStyle(document.body).backgroundColor;
   const L = relLuma(parseRGB(bg));
-  if (L < 0.40){ // fondo oscuro -> panel dark
+  if (L < 0.40){
     insp.classList.add('dark');
     inspBackdrop.classList.add('dark');
   } else {
@@ -848,3 +807,14 @@ function updateInspectorTheme(){
   }
 }
 </script>
+
+<?php
+// ===== Footer compartido (carga Bootstrap Bundle JS para navbar/dropdowns) =====
+$footer = __DIR__ . '/../../shared/footer.php';
+if (is_file($footer)) {
+  require_once $footer;
+} else {
+  // Fallback: incluir Bootstrap Bundle desde CDN si no tienes footer
+  echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>';
+}
+?>

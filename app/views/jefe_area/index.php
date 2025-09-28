@@ -1,19 +1,6 @@
 <?php
-session_start();
-if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'NOMBRE_DEL_ROL') {
-    header('Location: ../../../public/login.php');
-    exit;
-}
-?>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Panel NOMBRE_DEL_ROL</title>
-</head>
-<body>
-    <h2>Bienvenido NOMBRE_DEL_ROL: <?= $_SESSION['usuario'] ?></h2>
-    <a href="../../../public/logout.php">Cerrar sesión</a>
-</body>
-</html>
+if (!defined('BASE_PATH')) define('BASE_PATH','/sistema_rh');
+$titulo_pagina = "Inicio · Jefe de Área";
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/header.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/home_feed.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/footer.php';

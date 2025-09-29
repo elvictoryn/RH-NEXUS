@@ -1,13 +1,13 @@
 <?php
 require_once(__DIR__ . '/../../config/conexion.php');
-
+// modelelos para el modulo de sede, aqui tambien colocamos las validaciones para no repetir informacion 
 class Sede {
     private $pdo;
 
     public function __construct() {
         $this->pdo = Conexion::getConexion();
     }
-
+//llamado para crear
     public function crear($data) {
         try {
             $sql = "INSERT INTO sedes (nombre, domicilio, numero, interior, colonia, municipio, estado, cp, telefono)
@@ -29,7 +29,7 @@ class Sede {
             return false;
         }
     }
-
+//para evitar duplicado en nombre llama a buscar a la base de datos si no nos retorna 
     public function existeNombre($nombre) {
         $sql = "SELECT COUNT(*) FROM sedes WHERE nombre = :nombre";
         $stmt = $this->pdo->prepare($sql);

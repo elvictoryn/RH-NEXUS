@@ -107,26 +107,8 @@ if (strtolower($_SESSION['rol'] ?? '') !== 'admin') {
       </div>
     </article>
 
-    <!-- Roles/Permisos (opcional / placeholder) -->
-    <article class="pill alt">
-      <div class="icon" aria-hidden="true">🛡️</div>
-      <div class="content">
-        <h3 class="title">Roles y permisos</h3>
-        <p class="subtitle">Configura qué ve cada perfil. (Módulo opcional)</p>
-        <div class="actions">
-          <button class="btn btn-outline-secondary" disabled>Próximamente</button>
-          <a class="btn btn-secondary disabled">Documentación</a>
-        </div>
-      </div>
-    </article>
-  </div>
-</div>
+   
 
-<!-- Rail inferior -->
-<div class="back-rail">
-  <div class="inner">
-    <a href="<?php echo BASE_PATH; ?>/public/admin.php" class="btn btn-outline-dark">⬅ Volver al panel principal</a>
-  </div>
-</div>
+
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/footer.php'; ?>

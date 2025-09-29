@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../config/conexion.php';
 
 if (!defined('BASE_PATH')) {
-  // Ajusta si tu proyecto cuelga de otra carpeta
+  // Ajusta si se cuelga de otra carpeta
   define('BASE_PATH', '/sistema_rh');
 }
 
@@ -14,7 +14,7 @@ class AuthController {
 
   public function __construct() {
     $this->db  = Conexion::getConexion();
-    // Config opcional; si no existe app.php, usa defaults seguros
+    // Config opcional; si no existe app.php, usar defaults seguros
     $this->cfg = is_file(__DIR__.'/../../config/app.php')
       ? (require __DIR__.'/../../config/app.php')
       : [
@@ -29,7 +29,7 @@ class AuthController {
   /* ---------- Helpers internos ---------- */
 
   private function notificarAdmins(string $mensaje, ?string $link=null): void {
-    // Silencioso si no existe la tabla 'notificaciones'
+    // Silencioso para activar  la tabla 'notificaciones'
     try {
       $q  = $this->db->query("SELECT id FROM usuarios WHERE rol='admin' AND estado='activo'");
       $admins = $q->fetchAll(PDO::FETCH_ASSOC);
@@ -49,8 +49,8 @@ class AuthController {
   }
 
   private function setSession(array $u, bool $remember): void {
-    // Llaves de sesión compatibles con tus vistas y módulos
-    $_SESSION['id']              = (int)$u['id'];                        // tus vistas usan 'id'
+    // Llaves de sesión compatibles con las vistas y módulos
+    $_SESSION['id']              = (int)$u['id'];                        // las vistas usan 'id'
     $_SESSION['uid']             = (int)$u['id'];                        // compat si en algún lugar usas 'uid'
     $_SESSION['usuario']         = $u['usuario'] ?? ($u['numero_empleado'] ?? '');
     $_SESSION['rol']             = strtolower($u['rol'] ?? '');          // admin|rh|gerente|jefe_area
@@ -92,7 +92,7 @@ class AuthController {
   /* ---------- Vistas ---------- */
 
   public function showLogin(?string $error=null): void {
-    // Pasa $error a la vista si la usas (echo en alert)
+    // Pasa $error a la vista si se usas (echo en alert)
     $login_error = $error; // alias común
     include __DIR__ . '/../views/auth/login.php';
   }
@@ -186,11 +186,11 @@ class AuthController {
     $this->db->prepare("UPDATE usuarios SET failed_attempts=0, locked_until=NULL, last_login=NOW() WHERE id=?")
              ->execute([$u['id']]);
 
-    // 7) Crear sesión con llaves COMPATIBLES con tus vistas
+    // 7) Crear sesión con llaves COMPATIBLES con las vistas
     session_regenerate_id(true);
     $this->setSession($u, $remember);
 
-    // 8) Redirigir por rol a tus rutas existentes
+    // 8) Redirigir por rol a las rutas existentes
     $this->goHomeByRole(strtolower($u['rol'] ?? ''));
   }
 

@@ -26,7 +26,7 @@ $departamento = new Departamento();
 $sedes = $departamento->listarSedesActivas();
 
 // ===== Flash (SweetAlert) =====
-// Soporta varios nombres por compatibilidad con tu backend actual
+// Soporta varios nombres por compatibilidad con el backend actual
 $flash_ok  = $_SESSION['dep_ok']
           ?? $_SESSION['departamento_ok']
           ?? $_SESSION['departamento_guardado']

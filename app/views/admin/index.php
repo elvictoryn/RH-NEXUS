@@ -3,7 +3,9 @@
 // Panel de Administración - Nexus RH
 // Archivo: /app/views/admin/index.php
 // ================================
-define('BASE_PATH', '/sistema_rh');   // ajusta si tu carpeta cambia
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', '/sistema_rh');
+}
 $tituloPagina = 'Administrador | Nexus RH';
 
 // Carga header (inicia sesión si falta + conexión BD + <head>)
@@ -16,7 +18,7 @@ if (!isset($_SESSION['usuario'])) {
 }
 
 // Ya tenemos $pdo disponible desde header.php (Conexion::getConexion())
-// Si prefieres, puedes reinstanciar:
+
 try { $pdo = Conexion::getConexion(); } catch (Throwable $e) { $pdo = null; }
 
 // ---------- Helpers locales ----------

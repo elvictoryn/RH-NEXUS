@@ -7,7 +7,7 @@ class Departamento {
     public function __construct() {
         $this->pdo = Conexion::getConexion();
     }
-
+// modelelos para el modulo de departamento, aqui tambien colocamos las validaciones para no repetir informacion 
     public function crear($data) {
         $sql = "INSERT INTO departamentos (nombre, descripcion, sede_id, estado, creado_en)
                 VALUES (:nombre, :descripcion, :sede_id, 1, NOW())";

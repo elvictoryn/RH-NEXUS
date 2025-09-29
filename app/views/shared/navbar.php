@@ -32,8 +32,8 @@ $usuario    = $_SESSION['nombre_completo'] ?? ($_SESSION['usuario'] ?? 'Usuario'
 $foto       = $_SESSION['foto'] ?? null;
 $notifCount = (int)($_SESSION['notif_count'] ?? 0);
 
-$roles_validos = ['admin','rh','gerente','jefe_area'];
-$canSolicitudes = in_array($rol, $roles_validos, true);
+$roles_validos   = ['admin','rh','gerente','jefe_area'];
+$canSolicitudes  = in_array($rol, $roles_validos, true);
 ?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top navbar-nexus">
   <div class="container-fluid nav-shell">
@@ -50,20 +50,12 @@ $canSolicitudes = in_array($rol, $roles_validos, true);
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
         <?php if ($canSolicitudes): ?>
-          <!-- ====== Solicitudes (UNIVERSAL para todos los roles válidos) ====== -->
+          <!-- ====== Solicitudes (UNIVERSAL para admin, rh, gerente, jefe_area) ====== -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle <?= activeNav('/solicitudes') ?>" href="#" data-bs-toggle="dropdown">Solicitudes</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="<?= BASE_PATH ?>/public/solicitudes.php">📥 Bandeja</a></li>
               <li><a class="dropdown-item" href="<?= BASE_PATH ?>/public/solicitudes_crear.php">➕ Crear solicitud</a></li>
-
-              <?php if ($rol==='admin'): ?>
-                <li><hr class="dropdown-divider"></li>
-                <!-- Opciones extra SOLO para admin (manteniendo tus rutas) -->
-                <li><a class="dropdown-item" href="<?= u('app/views/admin/solicitudes/menu.php') ?>">🏁 Menú de Solicitudes (admin)</a></li>
-                <li><a class="dropdown-item" href="<?= u('app/views/admin/solicitudes/tipos.php') ?>">⚙️ Tipos & Políticas</a></li>
-                <li><a class="dropdown-item" href="<?= u('app/views/admin/solicitudes/reportes.php') ?>">📊 Reportes</a></li>
-              <?php endif; ?>
             </ul>
           </li>
         <?php endif; ?>
@@ -93,61 +85,42 @@ $canSolicitudes = in_array($rol, $roles_validos, true);
               <li><a class="dropdown-item" href="<?= u('app/views/admin/departamentos/lista_sedes.php') ?>">📋 Lista de sedes</a></li>
             </ul>
           </li>
+        <?php endif; ?>
 
-          <!-- Candidatos (registro) -->
+        <!-- ====== Candidatos (UNIFICADO para ADMIN y RH) ====== -->
+        <?php if (in_array($rol, ['admin','rh'], true)): ?>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle <?= activeNav('/candidatos/') ?>" href="#" data-bs-toggle="dropdown">Candidatos</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/candidatos/menu.php') ?>">🏁 Menú de Candidatos</a></li>
+              <li>
+                <a class="dropdown-item" href="<?= BASE_PATH ?>/app/views/admin/candidatos/index.php">
+                  👥 Gestionar por solicitud
+                </a>
+              </li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/candidatos/crear_candidato.php') ?>">➕ Registrar candidato</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/candidatos/lista_candidatos.php') ?>">📋 Lista de candidatos</a></li>
+              <li>
+                <a class="dropdown-item" href="<?= BASE_PATH ?>/public/solicitudes.php">
+                  📥 Ir a bandeja de solicitudes
+                </a>
+              </li>
             </ul>
           </li>
+        <?php endif; ?>
 
-          <!-- Evaluaciones de candidatos -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle <?= activeNav('/evaluaciones/') ?>" href="#" data-bs-toggle="dropdown">Evaluaciones</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/evaluaciones/menu.php') ?>">🏁 Menú de Evaluaciones</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/evaluaciones/plantillas.php') ?>">📄 Plantillas</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/evaluaciones/aplicaciones.php') ?>">🧪 Aplicaciones</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/evaluaciones/resultados.php') ?>">📈 Resultados</a></li>
-            </ul>
-          </li>
-
+        <?php if ($rol==='admin'): ?>
           <!-- Reportes (globales) -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle <?= activeNav('/reportes/') ?>" href="#" data-bs-toggle="dropdown">Reportes</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="<?= u('app/views/admin/reportes/general.php') ?>">📊 General</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/reportes/descargas.php') ?>">⬇️ Descargas</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/reportes/auditoria.php') ?>">🧾 Auditoría</a></li>
+              
             </ul>
-          </li>
-
-          <!-- Configuración -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle <?= activeNav('/config/') ?>" href="#" data-bs-toggle="dropdown">Configuración</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/config/parametros.php') ?>">⚙️ Parámetros</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/config/catálogos.php') ?>">📚 Catálogos</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/admin/config/seguridad.php') ?>">🛡️ Seguridad</a></li>
-            </ul>
+          
           </li>
         <?php endif; ?>
 
         <?php if ($rol==='rh'): ?>
-          <!-- (Quitamos el menú de solicitudes específico RH para evitar duplicados.
-               Ahora usan el dropdown universal de arriba) -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle <?= activeNav('/candidatos/') ?>" href="#" data-bs-toggle="dropdown">Candidatos</a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="<?= u('app/views/rh/candidatos/crear_candidato.php') ?>">➕ Registrar candidato</a></li>
-              <li><a class="dropdown-item" href="<?= u('app/views/rh/candidatos/lista_candidatos.php') ?>">📋 Lista de candidatos</a></li>
-            </ul>
-          </li>
+          <!-- Extra RH -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle <?= activeNav('/evaluaciones/') ?>" href="#" data-bs-toggle="dropdown">Evaluaciones</a>
             <ul class="dropdown-menu">
@@ -159,13 +132,11 @@ $canSolicitudes = in_array($rol, $roles_validos, true);
         <?php endif; ?>
 
         <?php if ($rol==='gerente'): ?>
-          <!-- (Quitamos el menú de solicitudes específico Gerente para evitar duplicados) -->
           <li class="nav-item"><a class="nav-link <?= activeNav('/gerente/reportes/') ?>" href="<?= u('app/views/gerente/reportes/index.php') ?>">Reportes</a></li>
         <?php endif; ?>
 
         <?php if ($rol==='jefe_area'): ?>
-          <!-- (Quitamos el menú de solicitudes específico Jefe de área para evitar duplicados) -->
-          <!-- Podrías dejar otros accesos propios si los tienes -->
+          <!-- Aquí puedes dejar otros accesos propios si los tienes -->
         <?php endif; ?>
       </ul>
 
@@ -209,7 +180,7 @@ $canSolicitudes = in_array($rol, $roles_validos, true);
 </nav>
 
 <script>
-// Fija --nav-h con la altura real del navbar (para inspector/secciones que dependen de esa variable)
+// Fija --nav-h con la altura real del navbar (para secciones que dependen de esa variable)
 (function(){
   function setNavH(){
     var nav = document.querySelector('.navbar-nexus');

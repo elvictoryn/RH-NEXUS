@@ -12,8 +12,8 @@ class UsuariosController {
   private Departamento $departamentoModel;
 
   public function __construct(){
-    $this->db = Conexion::getConexion(); // tu método actual
-    // Si tus modelos NO reciben PDO en el constructor, cambia a: new Usuario(); new Departamento();
+    $this->db = Conexion::getConexion(); // este es  el  método actual
+    // Si los modelos o el models  NO reciben "PDO" en el constructor, cambia a: new Usuario(); new Departamento();
     $this->usuarioModel = new Usuario($this->db);
     $this->departamentoModel = new Departamento($this->db);
   }

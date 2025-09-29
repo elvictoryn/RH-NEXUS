@@ -1,7 +1,7 @@
 <?php
 // ============================================================
-// Detalle de Solicitud (página dedicada)
-// Ruta sugerida: /app/views/solicitudes/detalle.php?id=###
+// Detalle de Solicitud (página dedicada) + Resultados de IA
+// Ruta: /app/views/admin/solicitudes/detalle.php?id=###
 // ============================================================
 if (!defined('BASE_PATH')) define('BASE_PATH','/sistema_rh');
 if (session_status() === PHP_SESSION_NONE) session_start();
@@ -13,7 +13,6 @@ $db = Conexion::getConexion();
 $UID     = (int)($_SESSION['id'] ?? 0);
 $ROL     = strtolower($_SESSION['rol'] ?? '');
 $SEDE    = isset($_SESSION['sede_id']) ? (int)$_SESSION['sede_id'] : null;
-$NOMBRE  = $_SESSION['nombre_completo'] ?? ($_SESSION['usuario'] ?? 'Usuario');
 
 if (!$UID || !in_array($ROL, ['admin','rh','gerente','jefe_area'], true)) {
   header('Location: '.BASE_PATH.'/public/login.php'); exit;
@@ -46,33 +45,27 @@ try {
 
   // Reglas de visibilidad por rol
   $visible = false;
-  if ($ROL==='admin') {
-    $visible = true;
-  } elseif ($ROL==='jefe_area') {
-    $visible = ((int)$S['autor_id'] === $UID);
-  } elseif ($ROL==='gerente') {
-    $visible = ($SEDE && (int)$S['sede_id'] === $SEDE);
-  } elseif ($ROL==='rh') {
-    $visible = in_array($S['estado_actual'], ['APROBADA','EN_REV_RH','EN_GESTION','ABIERTA','CERRADA'], true);
-  }
+  if     ($ROL==='admin') $visible = true;
+  elseif ($ROL==='jefe_area') $visible = ((int)$S['autor_id'] === $UID);
+  elseif ($ROL==='gerente')   $visible = ($SEDE && (int)$S['sede_id'] === $SEDE);
+  elseif ($ROL==='rh')        $visible = in_array($S['estado_actual'], ['APROBADA','BUSCANDO','EN_ENTREVISTA','EN_DECISION','ABIERTA','CERRADA'], true);
+
   if (!$visible) throw new Exception('No tienes permiso para ver esta solicitud');
 
 } catch (Throwable $e) {
   $error = $e->getMessage();
-  // Pintamos un error simple y salimos
   require $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/header.php';
   echo '<div class="container py-4"><div class="alert alert-danger">'.$error.'</div></div>';
   require $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/app/views/shared/footer.php';
   exit;
 }
 
-/* ---- Manejo de acciones POST (cambiar estado, comentar, eliminar) ---- */
+/* ---- Manejo de acciones POST ---- */
 $alert = null; $alert_type = 'success';
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
   $action = post('action','');
   try {
-    // Seguridad básica: volver a cargar visibilidad si hiciera falta (ya cargado arriba)
     if ($action === 'comentar') {
       $coment = trim((string)post('comentario',''));
       if ($coment==='') throw new Exception('Escribe un comentario.');
@@ -80,80 +73,54 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                            VALUES (?,?,?,NOW())");
       $ins->execute([$id, $UID, $coment]);
       $alert = 'Comentario agregado.';
-      $alert_type = 'success';
 
     } elseif ($action === 'aprobar' && ($ROL==='gerente' || $ROL==='admin')) {
-      // Gerente sólo si misma sede
       if ($ROL==='gerente' && (! $SEDE || (int)$S['sede_id'] !== $SEDE)) throw new Exception('No puedes autorizar fuera de tu sede.');
       if (!in_array($S['estado_actual'], ['ENVIADA','EN_REV_GER'], true)) throw new Exception('Estado no válido para aprobar.');
-      $up = $db->prepare("UPDATE solicitudes SET estado_actual='APROBADA' WHERE id=?");
-      $up->execute([$id]);
-      $alert = 'Solicitud aprobada y enviada a RH.';
-      $alert_type = 'success';
+      $db->prepare("UPDATE solicitudes SET estado_actual='APROBADA' WHERE id=?")->execute([$id]);
       $S['estado_actual']='APROBADA';
+      $alert = 'Solicitud aprobada y enviada a RH.';
+      $db->prepare("INSERT INTO solicitudes_comentarios (solicitud_id, usuario_id, comentario, creado_en)
+                    VALUES (?,?,?,NOW())")->execute([$id, $UID, 'APROBADA por Gerente.']);
 
-      // Log como comentario del gerente (opcional)
-      $c = $db->prepare("INSERT INTO solicitudes_comentarios (solicitud_id, usuario_id, comentario, creado_en)
-                         VALUES (?,?,?,NOW())");
-      $c->execute([$id, $UID, 'APROBADA por Gerente.']);
-
+/* Rechazar por Gerente/Admin */
     } elseif ($action === 'rechazar' && ($ROL==='gerente' || $ROL==='admin')) {
       if ($ROL==='gerente' && (! $SEDE || (int)$S['sede_id'] !== $SEDE)) throw new Exception('No puedes rechazar fuera de tu sede.');
       if (!in_array($S['estado_actual'], ['ENVIADA','EN_REV_GER'], true)) throw new Exception('Estado no válido para rechazar.');
-
       $motivo = trim((string)post('motivo',''));
       if ($motivo==='') throw new Exception('Debes indicar el motivo de rechazo.');
-
-      $up = $db->prepare("UPDATE solicitudes SET estado_actual='RECHAZADA' WHERE id=?");
-      $up->execute([$id]);
-      $alert = 'Solicitud rechazada (devuelta a Jefe de Área).';
-      $alert_type = 'warning';
+      $db->prepare("UPDATE solicitudes SET estado_actual='RECHAZADA' WHERE id=?")->execute([$id]);
       $S['estado_actual']='RECHAZADA';
+      $alert = 'Solicitud rechazada (devuelta a Jefe de Área).';
+      $db->prepare("INSERT INTO solicitudes_comentarios (solicitud_id, usuario_id, comentario, creado_en)
+                    VALUES (?,?,?,NOW())")->execute([$id, $UID, 'RECHAZADA: '.$motivo]);
 
-      // Registrar motivo como comentario
-      $c = $db->prepare("INSERT INTO solicitudes_comentarios (solicitud_id, usuario_id, comentario, creado_en)
-                         VALUES (?,?,?,NOW())");
-      $c->execute([$id, $UID, 'RECHAZADA: '.$motivo]);
+/* RH inicia búsqueda */
+    } elseif ($action === 'buscando' && ($ROL==='rh' || $ROL==='admin')) {
+      if ($S['estado_actual']!=='APROBADA') throw new Exception('Solo solicitudes APROBADAS pueden iniciar búsqueda.');
+      $db->prepare("UPDATE solicitudes SET estado_actual='BUSCANDO' WHERE id=?")->execute([$id]);
+      $S['estado_actual']='BUSCANDO';
+      $alert = 'La solicitud ahora está en BÚSQUEDA DE CANDIDATOS.';
+      $db->prepare("INSERT INTO solicitudes_comentarios (solicitud_id, usuario_id, comentario, creado_en)
+                    VALUES (?,?,?,NOW())")->execute([$id, $UID, 'RH inició la búsqueda de candidatos.']);
 
-    } elseif ($action === 'gestionar' && ($ROL==='rh' || $ROL==='admin')) {
-      if (!in_array($S['estado_actual'], ['APROBADA','EN_REV_RH'], true)) throw new Exception('Estado no válido para tomar en gestión.');
-      $up = $db->prepare("UPDATE solicitudes SET estado_actual='EN_GESTION' WHERE id=?");
-      $up->execute([$id]);
-      $alert = 'Solicitud tomada en gestión.';
-      $S['estado_actual']='EN_GESTION';
-
-    } elseif ($action === 'abrir' && ($ROL==='rh' || $ROL==='admin')) {
-      if ($S['estado_actual'] !== 'EN_GESTION') throw new Exception('Solo desde EN_GESTION se puede pasar a ABIERTA.');
-      $up = $db->prepare("UPDATE solicitudes SET estado_actual='ABIERTA' WHERE id=?");
-      $up->execute([$id]);
-      $alert = 'Solicitud abierta (publicada).';
-      $S['estado_actual']='ABIERTA';
-
-    } elseif ($action === 'cerrar' && ($ROL==='rh' || $ROL==='admin')) {
-      if (!in_array($S['estado_actual'], ['ABIERTA','EN_GESTION'], true)) throw new Exception('Solo ABIERTA/EN_GESTION puede cerrarse.');
-      $up = $db->prepare("UPDATE solicitudes SET estado_actual='CERRADA' WHERE id=?");
-      $up->execute([$id]);
-      $alert = 'Solicitud cerrada.';
-      $S['estado_actual']='CERRADA';
-
+/* Eliminar (admin o jefe área autor cuando está RECHAZADA) */
     } elseif ($action === 'eliminar' && ($ROL==='admin' || ($ROL==='jefe_area' && (int)$S['autor_id']===$UID))) {
       if ($ROL==='jefe_area' && $S['estado_actual']!=='RECHAZADA') {
         throw new Exception('Solo puedes eliminar si está RECHAZADA.');
       }
-      // Eliminación dura o lógica (aquí dura; si prefieres lógica, agrega una columna).
       $db->beginTransaction();
       $db->prepare("DELETE FROM solicitudes_comentarios WHERE solicitud_id=?")->execute([$id]);
       $db->prepare("DELETE FROM solicitudes WHERE id=?")->execute([$id]);
       $db->commit();
-      // Redirigir a la bandeja tras eliminar
       header('Location: '.BASE_PATH.'/public/solicitudes.php?ok=1&msg='.rawurlencode('Solicitud eliminada.')); exit;
 
+/* Admin cambia estado manualmente */
     } elseif ($action === 'cambiar_estado_admin' && $ROL==='admin') {
       $nuevo = strtoupper(trim((string)post('nuevo_estado','')));
-      $valid = ['ENVIADA','EN_REV_GER','APROBADA','EN_REV_RH','EN_GESTION','ABIERTA','RECHAZADA','CERRADA'];
+      $valid = ['ENVIADA','EN_REV_GER','APROBADA','BUSCANDO','EN_ENTREVISTA','EN_DECISION','ABIERTA','RECHAZADA','CERRADA'];
       if (!in_array($nuevo, $valid, true)) throw new Exception('Estado inválido.');
-      $up = $db->prepare("UPDATE solicitudes SET estado_actual=? WHERE id=?");
-      $up->execute([$nuevo, $id]);
+      $db->prepare("UPDATE solicitudes SET estado_actual=? WHERE id=?")->execute([$nuevo, $id]);
       $S['estado_actual']=$nuevo;
       $alert = 'Estado actualizado por Admin.';
     }
@@ -180,6 +147,25 @@ try {
   $comentarios = $stc->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (\Throwable $e) {
   $comentarios = [];
+}
+
+/* ---- Resultados de IA (no rompe si no existe la tabla/columnas) ---- */
+$iaRows = [];
+try {
+  $qIa = $db->prepare("
+    SELECT id, nombre, correo,
+           COALESCE(score_ia, 0)         AS score_ia,
+           COALESCE(compat_porcentaje,0) AS compat_porcentaje,
+           COALESCE(semaforo, '')        AS semaforo
+    FROM postulantes_por_vacante
+    WHERE solicitud_id = ?
+    ORDER BY score_ia DESC, id ASC
+    LIMIT 200
+  ");
+  $qIa->execute([$id]);
+  $iaRows = $qIa->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (\Throwable $e) {
+  $iaRows = [];
 }
 
 /* ---- Mapeos de textos ---- */
@@ -240,6 +226,16 @@ body{
 .comment .who{font-weight:700;color:#102a4d}
 .comment .when{color:#5b7291;font-size:.86rem}
 .badge-soft{background:#eaf2ff;border:1px solid #d7e3ff;border-radius:999px;padding:.15rem .6rem;font-size:.76rem;color:#15385e}
+
+/* ===== IA Resultados ===== */
+.ia-card .table thead th{background:#eff5ff; border-bottom:1px solid #d7e3ff}
+.ia-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .55rem;border:1px solid #d7e3ff;border-radius:999px;background:#eaf2ff;font-size:.78rem}
+.ia-bar{height:8px;border-radius:999px;background:#e5e7eb;overflow:hidden}
+.ia-bar > i{display:block;height:100%;background:#3b82f6}
+.ia-sem{font-weight:800}
+.ia-sem.verde{color:#0f766e}
+.ia-sem.amarillo{color:#ca8a04}
+.ia-sem.rojo{color:#b91c1c}
 </style>
 
 <div class="wrap">
@@ -251,6 +247,7 @@ body{
         <span class="pill <?= ($S['prioridad']==='URGENTE'?'pr-urgente':'') ?>">Prioridad: <strong><?= esc($S['prioridad'] ?: 'NORMAL') ?></strong></span>
         <span class="pill">Sede: <?= esc($S['sede_nombre'] ?: '—') ?></span>
         <span class="pill">Depto: <?= esc($S['dep_nombre'] ?: '—') ?></span>
+        <span class="pill">Creada por: <?= esc($S['autor_nombre'] ?: '—') ?></span>
       </div>
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -277,8 +274,7 @@ body{
           <div class="kv">
             <div class="kvk">Rango salarial</div>
             <div class="kvv">
-              <?= ($S['salario_min']!==null? number_format((float)$S['salario_min'],2):'—') ?>
-              –
+              <?= ($S['salario_min']!==null? number_format((float)$S['salario_min'],2):'—') ?> –
               <?= ($S['salario_max']!==null? number_format((float)$S['salario_max'],2):'—') ?>
             </div>
           </div>
@@ -318,7 +314,6 @@ body{
     <!-- Columna derecha: acciones + comentarios -->
     <div class="card">
       <div class="card-body">
-        <!-- Acciones por rol -->
         <div class="section-title">Acciones</div>
         <div class="btn-bar mb-3">
           <?php if ($ROL==='gerente' || $ROL==='admin'): ?>
@@ -337,30 +332,23 @@ body{
           <?php endif; ?>
 
           <?php if ($ROL==='rh' || $ROL==='admin'): ?>
-            <?php if (in_array($S['estado_actual'], ['APROBADA','EN_REV_RH'], true)): ?>
-              <form method="post" onsubmit="return confirm('¿Tomar en gestión esta solicitud?');">
-                <input type="hidden" name="action" value="gestionar">
-                <button class="btn btn-primary">🛠 Tomar en gestión</button>
+            <?php if ($S['estado_actual'] === 'APROBADA'): ?>
+              <form method="post" onsubmit="return confirm('¿Cambiar esta solicitud a BÚSQUEDA DE CANDIDATOS?');">
+                <input type="hidden" name="action" value="buscando">
+                <button class="btn btn-primary">🔍 En búsqueda de candidatos</button>
               </form>
             <?php endif; ?>
 
-            <?php if ($S['estado_actual'] === 'EN_GESTION'): ?>
-              <form method="post" onsubmit="return confirm('¿Marcar como ABIERTA (publicada)?');">
-                <input type="hidden" name="action" value="abrir">
-                <button class="btn btn-outline-primary">📣 Abrir</button>
-              </form>
-            <?php endif; ?>
-
-            <?php if (in_array($S['estado_actual'], ['EN_GESTION','ABIERTA'], true)): ?>
-              <form method="post" onsubmit="return confirm('¿Cerrar esta solicitud?');">
-                <input type="hidden" name="action" value="cerrar">
-                <button class="btn btn-outline-secondary">🔒 Cerrar</button>
-              </form>
+            <?php if (in_array($S['estado_actual'], ['BUSCANDO','EN_ENTREVISTA','EN_DECISION','ABIERTA'], true)): ?>
+              <!-- Unificado: ir directo al hub de candidatos de esta solicitud, enfocado a alta -->
+              <a class="btn btn-outline-primary"
+                 href="<?= BASE_PATH; ?>/app/views/admin/candidatos/index.php?sol=<?= (int)$S['id'] ?>&goto=alta">
+                👥 Registrar/gestionar candidatos
+              </a>
             <?php endif; ?>
           <?php endif; ?>
 
           <?php if ($ROL==='jefe_area' && (int)$S['autor_id']===$UID && $S['estado_actual']==='RECHAZADA'): ?>
-            <!-- Sustituye href de editar según tu ruta -->
             <a class="btn btn-warning" href="<?= BASE_PATH; ?>/app/views/admin/solicitudes/crear_solicitud.php?editar=<?= (int)$S['id'] ?>">✏️ Editar</a>
             <form method="post" onsubmit="return confirm('¿Eliminar esta solicitud RECHAZADA? Esta acción no se puede deshacer.');">
               <input type="hidden" name="action" value="eliminar">
@@ -373,7 +361,7 @@ body{
               <input type="hidden" name="action" value="cambiar_estado_admin">
               <select name="nuevo_estado" class="form-select">
                 <?php
-                  $valid = ['ENVIADA','EN_REV_GER','APROBADA','EN_REV_RH','EN_GESTION','ABIERTA','RECHAZADA','CERRADA'];
+                  $valid = ['ENVIADA','EN_REV_GER','APROBADA','BUSCANDO','EN_ENTREVISTA','EN_DECISION','ABIERTA','RECHAZADA','CERRADA'];
                   foreach($valid as $v){
                     $sel = ($v===$S['estado_actual'])?'selected':'';
                     echo '<option '.$sel.'>'.$v.'</option>';
@@ -405,6 +393,70 @@ body{
           <?php endforeach; endif; ?>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== Resultados de IA (Ancho completo, debajo) ===== -->
+  <div class="card ia-card mt-3">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="section-title mb-0">Resultados de IA (prototipo)</div>
+        <?php if ($ROL==='rh' && in_array($S['estado_actual'], ['BUSCANDO','EN_ENTREVISTA','EN_DECISION','ABIERTA'], true)): ?>
+          <!-- Unificado: hub de candidatos de esta solicitud -->
+          <a class="btn btn-outline-primary btn-sm"
+             href="<?= BASE_PATH; ?>/app/views/admin/candidatos/index.php?sol=<?= (int)$S['id'] ?>">
+            Ir a gestión de candidatos
+          </a>
+        <?php endif; ?>
+      </div>
+
+      <?php if(!$iaRows): ?>
+        <div class="text-muted mt-2">
+          Aún no hay resultados de IA para esta solicitud.
+          <?php if ($ROL==='rh' && $S['estado_actual']==='BUSCANDO'): ?>
+            Registra candidatos en el módulo de candidatos para ver aquí su compatibilidad.
+          <?php endif; ?>
+        </div>
+      <?php else: ?>
+        <div class="table-responsive mt-2">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Candidato</th>
+                <th>Correo</th>
+                <th style="width:180px">Puntaje IA</th>
+                <th>Compat.</th>
+                <th>Semáforo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php $n=1; foreach($iaRows as $r):
+                $score = (float)($r['score_ia'] ?? 0);
+                $pct   = (float)($r['compat_porcentaje'] ?? 0);
+                $sem   = strtolower(trim((string)($r['semaforo'] ?? '')));
+                $semCl = ($sem==='verde'?'verde': ($sem==='amarillo'?'amarillo':'rojo'));
+              ?>
+              <tr>
+                <td><?= $n++ ?></td>
+                <td><span class="ia-chip"><?= esc($r['nombre'] ?? '—') ?></span></td>
+                <td><?= esc($r['correo'] ?? '—') ?></td>
+                <td>
+                  <div class="ia-bar" title="<?= number_format($score,0) ?>/100">
+                    <i style="width:<?= max(0,min(100,$score)) ?>%"></i>
+                  </div>
+                  <small><?= number_format($score,0) ?>/100</small>
+                </td>
+                <td><?= number_format($pct,0) ?>%</td>
+                <td class="ia-sem <?= $semCl ?>"><?= strtoupper($sem ?: ($score>=80?'VERDE':($score>=60?'AMARILLO':'ROJO'))) ?></td>
+                <td><a class="btn btn-outline-secondary btn-sm" href="#">Ver</a></td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      <?php endif; ?>
     </div>
   </div>
 </div>

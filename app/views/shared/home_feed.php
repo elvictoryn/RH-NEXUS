@@ -3,21 +3,21 @@ if (!defined('BASE_PATH')) define('BASE_PATH','/sistema_rh');
 require_once $_SERVER['DOCUMENT_ROOT'] . BASE_PATH . '/config/conexion.php';
 $db = Conexion::getConexion();
 
-/* ====== Sesión ====== */
+if (session_status() === PHP_SESSION_NONE) session_start();
 $UID   = (int)($_SESSION['id'] ?? 0);
 $ROL   = strtolower($_SESSION['rol'] ?? '');
 $SEDE  = (int)($_SESSION['sede_id'] ?? 0);
 $DEPTO = (int)($_SESSION['departamento_id'] ?? 0);
 $NOMBRE= htmlspecialchars($_SESSION['nombre_completo'] ?? $_SESSION['usuario'] ?? 'Usuario', ENT_QUOTES, 'UTF-8');
 
-/* ====== Nombres legibles ====== */
-$SEDE_NOMBRE = null; $DEPTO_NOMBRE = null;
-try {
+/* nombres legibles */
+$SEDE_NOMBRE = $DEPTO_NOMBRE = null;
+try{
   if ($SEDE) { $st=$db->prepare("SELECT nombre FROM sedes WHERE id=?"); $st->execute([$SEDE]); $SEDE_NOMBRE=$st->fetchColumn()?:null; }
   if ($DEPTO){ $st=$db->prepare("SELECT nombre FROM departamentos WHERE id=?"); $st->execute([$DEPTO]); $DEPTO_NOMBRE=$st->fetchColumn()?:null; }
-} catch (\Throwable $e) {}
+}catch(\Throwable $e){}
 
-/* ====== Util ====== */
+/* util */
 function time_ago_es(?string $ts): string {
   if(!$ts) return '';
   $t = strtotime($ts); if(!$t) return '';
@@ -28,11 +28,12 @@ function time_ago_es(?string $ts): string {
   return date('d/m/Y H:i', $t);
 }
 
-/* ====== Feed ====== */
+/* feed (mismo filtro por rol) */
 $where='1=0'; $params=[];
 if ($ROL==='jefe_area'){ $where='(s.departamento_id=:d OR s.autor_id=:u)'; $params=[':d'=>$DEPTO,':u'=>$UID]; }
 elseif ($ROL==='gerente'){ $where='s.sede_id=:s'; $params=[':s'=>$SEDE]; }
-elseif ($ROL==='rh'){ $where='1=1'; }
+elseif ($ROL==='rh' || $ROL==='admin'){ $where='1=1'; }
+
 $sql = "
 SELECT sc.id, sc.solicitud_id, sc.usuario_id, sc.comentario, sc.creado_en,
        s.titulo, s.puesto, s.estado_actual,
@@ -42,189 +43,278 @@ JOIN solicitudes s ON s.id=sc.solicitud_id
 LEFT JOIN usuarios u ON u.id=sc.usuario_id
 WHERE $where
 ORDER BY sc.id DESC
-LIMIT 30";
+LIMIT 50";
 $feed=[];
 try{ $st=$db->prepare($sql); $st->execute($params); $feed=$st->fetchAll(PDO::FETCH_ASSOC) ?: []; }catch(\Throwable $e){ $feed=[]; }
-
-/* ====== HERO: slides ====== */
-$heroImages = [
-  BASE_PATH.'/public/img/hero/hero1.jpg',
-  BASE_PATH.'/public/img/hero/hero2.jpg',
-  BASE_PATH.'/public/img/hero/hero3.jpg',
-  BASE_PATH.'/public/img/hero/hero4.jpg',
-];
-shuffle($heroImages);
-$slides = [
-  ['tag'=>'MISIÓN', 'txt'=>'Impulsar el talento y construir equipos excepcionales.', 'img'=>$heroImages[0] ?? $heroImages[0]],
-  ['tag'=>'VISIÓN', 'txt'=>'Ser el referente en experiencia humana y eficacia organizacional.', 'img'=>$heroImages[1] ?? $heroImages[0]],
-  ['tag'=>'VALORES','txt'=>'Integridad · Colaboración · Innovación · Servicio', 'img'=>$heroImages[2] ?? $heroImages[0]],
-  ['tag'=>'FRASE',  'txt'=>'“La cultura se desayuna a la estrategia.”', 'img'=>$heroImages[3] ?? $heroImages[0]],
-];
 ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Nexus RH · Inicio</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 :root{
-  --ink:#eaf2ff; --muted:#c8d4f0; --ok:#22c55e; --brand:#0D6EFD;
+  --ink:#eaf2ff; --muted:#c8d4f0; --brand:#0D6EFD; --ok:#22c55e;
+  --glass: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
+  --brd: rgba(255,255,255,.24);
 }
 *{ box-sizing:border-box }
-body{ background:#0a0f1d; }
+html,body{ height:100% }
+body{ margin:0; background:#060f1f; color:#eaf2ff; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial }
 
-/* ====== FONDO AURORA ====== */
-.aurora-bg{
-  position:fixed; inset:0; z-index:-2;
+/* ===== fondo y grano ===== */
+.mesh{
+  position:fixed; inset:0; z-index:-3;
   background:
-    radial-gradient(65% 65% at 15% 5%, rgba(13,110,253,.35), transparent 60%),
-    radial-gradient(50% 50% at 85% 100%, rgba(139,92,246,.28), transparent 65%),
-    radial-gradient(35% 35% at 60% 50%, rgba(6,182,212,.18), transparent 60%),
-    linear-gradient(180deg,#0b2240 0%,#081426 58%,#06101f 100%);
-  filter:saturate(1.1);
+    radial-gradient(60% 45% at 8% 0%, rgba(99,102,241,.38), transparent 60%),
+    radial-gradient(45% 40% at 92% 100%, rgba(59,130,246,.35), transparent 65%),
+    radial-gradient(30% 30% at 60% 40%, rgba(20,184,166,.22), transparent 60%),
+    linear-gradient(180deg,#091a32 0%,#081426 58%,#050d1a 100%);
+  animation:hue 18s ease-in-out infinite alternate;
+  filter:saturate(1.05) contrast(1.02);
 }
-.grain{
-  position:fixed; inset:0; z-index:-1; opacity:.45;
+@keyframes hue{ from{filter:hue-rotate(0deg) saturate(1.05)} to{filter:hue-rotate(24deg) saturate(1.1)} }
+.particles{
+  position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background-image:
+    radial-gradient(2px 2px at 25% 20%, #fff, transparent 40%),
+    radial-gradient(1.5px 1.5px at 75% 35%, #fff, transparent 40%),
+    radial-gradient(2px 2px at 45% 70%, #fff, transparent 40%),
+    radial-gradient(1.7px 1.7px at 12% 80%, #fff, transparent 40%),
+    radial-gradient(1.7px 1.7px at 88% 12%, #fff, transparent 40%);
+  opacity:.28; animation:twinkle 7s ease-in-out infinite alternate;
+}
+@keyframes twinkle{0%{opacity:.18}100%{opacity:.35}}
+.grain{ position:fixed; inset:0; z-index:-1; opacity:.45;
   background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity=".04"/></svg>');
 }
+.page{ max-width:100%; margin:0 auto; padding:16px 14px 28px }
 
-/* ====== CONTENEDOR ====== */
-.page{ max-width:100%; margin:0 auto; padding:16px 16px 28px }
+/* ===== HERO (igual al que aprobaste) ===== */
+.hero{
+  width:min(1360px,96vw); margin:18px auto 18px; position:relative; overflow:hidden;
+  border-radius:28px; border:1px solid var(--brd); background:var(--glass); backdrop-filter: blur(18px);
+  box-shadow:0 50px 140px rgba(0,0,0,.45);
+}
+.ribbon{ height:8px; width:100%; background:linear-gradient(90deg,#22d3ee,#60a5fa,#a78bfa,#22c55e,#22d3ee) }
+.hero-grid{ display:grid; grid-template-columns: 1.1fr .9fr; gap:18px; padding:24px }
+@media (max-width:1050px){ .hero-grid{ grid-template-columns:1fr } }
+.left{ position:relative; padding-right:8px }
+.badge-top{ display:inline-flex; align-items:center; gap:.5rem; font-weight:900; color:#cfe3ff; }
+.badge-top .dot{ width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg,#22d3ee,#60a5fa); box-shadow:0 0 0 3px rgba(34,211,238,.18) }
+.title{
+  margin:.35rem 0 0; font-weight:1000; line-height:1.05;
+  font-size:clamp(2.4rem,5vw,3.8rem);
+  background:linear-gradient(92deg,#ffffff,#cfe8ff); -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow: 0 10px 40px rgba(0,0,0,.35);
+}
+.wave{ display:inline-block; animation:w 2.2s ease-in-out infinite }
+@keyframes w{ 0%,100%{transform:rotate(0)} 35%{transform:rotate(18deg)} 70%{transform:rotate(-10deg)} }
+.subtitle{ margin:.5rem 0 1rem; color:#cfe0ff; font-size:clamp(1.02rem,1.4vw,1.12rem) }
+.polaroid{
+  position:absolute; right:10px; top:10px; transform:rotate(2.5deg); z-index:2;
+  width:140px; background:#0b203d; border-radius:16px; padding:10px; border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 18px 60px rgba(0,0,0,.35);
+}
+.polaroid .ph{ width:100%; aspect-ratio:1/1; border-radius:12px; overflow:hidden; display:grid; place-items:center;
+  background:conic-gradient(from 110deg,#60a5fa,#22d3ee,#a78bfa,#22c55e,#60a5fa); color:#07202f; font-weight:1000; font-size:2.4rem }
+.polaroid img{ width:100%; height:100%; object-fit:cover; display:block }
+.polaroid .nm{ margin-top:8px; font-weight:900; font-size:.86rem; color:#eaf6ff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.pills{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px }
+.pill{
+  display:inline-flex; align-items:center; gap:.55rem; padding:.52rem .9rem; border-radius:999px;
+  border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.12); color:#eaf2ff; font-weight:900; font-size:.92rem
+}
+.ic{ width:20px; height:20px; border-radius:50%; display:inline-grid; place-items:center; background:linear-gradient(135deg,#60a5fa,#22d3ee); color:#061727; font-size:.82rem }
+.ticker-wrap{ margin-top:14px; border-top:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); overflow:hidden }
+.ticker{
+  display:flex; gap:28px; padding:10px 0; white-space:nowrap; animation:marq 26s linear infinite;
+  color:#cfe3ff; font-weight:850; letter-spacing:.4px
+}
+@keyframes marq{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+.right{ display:grid; grid-template-rows: 1fr auto; gap:12px; position:relative }
+.deck{
+  position:relative; height:220px; border-radius:18px; overflow:hidden; border:1px solid rgba(255,255,255,.16);
+  background:rgba(9,20,38,.65);
+}
+.slide{
+  position:absolute; inset:0; display:grid; align-content:center; gap:8px; text-align:center; padding:18px;
+  opacity:0; transform:translateY(8px) scale(.98); transition:opacity .6s, transform .6s;
+}
+.slide.on{ opacity:1; transform:none }
+.slide .tag{ display:inline-block; padding:.18rem .55rem; border-radius:999px; border:1px solid rgba(255,255,255,.24); background:rgba(255,255,255,.14); font-weight:900; font-size:.78rem; color:#d9ebff }
+.slide .txt{ font-size:1.08rem; color:#eef6ff }
+.dots{ display:flex; gap:8px; justify-content:center; margin-top:10px }
+.dots .d{ width:8px; height:8px; border-radius:999px; background:#93b4ff44 }
+.dots .d.on{ background:#fff }
+.art{ height:80px; border-radius:16px; border:1px solid rgba(255,255,255,.16); background:#0a1a31; overflow:hidden }
+.art svg{ width:100%; height:100%; display:block }
 
-/* ====== HERO (altura del carrusel ) ====== */
-.hero{ height:45vh; min-height:300px; position:relative; margin-bottom:16px; display:grid; place-items:center; }
-.hero-frame{
-  width:min(100%, 96vw); height:100%; border-radius:20px; position:relative; overflow:hidden;
-  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
-  border:1px solid rgba(255,255,255,.28);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 36px 90px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.18);
-}
-.hero-lights{
-  position:absolute; inset:-20%;
-  background:
-    radial-gradient(40% 35% at 12% 18%, rgba(13,110,253,.35), transparent 60%),
-    radial-gradient(35% 30% at 80% 18%, rgba(6,182,212,.30), transparent 60%),
-    radial-gradient(55% 45% at 70% 82%, rgba(139,92,246,.28), transparent 70%);
-  animation:floaty 22s ease-in-out infinite alternate;
-  filter:saturate(1.15);
-  pointer-events:none;
-}
-@keyframes floaty{ 0%{ transform:translate3d(0,0,0) scale(1) } 100%{ transform:translate3d(0,-14px,0) scale(1.03) } }
-
-/* ====== CARRUSEL ====== */
-.h-carousel{ position:absolute; inset:0; display:grid; place-items:center; padding:22px; outline:none }
-.h-track{ position:relative; width:min(1120px,92vw); height:100% }
-.hslide{
-  position:absolute; inset:0; display:grid; align-content:center; justify-items:center; gap:10px;
-  padding:0 24px; text-align:center; color:#fff; opacity:0; transform:translateY(8px);
-  transition:opacity .6s ease, transform .6s ease;
-}
-.hslide.active{ opacity:1; transform:translateY(0) }
-.suptitle{
-  display:inline-flex; align-items:center; gap:8px; font-weight:900; letter-spacing:.28px; font-size:.9rem; color:#eaf2ff;
-  padding:.32rem .9rem; border-radius:999px; border:1px solid rgba(255,255,255,.36); background:rgba(255,255,255,.15);
-}
-.suptitle i{width:16px;height:16px;display:inline-block;border-radius:50%;background:conic-gradient(from 90deg at 50% 50%, #5eead4, #60a5fa, #c084fc, #5eead4)}
-.big{ margin:.25rem 0 .8rem; font-weight:900; letter-spacing:.2px; font-size:clamp(2rem, 3.8vw, 3rem); color:#ffffff; text-shadow:0 2px 18px rgba(13,110,253,.28); }
-.lead{ margin:0 auto; max-width:980px; line-height:1.75; font-size:clamp(1.06rem,1.4vw,1.2rem); color:var(--muted); }
-.pills{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px }
-.pill{ padding:.38rem .95rem; border-radius:999px; border:1px solid rgba(255,255,255,.38); background:rgba(255,255,255,.16); color:#f1f6ff; font-size:.9rem; font-weight:700; }
-.h-dots{ position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:2 }
-.h-dots .dot{ width:9px; height:9px; border-radius:999px; background:rgba(255,255,255,.45); cursor:pointer }
-.h-dots .dot.on{ background:#fff }
-
-/* ====== FEED ====== */
-.feed{ width:min(1360px, 96vw); margin:10px auto 26px; }
+/* ===== FEED – NUEVO DISEÑO (timeline) ===== */
+.feed{ width:min(1360px,96vw); margin:18px auto 26px }
 .feed-glass{
-  border-radius:22px; background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
-  border:1px solid rgba(255,255,255,.24); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  box-shadow:0 20px 56px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.16); padding:16px 14px;
+  border-radius:24px; background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
+  border:1px solid rgba(255,255,255,.24); backdrop-filter: blur(10px);
+  box-shadow:0 22px 70px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.16); padding:18px 18px 8px;
 }
-.feed-head{ display:flex; align-items:center; justify-content:space-between; margin:6px 4px 12px }
-.feed-title{ color:#eaf2ff; margin:0; font-size:1.7rem; font-weight:900; letter-spacing:.2px }
+.feed-head{ display:flex; align-items:center; justify-content:space-between; margin:0 2px 8px }
+.feed-title{ color:#eaf2ff; margin:0; font-size:1.6rem; font-weight:1000; letter-spacing:.2px }
 .live{ display:inline-flex; align-items:center; gap:8px; padding:.26rem .7rem; border-radius:999px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.12); color:#dbe8ff; font-size:.82rem }
 .live .dot{ width:8px; height:8px; border-radius:999px; background:var(--ok) }
 
-.post{ background:#0c1428; border:1px solid rgba(255,255,255,.13); border-radius:16px; box-shadow:0 16px 46px rgba(3,8,20,.55); overflow:hidden; margin-bottom:14px; transform:translateY(8px); opacity:0; transition:.35s ease; }
-.post.reveal{ transform:none; opacity:1 }
-.p-hd{ display:flex; gap:12px; align-items:center; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.08) }
-.ava{ width:44px; height:44px; border-radius:50%; overflow:hidden; background:linear-gradient(135deg,#0ea5e9,#6366f1); color:#fff; display:grid; place-items:center; font-weight:900 }
-.ava img{ width:100%; height:100%; object-fit:cover }
-.title{ color:#eaf2ff; font-weight:800 }
-.meta{ color:#9fb3ff; font-size:.86rem }
-.time{ margin-left:auto; color:#9fb3ff; font-size:.86rem }
-.p-bd{ padding:10px 16px 16px; color:#dbe4ff; line-height:1.5 }
+/* grupos (Hoy / Anteriores) */
+.tg{ margin:10px 0 14px; padding-left:14px; position:relative }
+.tg-title{
+  font-weight:900; color:#cfe0ff; letter-spacing:.4px; margin:0 0 10px 0; display:flex; align-items:center; gap:.5rem;
+}
+.tg-title .badge{ font-size:.75rem; padding:.18rem .56rem; border-radius:999px; border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.12); color:#eaf2ff; font-weight:900 }
 
-/* estados */
-.state{ display:inline-block; margin-top:8px; padding:.22rem .6rem; border-radius:999px; font-size:.75rem; font-weight:800; color:#0a1020; box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 4px 10px rgba(0,0,0,.18); }
+/* línea vertical */
+.tg::before{
+  content:""; position:absolute; left:18px; top:26px; bottom:6px; width:2px;
+  background:linear-gradient(180deg,#2b405f,#24344f);
+  box-shadow:0 0 0 1px rgba(0,0,0,.25) inset;
+}
+
+/* ítem de timeline */
+.ti{
+  position:relative; margin:0 0 12px 0; padding-left:44px;
+}
+.ti-marker{
+  position:absolute; left:7px; top:8px; width:22px; height:22px; border-radius:50%;
+  box-shadow:0 6px 14px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.2);
+  background:linear-gradient(135deg,#60a5fa,#22d3ee);
+  border:2px solid #0a1426;
+}
+.ti-marker[data-s="EN_REV_GER"]{ background:linear-gradient(135deg,#fde68a,#f59e0b) }
+.ti-marker[data-s="EN_REV_RH"]{ background:linear-gradient(135deg,#e9d5ff,#a78bfa) }
+.ti-marker[data-s="ABIERTA"]{ background:linear-gradient(135deg,#bbf7d0,#34d399) }
+.ti-marker[data-s="CERRADA"]{ background:linear-gradient(135deg,#cbd5e1,#94a3b8) }
+
+/* tarjeta burbuja */
+.card{
+  border-radius:16px; background:#0c1428; border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 14px 44px rgba(3,8,20,.45); overflow:hidden;
+}
+.card-hd{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08)
+}
+.av{ width:40px; height:40px; border-radius:50%; overflow:hidden; display:grid; place-items:center }
+.av img{ width:100%; height:100%; object-fit:cover; display:block }
+.av.i{ background:linear-gradient(135deg,#2563eb,#10b981); color:#fff; font-weight:1000; text-transform:uppercase }
+.hd-txt{ min-width:0 }
+.hd-tit{ font-weight:900; color:#eaf2ff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.hd-sub{ color:#9fb3ff; font-size:.86rem; display:flex; gap:.5rem; flex-wrap:wrap }
+.badge{
+  display:inline-flex; align-items:center; gap:.35rem; padding:.16rem .55rem; border-radius:999px; font-size:.72rem; font-weight:900;
+  border:1px solid rgba(255,255,255,.18); background:#0e1c36; color:#dbe8ff;
+}
+.time{ margin-left:auto; color:#9fb3ff; font-size:.85rem }
+.card-bd{ padding:10px 12px 12px; color:#dbe4ff; line-height:1.55 }
+.state{
+  display:inline-block; margin-top:8px; padding:.22rem .6rem; border-radius:999px; font-size:.74rem; font-weight:900; color:#0a1020;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 4px 10px rgba(0,0,0,.18);
+}
 .state[data-s="ENVIADA"]    { background:linear-gradient(135deg,#67e8f9,#93c5fd) }
 .state[data-s="EN_REV_GER"] { background:linear-gradient(135deg,#fde68a,#f59e0b) }
 .state[data-s="EN_REV_RH"]  { background:linear-gradient(135deg,#e9d5ff,#a78bfa) }
 .state[data-s="ABIERTA"]    { background:linear-gradient(135deg,#bbf7d0,#34d399) }
 .state[data-s="CERRADA"]    { background:linear-gradient(135deg,#e2e8f0,#94a3b8) }
-
-@media (max-width: 840px){
-  .hero{ height:56vh; min-height:360px }
-  .lead{ max-width:95% }
-}
-@media (prefers-reduced-motion: reduce){
-  .hslide,.post,.hero-lights{ transition:none !important; animation:none !important; }
+.empty{
+  border:1px dashed rgba(255,255,255,.25); padding:14px; border-radius:14px; text-align:center; color:#9fb3ff;
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.06));
 }
 </style>
+</head>
+<body>
 
-<div class="aurora-bg"></div>
+<div class="mesh"></div>
+<div class="particles"></div>
 <div class="grain"></div>
 
 <div class="page">
-  <!-- ====== HERO ====== -->
-  <section class="hero">
-    <div class="hero-frame">
-      <div class="hero-lights"></div>
-      <div class="h-carousel" tabindex="0">
-        <div class="h-track">
 
-          <!-- Slide 0 · Bienvenida -->
-          <div class="hslide active">
-            <span class="suptitle"><i></i> Bienvenido</span>
-            <h1 class="big">Hola, <?= $NOMBRE ?> 👋</h1>
-            <p class="lead">Tu espacio de Nexus RH: estado de solicitudes, actividad reciente y comunicación clara entre áreas.</p>
-            <div class="pills">
-              <span class="pill">ROL: <?= strtoupper($ROL) ?></span>
-              <?php if ($SEDE_NOMBRE): ?><span class="pill">SEDE: <?= htmlspecialchars($SEDE_NOMBRE) ?></span><?php endif; ?>
-              <?php if ($DEPTO_NOMBRE && $ROL==='jefe_area'): ?><span class="pill">DEPTO: <?= htmlspecialchars($DEPTO_NOMBRE) ?></span><?php endif; ?>
-            </div>
+  <!-- ===== HERO ===== -->
+  <section class="hero" aria-label="Bienvenida">
+    <div class="ribbon"></div>
+    <div class="hero-grid">
+      <div class="left">
+        <div class="badge-top"><span class="dot"></span> Nexus RH</div>
+        <h1 class="title">Hola, <?= $NOMBRE ?> <span class="wave">👋</span></h1>
+        <p class="subtitle">Información clara, personas primero y decisiones con impacto.</p>
+        <div class="pills">
+          <span class="pill"><span class="ic">🏷</span> ROL: <?= strtoupper($ROL) ?></span>
+          <?php if ($SEDE_NOMBRE): ?><span class="pill"><span class="ic">📍</span> SEDE: <?= htmlspecialchars($SEDE_NOMBRE) ?></span><?php endif; ?>
+          <?php if ($DEPTO_NOMBRE && $ROL==='jefe_area'): ?><span class="pill"><span class="ic">🗂</span> DEPTO: <?= htmlspecialchars($DEPTO_NOMBRE) ?></span><?php endif; ?>
+        </div>
+        <div class="ticker-wrap" aria-hidden="true">
+          <div class="ticker">
+            <span>Talento</span> • <span>Transparencia</span> • <span>Innovación</span> • <span>Colaboración</span> • <span>Excelencia</span> •
+            <span>Empatía</span> • <span>Agilidad</span> • <span>Confianza</span> • <span>Servicio</span> •
+            <span>Talento</span> • <span>Transparencia</span> • <span>Innovación</span> • <span>Colaboración</span> • <span>Excelencia</span> •
+            <span>Empatía</span> • <span>Agilidad</span> • <span>Confianza</span> • <span>Servicio</span>
           </div>
+        </div>
+        <div class="polaroid" title="Tu perfil">
+          <div class="ph">
+            <?php
+              $foto = trim((string)($_SESSION['foto'] ?? ''));
+              if ($foto) {
+                $src = BASE_PATH . '/public/img/usuarios/' . ltrim($foto,'/');
+                echo '<img src="'.htmlspecialchars($src,ENT_QUOTES,'UTF-8').'" alt="avatar" onerror="this.remove();this.parentElement.textContent=\'' .
+                     htmlspecialchars(mb_strtoupper(mb_substr($_SESSION['usuario']??'U',0,1,'UTF-8'),'UTF-8'),ENT_QUOTES,'UTF-8') . '\'">';
+              } else {
+                $ini='U';
+                if (!empty($_SESSION['nombre_completo'] ?? '')) {
+                  $p=preg_split('/\s+/u', $_SESSION['nombre_completo']);
+                  $ini = mb_strtoupper(mb_substr($p[0],0,1,'UTF-8') . (count($p)>1?mb_substr(end($p),0,1,'UTF-8'):''),'UTF-8');
+                } else {
+                  $ini = mb_strtoupper(mb_substr($_SESSION['usuario'] ?? 'U',0,1,'UTF-8'),'UTF-8');
+                }
+                echo htmlspecialchars($ini, ENT_QUOTES, 'UTF-8');
+              }
+            ?>
+          </div>
+          <div class="nm"><?= $NOMBRE ?></div>
+        </div>
+      </div>
 
-          <!-- Slide 1 · Justificación -->
-          <div class="hslide">
-            <span class="suptitle"><i></i> Justificación</span>
-            <h2 class="big">Nexus RH nace de una investigación con profesionales de RR. HH. y problemas reales.</h2>
-            <p class="lead">El sistema surge tras entrevistas con especialistas. Detectamos retos en reclutamiento, comunicación y objetividad; diseñamos Nexus RH para resolverlos con enfoque moderno.</p>
-          </div>
-
-          <!-- Slide 2 · Hipótesis -->
-          <div class="hslide">
-            <span class="suptitle"><i></i> Hipótesis</span>
-            <h2 class="big">Un sistema web inteligente y centralizado acelera la selección y eleva la objetividad.</h2>
-            <p class="lead">“Si implementamos un sistema inteligente para contratar, reducimos tiempos, mejoramos la comunicación y tomamos decisiones más objetivas frente a procesos manuales”.</p>
-          </div>
-
-          <!-- Slide 3 · Objetivo -->
-          <div class="hslide">
-            <span class="suptitle"><i></i> Objetivo</span>
-            <h2 class="big">Optimizar la selección y contratación con información clara para todas las áreas.</h2>
-            <p class="lead">Nexus RH busca mejorar integralmente el proceso y proveer datos comprensibles para jefaturas, gerencias y RR. HH., alineando expectativas y acelerando decisiones.</p>
-          </div>
-
-          <!-- Dots -->
-          <div class="h-dots" id="hDots">
-            <span class="dot on" aria-label="Slide 1" role="button" tabindex="0"></span>
-            <span class="dot" aria-label="Slide 2" role="button" tabindex="0"></span>
-            <span class="dot" aria-label="Slide 3" role="button" tabindex="0"></span>
-            <span class="dot" aria-label="Slide 4" role="button" tabindex="0"></span>
-          </div>
+      <div class="right">
+        <div class="deck" id="deck">
+          <?php
+            $slides = [
+              ['tag'=>'MISIÓN','txt'=>'Impulsar el talento y crear equipos excepcionales.'],
+              ['tag'=>'VISIÓN','txt'=>'Ser el referente en experiencia humana y eficacia organizacional.'],
+              ['tag'=>'VALORES','txt'=>'Integridad · Colaboración · Innovación · Servicio · Empatía.'],
+              ['tag'=>'CULTURA','txt'=>'Comunicación clara, foco en personas y mejora continua.'],
+              ['tag'=>'PRINCIPIOS','txt'=>'Datos para decidir, respeto para convivir.'],
+              ['tag'=>'PROPÓSITO','txt'=>'Hacer que trabajar aquí sea una gran experiencia.'],
+            ];
+            $i=0; foreach($slides as $s): ?>
+              <div class="slide <?= $i===0?'on':'' ?>">
+                <span class="tag"><?= htmlspecialchars($s['tag']) ?></span>
+                <div class="txt"><?= htmlspecialchars($s['txt']) ?></div>
+              </div>
+          <?php $i++; endforeach; ?>
+        </div>
+        <div class="dots" id="dots">
+          <?php for($j=0;$j<count($slides);$j++): ?>
+            <span class="d <?= $j===0?'on':'' ?>"></span>
+          <?php endfor; ?>
+        </div>
+        <div class="art" aria-hidden="true">
+          <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="gA" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#60a5fa"/></linearGradient></defs>
+            <path fill="url(#gA)" fill-opacity=".55" d="M0,64L48,58.7C96,53,192,43,288,58.7C384,75,480,117,576,112C672,107,768,53,864,48C960,43,1056,85,1152,96C1248,107,1344,85,1392,74.7L1440,64L1440,0L0,0Z"/>
+            <path fill="#0a1a31" fill-opacity=".75" d="M0,96L40,106.7C80,117,160,139,240,112C320,85,400,11,480,5.3C560,0,640,64,720,85.3C800,107,880,85,960,90.7C1040,96,1120,128,1200,133.3C1280,139,1360,117,1400,106.7L1440,96L1440,120L0,120Z"/>
+          </svg>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ====== FEED ====== -->
+  <!-- ===== FEED (timeline nuevo) ===== -->
   <section class="feed">
     <div class="feed-glass">
       <div class="feed-head">
@@ -232,19 +322,16 @@ body{ background:#0a0f1d; }
         <span class="live"><span class="dot"></span> en tiempo real</span>
       </div>
 
-      <?php if (!$feed): ?>
-        <article class="post reveal">
-          <div class="p-hd">
-            <div class="ava">🙂</div>
-            <div>
-              <div class="title">Sin actividad por ahora</div>
-              <div class="meta">Cuando haya comentarios o cambios, aparecerán aquí.</div>
-            </div>
-          </div>
-          <div class="p-bd"></div>
-        </article>
-      <?php else: ?>
-        <?php foreach ($feed as $row):
+      <?php
+        // dividir en hoy y anteriores
+        $hoy=[]; $antes=[];
+        foreach ($feed as $row) {
+          $d = substr((string)$row['creado_en'],0,10);
+          if ($d === date('Y-m-d')) $hoy[]=$row; else $antes[]=$row;
+        }
+
+        // dibujar tarjeta timeline
+        function render_timeline_item($row){
           $autor  = $row['autor_nombre'] ?: $row['autor_usuario'] ?: 'Usuario';
           $ini    = mb_strtoupper(mb_substr($autor,0,1,'UTF-8'));
           $foto   = $row['fotografia'] ? (BASE_PATH.'/public/uploads/fotos/'.ltrim($row['fotografia'],'/')) : null;
@@ -253,81 +340,71 @@ body{ background:#0a0f1d; }
           $estado = htmlspecialchars($row['estado_actual'] ?? '');
           $coment = nl2br(htmlspecialchars($row['comentario'] ?? ''));
           $ago    = time_ago_es($row['creado_en'] ?? '');
-          $link   = BASE_PATH . '/app/views/admin/solicitudes/seguimiento.php?id=' . (int)$row['solicitud_id'];
-        ?>
-        <article class="post">
-          <div class="p-hd">
-            <div class="ava">
-              <?php if ($foto): ?><img src="<?= $foto ?>" alt="usr" loading="lazy"><?php else: ?><?= $ini ?><?php endif; ?>
-            </div>
-            <div>
-              <div class="title"><?= $titulo ?> · <span class="meta"><?= $puesto ?></span></div>
-              <div class="meta"><a class="link" href="<?= $link ?>">Ver solicitud #<?= (int)$row['solicitud_id'] ?></a></div>
-            </div>
-            <div class="time"><?= $ago ?></div>
+          $link   = BASE_PATH . '/app/views/admin/solicitudes/detalle.php?id=' . (int)$row['solicitud_id'];
+          ?>
+          <div class="ti">
+            <span class="ti-marker" data-s="<?= $estado ?>"></span>
+            <article class="card">
+              <div class="card-hd">
+                <?php if ($foto): ?>
+                  <div class="av"><img src="<?= $foto ?>" alt="usr" loading="lazy"
+                    onerror="this.closest('.av').classList.add('i');this.remove();this.closest('.av').textContent='<?= $ini ?>'"></div>
+                <?php else: ?>
+                  <div class="av i"><?= $ini ?></div>
+                <?php endif; ?>
+                <div class="hd-txt">
+                  <div class="hd-tit"><?= $titulo ?></div>
+                  <div class="hd-sub">
+                    <span class="badge">#<?= (int)$row['solicitud_id'] ?></span>
+                    <span class="badge">Puesto: <?= $puesto ?></span>
+                    <a class="badge" href="<?= $link ?>">Ver detalle</a>
+                  </div>
+                </div>
+                <div class="time"><?= $ago ?></div>
+              </div>
+              <div class="card-bd">
+                <strong><?= htmlspecialchars($autor) ?></strong> comentó:<br><?= $coment ?>
+                <br><span class="state" data-s="<?= $estado ?>"><?= $estado ?: '—' ?></span>
+              </div>
+            </article>
           </div>
-          <div class="p-bd">
-            <?= $coment ?>
-            <br><span class="state" data-s="<?= $estado ?>"><?= $estado ?: '—' ?></span>
-          </div>
-        </article>
-        <?php endforeach; ?>
-      <?php endif; ?>
+        <?php } ?>
+
+      <!-- HOY -->
+      <div class="tg">
+        <h4 class="tg-title">Hoy <span class="badge"><?= count($hoy) ?></span></h4>
+        <?php if(!$hoy): ?>
+          <div class="empty">Sin actividad hoy.</div>
+        <?php else: foreach($hoy as $r) render_timeline_item($r); endif; ?>
+      </div>
+
+      <!-- ANTERIORES -->
+      <div class="tg">
+        <h4 class="tg-title">Anteriores <span class="badge"><?= count($antes) ?></span></h4>
+        <?php if(!$antes): ?>
+          <div class="empty">Sin registros anteriores.</div>
+        <?php else: foreach($antes as $r) render_timeline_item($r); endif; ?>
+      </div>
+
     </div>
   </section>
 </div>
 
 <script>
-/* Carrusel auto (15 s) + dots + pausa en hover + teclado + swipe */
+/* carrusel de tarjetas en el deck (hero) */
 (function(){
-  const slider = document.querySelector('.h-carousel');
-  const slides = Array.from(document.querySelectorAll('.hslide'));
-  const dots   = Array.from(document.querySelectorAll('#hDots .dot'));
-  if (!slides.length) return;
-
-  let i = 0, timer = null, paused = false, touchStartX = null;
-
-  function show(idx){
-    slides[i].classList.remove('active'); dots[i]?.classList.remove('on');
-    i = (idx + slides.length) % slides.length;
-    slides[i].classList.add('active'); dots[i]?.classList.add('on');
+  const slides = Array.from(document.querySelectorAll('#deck .slide'));
+  const dots   = Array.from(document.querySelectorAll('#dots .d'));
+  if(!slides.length) return;
+  let i=0;
+  function show(n){
+    slides[i].classList.remove('on'); dots[i]?.classList.remove('on');
+    i=(n+slides.length)%slides.length;
+    slides[i].classList.add('on'); dots[i]?.classList.add('on');
   }
-
-  function play(){ if (timer) clearInterval(timer); timer = setInterval(()=>{ if(!paused) show(i+1); }, 15000); }
-  function pause(){ paused = true; }
-  function resume(){ paused = false; }
-
-  dots.forEach((d,idx)=>{
-    d.addEventListener('click', ()=>{ show(idx); });
-    d.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); show(idx); }});
-  });
-
-  slider.addEventListener('mouseenter', pause);
-  slider.addEventListener('mouseleave', resume);
-
-  slider.addEventListener('keydown', (e)=>{
-    if (e.key === 'ArrowRight') { show(i+1); }
-    if (e.key === 'ArrowLeft')  { show(i-1); }
-  });
-
-  slider.addEventListener('touchstart', (e)=>{ touchStartX = e.touches[0].clientX; }, {passive:true});
-  slider.addEventListener('touchend',   (e)=>{
-    if (touchStartX === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 40) show(i + (dx < 0 ? 1 : -1));
-    touchStartX = null;
-  });
-
-  play();
-})();
-
-/* Reveal del feed */
-(function(){
-  const posts = Array.from(document.querySelectorAll('.post'));
-  if (!('IntersectionObserver' in window)) { posts.forEach(p=>p.classList.add('reveal')); return; }
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if (e.isIntersecting){ e.target.classList.add('reveal'); io.unobserve(e.target); } });
-  }, {threshold:.12});
-  posts.forEach(p=>io.observe(p));
+  setInterval(()=>show(i+1), 6000);
+  dots.forEach((d,idx)=> d.addEventListener('click', ()=>show(idx)));
 })();
 </script>
+</body>
+</html>

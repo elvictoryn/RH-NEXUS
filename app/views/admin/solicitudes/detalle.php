@@ -149,18 +149,26 @@ try {
   $comentarios = [];
 }
 
-/* ---- Resultados de IA (no rompe si no existe la tabla/columnas) ---- */
+/* ---- Resultados de IA (reales, ordenados) ----
+   Usando tus columnas existentes:
+   - `Puntaje de evaluación` (0–100)
+   - `PosiciónRanking` (si existe)
+   - `Viabilidad`, `Nombre completo`, `Correo`
+*/
 $iaRows = [];
 try {
   $qIa = $db->prepare("
-    SELECT id, nombre, correo,
-           COALESCE(score_ia, 0)         AS score_ia,
-           COALESCE(compat_porcentaje,0) AS compat_porcentaje,
-           COALESCE(semaforo, '')        AS semaforo
+    SELECT
+      id,
+      `Nombre completo` AS nombre,
+      `Correo`          AS correo,
+      COALESCE(`Puntaje de evaluación`, 0) AS score_ia,
+      COALESCE(`PosiciónRanking`, 0)       AS pos_rank,
+      COALESCE(`Viabilidad`, '')           AS viabilidad
     FROM postulantes_por_vacante
     WHERE solicitud_id = ?
-    ORDER BY score_ia DESC, id ASC
-    LIMIT 200
+    ORDER BY COALESCE(`Puntaje de evaluación`,0) DESC, id ASC
+    LIMIT 500
   ");
   $qIa->execute([$id]);
   $iaRows = $qIa->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -227,15 +235,11 @@ body{
 .comment .when{color:#5b7291;font-size:.86rem}
 .badge-soft{background:#eaf2ff;border:1px solid #d7e3ff;border-radius:999px;padding:.15rem .6rem;font-size:.76rem;color:#15385e}
 
-/* ===== IA Resultados ===== */
-.ia-card .table thead th{background:#eff5ff; border-bottom:1px solid #d7e3ff}
+/* ===== IA Resultados (solo estilos mínimos de la sección) ===== */
 .ia-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .55rem;border:1px solid #d7e3ff;border-radius:999px;background:#eaf2ff;font-size:.78rem}
 .ia-bar{height:8px;border-radius:999px;background:#e5e7eb;overflow:hidden}
 .ia-bar > i{display:block;height:100%;background:#3b82f6}
-.ia-sem{font-weight:800}
-.ia-sem.verde{color:#0f766e}
-.ia-sem.amarillo{color:#ca8a04}
-.ia-sem.rojo{color:#b91c1c}
+.ia-rank{font-weight:800}
 </style>
 
 <div class="wrap">
@@ -340,7 +344,6 @@ body{
             <?php endif; ?>
 
             <?php if (in_array($S['estado_actual'], ['BUSCANDO','EN_ENTREVISTA','EN_DECISION','ABIERTA'], true)): ?>
-              <!-- Unificado: ir directo al hub de candidatos de esta solicitud, enfocado a alta -->
               <a class="btn btn-outline-primary"
                  href="<?= BASE_PATH; ?>/app/views/admin/candidatos/index.php?sol=<?= (int)$S['id'] ?>&goto=alta">
                 👥 Registrar/gestionar candidatos
@@ -396,26 +399,20 @@ body{
     </div>
   </div>
 
-  <!-- ===== Resultados de IA (Ancho completo, debajo) ===== -->
+  <!-- ===== Resultados de IA (orden real, con medallas y botón Detalles) ===== -->
   <div class="card ia-card mt-3">
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <div class="section-title mb-0">Resultados de IA (prototipo)</div>
-        <?php if ($ROL==='rh' && in_array($S['estado_actual'], ['BUSCANDO','EN_ENTREVISTA','EN_DECISION','ABIERTA'], true)): ?>
-          <!-- Unificado: hub de candidatos de esta solicitud -->
-          <a class="btn btn-outline-primary btn-sm"
-             href="<?= BASE_PATH; ?>/app/views/admin/candidatos/index.php?sol=<?= (int)$S['id'] ?>">
-            Ir a gestión de candidatos
-          </a>
-        <?php endif; ?>
+        <div class="section-title mb-0">Resultados de IA</div>
+        <a class="btn btn-outline-primary btn-sm"
+           href="<?= BASE_PATH; ?>/app/views/admin/candidatos/index.php?sol=<?= (int)$S['id'] ?>">
+          Ir a gestión de candidatos
+        </a>
       </div>
 
       <?php if(!$iaRows): ?>
         <div class="text-muted mt-2">
           Aún no hay resultados de IA para esta solicitud.
-          <?php if ($ROL==='rh' && $S['estado_actual']==='BUSCANDO'): ?>
-            Registra candidatos en el módulo de candidatos para ver aquí su compatibilidad.
-          <?php endif; ?>
         </div>
       <?php else: ?>
         <div class="table-responsive mt-2">
@@ -425,32 +422,41 @@ body{
                 <th>#</th>
                 <th>Candidato</th>
                 <th>Correo</th>
-                <th style="width:180px">Puntaje IA</th>
-                <th>Compat.</th>
-                <th>Semáforo</th>
+                <th style="width:200px">Puntaje IA</th>
+                <th>Ranking IA</th>
+                <th>Viabilidad</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              <?php $n=1; foreach($iaRows as $r):
-                $score = (float)($r['score_ia'] ?? 0);
-                $pct   = (float)($r['compat_porcentaje'] ?? 0);
-                $sem   = strtolower(trim((string)($r['semaforo'] ?? '')));
-                $semCl = ($sem==='verde'?'verde': ($sem==='amarillo'?'amarillo':'rojo'));
+              <?php
+                $n=1;
+                foreach($iaRows as $r):
+                  $score   = (float)($r['score_ia'] ?? 0);
+                  $posRaw  = (int)($r['pos_rank'] ?? 0);
+                  $rankNum = $posRaw > 0 ? $posRaw : $n; // si BD no trae ranking, usamos el orden actual
+                  $icon = ($rankNum===1?'🏆':($rankNum===2?'🥈':($rankNum===3?'🥉':'')));
               ?>
               <tr>
                 <td><?= $n++ ?></td>
-                <td><span class="ia-chip"><?= esc($r['nombre'] ?? '—') ?></span></td>
+                <td>
+                  <span class="ia-chip"><?= $icon ? $icon.'&nbsp;' : '' ?><?= esc($r['nombre'] ?? '—') ?></span>
+                </td>
                 <td><?= esc($r['correo'] ?? '—') ?></td>
                 <td>
                   <div class="ia-bar" title="<?= number_format($score,0) ?>/100">
                     <i style="width:<?= max(0,min(100,$score)) ?>%"></i>
                   </div>
-                  <small><?= number_format($score,0) ?>/100</small>
+                  <small><strong><?= number_format($score,0) ?></strong>/100</small>
                 </td>
-                <td><?= number_format($pct,0) ?>%</td>
-                <td class="ia-sem <?= $semCl ?>"><?= strtoupper($sem ?: ($score>=80?'VERDE':($score>=60?'AMARILLO':'ROJO'))) ?></td>
-                <td><a class="btn btn-outline-secondary btn-sm" href="#">Ver</a></td>
+                <td class="ia-rank"><?= $icon ? $icon.'&nbsp;' : '' ?>#<?= (int)$rankNum ?></td>
+                <td><?= esc($r['viabilidad'] ?? '—') ?></td>
+                <td class="text-end">
+                  <a class="btn btn-outline-secondary btn-sm"
+                     href="<?= BASE_PATH; ?>/app/views/admin/candidatos/index.php?sol=<?= (int)$S['id'] ?>&focus=<?= (int)$r['id'] ?>">
+                    Detalles
+                  </a>
+                </td>
               </tr>
               <?php endforeach; ?>
             </tbody>

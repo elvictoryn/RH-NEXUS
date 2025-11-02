@@ -1,0 +1,122 @@
+@startuml Diagrama de Bloques - Seguridad del Sistema RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Arquitectura de Seguridad
+
+package "Autenticacion" as Auth {
+    component [Login Seguro] as SecureLogin
+    component [Hash de Contrasenas] as PasswordHash
+    component [Proteccion Fuerza Bruta] as BruteForceProt
+    component [Bloqueo Temporal] as TempLock
+    component [Gestion de Sesiones] as SessionMgr
+}
+
+package "Middleware de Seguridad" as Middleware {
+    component [Verificacion de Sesion] as SessionCheck
+    component [Control de Timeout] as TimeoutCtrl
+    component [Validacion de Roles] as RoleValidation
+    component [Control de Acceso] as AccessControl
+    component [Limpieza de Sesion] as SessionCleanup
+}
+
+package "Validaciones" as Validation {
+    component [Validacion de Entrada] as InputValidation
+    component [Sanitizacion de Datos] as DataSanitization
+    component [Validacion de Archivos] as FileValidation
+    component [Verificacion de Duplicados] as DuplicateCheck
+    component [Validacion de Permisos] as PermissionCheck
+}
+
+package "Encriptacion y Seguridad" as Encryption {
+    component [Cookies Seguras] as SecureCookies
+    component [HTTPS Forzado] as HTTPSForce
+    component [Headers de Seguridad] as SecurityHeaders
+    component [Proteccion CSRF] as CSRFProtection
+    component [Validacion de Tokens] as TokenValidation
+}
+
+package "Monitoreo y Logs" as Monitoring {
+    component [Log de Intentos] as AttemptLog
+    component [Notificaciones de Seguridad] as SecurityNotif
+    component [Monitoreo de Actividad] as ActivityMonitor
+    component [Alertas de Intrusion] as IntrusionAlerts
+    component [Auditoria de Accesos] as AccessAudit
+}
+
+package "Configuracion de Red" as Network {
+    component [Configuracion HTTPS] as HTTPSConfig
+    component [Headers HSTS] as HSTSHeaders
+    component [Configuracion CORS] as CORSConfig
+    component [Proteccion de Archivos] as FileProtection
+}
+
+' Flujo de autenticacion
+SecureLogin --> PasswordHash
+PasswordHash --> BruteForceProt
+BruteForceProt --> TempLock
+TempLock --> SessionMgr
+
+' Middleware de seguridad
+SessionMgr --> SessionCheck
+SessionCheck --> TimeoutCtrl
+TimeoutCtrl --> RoleValidation
+RoleValidation --> AccessControl
+AccessControl --> SessionCleanup
+
+' Validaciones de seguridad
+InputValidation --> DataSanitization
+DataSanitization --> FileValidation
+FileValidation --> DuplicateCheck
+DuplicateCheck --> PermissionCheck
+
+' Encriptacion y proteccion
+SecureCookies --> HTTPSForce
+HTTPSForce --> SecurityHeaders
+SecurityHeaders --> CSRFProtection
+CSRFProtection --> TokenValidation
+
+' Monitoreo y auditoria
+AttemptLog --> SecurityNotif
+SecurityNotif --> ActivityMonitor
+ActivityMonitor --> IntrusionAlerts
+IntrusionAlerts --> AccessAudit
+
+' Configuracion de red
+HTTPSConfig --> HSTSHeaders
+HSTSHeaders --> CORSConfig
+CORSConfig --> FileProtection
+
+note right of BruteForceProt
+  **Proteccion contra Fuerza Bruta:**
+  - Maximo 5 intentos fallidos
+  - Bloqueo temporal de 15 minutos
+  - Notificacion automatica a admins
+  - Limpieza automatica de bloqueos expirados
+end note
+
+note right of SecurityHeaders
+  **Headers de Seguridad:**
+  - X-Content-Type-Options: nosniff
+  - X-Frame-Options: DENY
+  - X-XSS-Protection: 1; mode=block
+  - Strict-Transport-Security: max-age=31536000
+end note
+
+note right of FileValidation
+  **Validacion de Archivos:**
+  - Verificacion de tipo MIME
+  - Limite de tamano (5MB)
+  - Validacion de extensiones
+  - Sanitizacion de nombres
+  - Almacenamiento seguro
+end note
+
+note right of ActivityMonitor
+  **Monitoreo de Actividad:**
+  - Registro de logins
+  - Seguimiento de acciones criticas
+  - Deteccion de patrones anomalos
+  - Alertas en tiempo real
+  - Historial de accesos
+end note
+
+@enduml

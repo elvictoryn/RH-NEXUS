@@ -1,0 +1,48 @@
+@startuml Aprobación de Solicitudes - Gerente
+!theme plain
+title Aprobación de Solicitudes - Gerente
+
+left to right direction
+
+' Actores
+actor "Gerente" as Gerente
+
+' Casos de uso principales
+usecase "Revisar Solicitudes de su Sede" as UC1
+usecase "Aprobar Solicitudes de su Sede" as UC2
+usecase "Rechazar Solicitudes de su Sede" as UC3
+usecase "Solicitar Modificaciones" as UC4
+usecase "Ver Solicitudes Pendientes de su Sede" as UC5
+
+' Relaciones de actores con casos de uso
+Gerente --> UC1 : Puede revisar solicitudes de su sede
+Gerente --> UC2 : Puede aprobar solicitudes de su sede
+Gerente --> UC3 : Puede rechazar solicitudes de su sede
+Gerente --> UC4 : Puede solicitar modificaciones
+Gerente --> UC5 : Puede ver pendientes de su sede
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : puede llevar a
+UC1 ..> UC3 : puede llevar a
+UC1 ..> UC4 : puede llevar a
+UC2 ..> UC5 : incluye
+UC3 ..> UC5 : incluye
+
+' Notas
+note right of UC2
+  Criterios de aprobación:
+  - Presupuesto disponible
+  - Justificación válida
+  - Requisitos coherentes
+  - Impacto organizacional
+end note
+
+note right of UC3
+  Motivos de rechazo:
+  - Presupuesto insuficiente
+  - Justificación débil
+  - Requisitos excesivos
+  - Duplicidad de funciones
+end note
+
+@enduml

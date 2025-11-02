@@ -1,0 +1,32 @@
+@startuml IA Evaluation Sequence
+!theme plain
+title IA Evaluation Sequence - RH Nexus
+
+actor "RH" as RH
+participant "Python API" as API
+participant "Machine Learning Model" as ML
+participant "Database" as DB
+participant "File System" as FS
+
+RH -> API: POST /python_api/evaluar_candidatos_nuevos.py
+API -> FS: Cargar modelo_rf_contratacion.pkl
+FS --> API: Modelo cargado
+
+API -> FS: Cargar recruitment_data.csv
+FS --> API: Datos de candidatos
+
+API -> ML: evaluar(modelo, df_candidatos, threshold=0.80)
+ML -> ML: Preprocesar datos
+ML -> ML: Aplicar modelo Random Forest
+ML -> ML: Calcular probabilidades
+ML -> ML: Filtrar por threshold
+
+ML --> API: DataFrame con resultados
+API -> API: imprimir_en_grupos(df_result, group_size=5)
+API -> API: Generar reporte de compatibilidad
+
+API -> DB: UPDATE postulantes_por_vacante SET ia_score
+DB --> API: Confirmación
+API --> RH: Reporte de evaluación IA generado
+
+@enduml

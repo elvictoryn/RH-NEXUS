@@ -1,0 +1,71 @@
+@startuml Login Flow
+!theme plain
+title Login Flow - RH Nexus
+
+start
+
+:Usuario accede al sistema;
+:Mostrar formulario de login;
+
+:Usuario ingresa credenciales;
+:Validar campos obligatorios;
+
+if (¿Campos válidos?) then (No)
+    :Mostrar error de validación;
+    stop
+else (Sí)
+    :Buscar usuario en BD;
+    
+    if (¿Usuario existe?) then (No)
+        :Mostrar error de credenciales;
+        stop
+    else (Sí)
+        :Verificar estado del usuario;
+        
+        if (¿Usuario activo?) then (No)
+            :Mostrar error: Usuario inactivo;
+            stop
+        else (Sí)
+            :Verificar bloqueo temporal;
+            
+            if (¿Usuario bloqueado?) then (Sí)
+                :Mostrar tiempo de bloqueo;
+                stop
+            else (No)
+                :Verificar contraseña;
+                
+                if (¿Contraseña correcta?) then (No)
+                    :Incrementar intentos fallidos;
+                    :Actualizar BD;
+                    
+                    if (¿Máximo intentos?) then (Sí)
+                        :Bloquear usuario temporalmente;
+                        :Notificar a administradores;
+                    endif
+                    
+                    :Mostrar error de credenciales;
+                    stop
+                else (Sí)
+                    :Resetear intentos fallidos;
+                    :Crear sesión;
+                    :Regenerar ID de sesión;
+                    :Redirigir según rol;
+                    
+                    if (¿Rol = Admin?) then (Sí)
+                        :Redirigir a /admin.php;
+                    elseif (¿Rol = RH?) then (Sí)
+                        :Redirigir a /rh.php;
+                    elseif (¿Rol = Gerente?) then (Sí)
+                        :Redirigir a /gerente.php;
+                    elseif (¿Rol = Jefe Area?) then (Sí)
+                        :Redirigir a /jefe_area.php;
+                    endif
+                    
+                    stop
+                endif
+            endif
+        endif
+    endif
+endif
+
+@enduml

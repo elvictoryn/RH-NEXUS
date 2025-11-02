@@ -1,0 +1,122 @@
+@startuml Diagrama de Bloques - Modulos del Sistema RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Modulos y Componentes
+
+package "Modulo de Autenticacion" as AuthModule {
+    component [Login/Logout] as AuthUI
+    component [AuthController] as AuthCtrl
+    component [Middleware Auth] as AuthMW
+    component [Gestion Sesiones] as SessionMgr
+    component [Control de Acceso] as AccessCtrl
+}
+
+package "Modulo de Gestion de Usuarios" as UserModule {
+    component [CRUD Usuarios] as UserCRUD
+    component [Validaciones] as UserValid
+    component [Gestion Roles] as RoleMgr
+    component [Subida Archivos] as FileUpload
+    component [UsuariosController] as UserCtrl
+}
+
+package "Modulo Organizacional" as OrgModule {
+    component [Gestion Sedes] as SedeMgr
+    component [Gestion Departamentos] as DeptMgr
+    component [Estructura Organizacional] as OrgStruct
+    component [Validaciones Organizacionales] as OrgValid
+}
+
+package "Modulo de Solicitudes" as SolModule {
+    component [Crear Solicitudes] as CreateSol
+    component [Flujo de Aprobacion] as ApprovalFlow
+    component [Estados de Solicitud] as SolStates
+    component [Generacion de Folios] as FolioGen
+    component [SolicitudController] as SolCtrl
+}
+
+package "Modulo de Inteligencia Artificial" as AIModule {
+    component [Evaluacion Automatica] as AutoEval
+    component [Sistema de Ranking] as RankingSys
+    component [Motor de Compatibilidad] as CompatEngine
+    component [Normalizacion de Datos] as DataNorm
+    component [IAClient] as IAClient
+    component [IAIntegration] as IAHelper
+}
+
+package "Modulo de Candidatos" as CandModule {
+    component [Registro Candidatos] as CandReg
+    component [Evaluacion Manual] as ManualEval
+    component [Sistema de Puntajes] as ScoringSys
+    component [Gestion de Entrevistas] as InterviewMgr
+    component [Seleccion Final] as FinalSelect
+}
+
+package "Modulo de Notificaciones" as NotifModule {
+    component [Sistema de Campana] as BellSystem
+    component [Notificaciones AJAX] as NotifAJAX
+    component [Gestion de Alertas] as AlertMgr
+    component [Historial de Actividad] as ActivityHist
+}
+
+package "Modulo de Configuracion" as ConfigModule {
+    component [Configuracion Entorno] as EnvConfig
+    component [Configuracion IA] as IAConfig
+    component [Configuracion BD] as DBConfig
+    component [Configuracion Seguridad] as SecurityConfig
+}
+
+' Interconexiones entre módulos
+AuthModule --> UserModule : Control de acceso
+AuthModule --> SolModule : Autenticación requerida
+AuthModule --> CandModule : Permisos por rol
+
+UserModule --> OrgModule : Asignación de usuarios
+UserModule --> SolModule : Creación de solicitudes
+UserModule --> CandModule : Gestión de candidatos
+
+OrgModule --> UserModule : Estructura organizacional
+OrgModule --> SolModule : Contexto de solicitudes
+
+SolModule --> CandModule : Proceso de reclutamiento
+SolModule --> NotifModule : Notificaciones de estado
+
+CandModule --> AIModule : Evaluación automática
+CandModule --> NotifModule : Notificaciones de evaluación
+
+AIModule --> CandModule : Puntajes y ranking
+AIModule --> ConfigModule : Configuración IA
+
+NotifModule --> UserModule : Notificaciones por usuario
+NotifModule --> SolModule : Alertas de solicitudes
+
+ConfigModule --> AuthModule : Configuración seguridad
+ConfigModule --> UserModule : Configuración usuarios
+ConfigModule --> AIModule : Configuración IA
+
+note right of AuthModule
+  **Funcionalidades:**
+  - Login/Logout seguro
+  - Control de sesiones
+  - Middleware de autenticación
+  - Redirección por rol
+  - Protección contra fuerza bruta
+end note
+
+note right of AIModule
+  **Funcionalidades:**
+  - Evaluación automática de candidatos
+  - Cálculo de compatibilidad
+  - Sistema de ranking inteligente
+  - Normalización de datos
+  - Integración con API externa
+end note
+
+note right of CandModule
+  **Funcionalidades:**
+  - Registro completo de candidatos
+  - Evaluación manual y automática
+  - Sistema de puntajes
+  - Gestión de entrevistas
+  - Selección y contratación
+end note
+
+@enduml

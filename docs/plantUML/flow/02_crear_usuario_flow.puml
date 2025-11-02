@@ -1,0 +1,97 @@
+@startuml Crear Usuario Flow
+!theme plain
+title Crear Usuario Flow - RH Nexus
+
+start
+
+:Admin accede a crear usuario;
+:Mostrar formulario de usuario;
+
+:Admin llena datos del usuario;
+:Validar campos obligatorios;
+
+if (¿Campos válidos?) then (No)
+    :Mostrar error de validación;
+    stop
+else (Sí)
+    :Verificar usuario único;
+    
+    if (¿Usuario ya existe?) then (Sí)
+        :Mostrar error: Usuario duplicado;
+        stop
+    else (No)
+        :Verificar número de empleado único;
+        
+        if (¿Número ya existe?) then (Sí)
+            :Mostrar error: Número duplicado;
+            stop
+        else (No)
+            :Validar reglas de negocio;
+            
+            if (¿Rol = Jefe Area?) then (Sí)
+                :Verificar sede y departamento;
+                
+                if (¿Sede y depto válidos?) then (No)
+                    :Mostrar error: Seleccionar sede y depto;
+                    stop
+                else (Sí)
+                    :Verificar jefe único en depto;
+                    
+                    if (¿Ya existe jefe?) then (Sí)
+                        :Mostrar error: Jefe ya existe;
+                        stop
+                    endif
+                endif
+            elseif (¿Rol = Gerente?) then (Sí)
+                :Verificar sede;
+                
+                if (¿Sede válida?) then (No)
+                    :Mostrar error: Seleccionar sede;
+                    stop
+                else (Sí)
+                    :Verificar gerente único en sede;
+                    
+                    if (¿Ya existe gerente?) then (Sí)
+                        :Mostrar error: Gerente ya existe;
+                        stop
+                    endif
+                endif
+            endif
+            
+            :Procesar fotografía;
+            
+            if (¿Hay fotografía?) then (Sí)
+                :Validar tipo MIME;
+                
+                if (¿Tipo válido?) then (No)
+                    :Mostrar error: Formato inválido;
+                    stop
+                else (Sí)
+                    :Validar tamaño;
+                    
+                    if (¿Tamaño válido?) then (No)
+                        :Mostrar error: Archivo muy grande;
+                        stop
+                    else (Sí)
+                        :Generar nombre único;
+                        :Guardar archivo;
+                    endif
+                endif
+            endif
+            
+            :Hash de contraseña;
+            :Crear usuario en BD;
+            
+            if (¿Usuario creado?) then (Sí)
+                :Mostrar éxito;
+                :Redirigir a lista;
+            else (No)
+                :Mostrar error: No se pudo crear;
+            endif
+            
+            stop
+        endif
+    endif
+endif
+
+@enduml

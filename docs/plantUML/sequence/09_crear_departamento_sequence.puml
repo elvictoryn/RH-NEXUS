@@ -1,0 +1,30 @@
+@startuml Crear Departamento Sequence
+!theme plain
+title Crear Departamento Sequence - RH Nexus
+
+actor "Admin" as Admin
+participant "Departamento Form" as Form
+participant "Departamento Model" as Model
+participant "Database" as DB
+participant "AJAX Validator" as Validator
+
+Admin -> Form: Llena datos del departamento
+Form -> Validator: Verificar nombre único en sede (AJAX)
+Validator -> Model: existeNombreEnSede()
+Model -> DB: SELECT COUNT(*) FROM departamentos WHERE nombre AND sede_id
+DB --> Model: Resultado
+Model --> Validator: true/false
+Validator --> Form: Nombre disponible/duplicado
+
+alt Nombre disponible
+    Form -> Model: POST /departamentos/crear
+    Model -> Model: Validar campos obligatorios
+    Model -> Model: Normalizar datos (MAYÚSCULAS)
+    Model -> DB: INSERT departamentos
+    DB --> Model: ID del departamento
+    Model --> Form: Redirect con éxito
+else Nombre duplicado en sede
+    Form --> Admin: Error: Nombre ya existe en esta sede
+end
+
+@enduml

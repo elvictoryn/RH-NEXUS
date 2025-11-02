@@ -1,0 +1,61 @@
+@startuml Configuration Classes
+!theme plain
+title Configuration Classes - RH Nexus
+
+class EnvironmentConfig {
+    + isInfinityFree(): bool
+    + getEnvironment(): string
+    + getBasePath(): string
+    + getDbConfig(): string
+}
+
+class DatabaseConfig {
+    + getHost(): string
+    + getDatabase(): string
+    + getUser(): string
+    + getPassword(): string
+    + getPort(): int
+    + getDsn(): string
+    + getOptions(): array
+}
+
+class AppConfig {
+    + getAppKey(): string
+    + getRememberDays(): int
+    + getLoginMaxAttempts(): int
+    + getAutoUnlockMinutes(): int
+    + getSessionTimeout(): int
+    + getUploadMaxSize(): int
+    + getAllowedMimeTypes(): array
+}
+
+class SecurityConfig {
+    + getPasswordHash(): string
+    + getSessionName(): string
+    + getCookieParams(): array
+    + getCsrfToken(): string
+    + getEncryptionKey(): string
+}
+
+note right of EnvironmentConfig
+  Configuración de entorno
+  para desarrollo y producción
+end note
+
+note right of DatabaseConfig
+  Configuración de base de
+  datos con credenciales
+  dinámicas
+end note
+
+note right of AppConfig
+  Configuración general de
+  la aplicación
+end note
+
+note right of SecurityConfig
+  Configuración de seguridad
+  y encriptación
+end note
+
+@enduml

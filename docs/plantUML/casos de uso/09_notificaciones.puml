@@ -1,0 +1,47 @@
+@startuml Notificaciones - Usuario
+!theme plain
+title Notificaciones - Usuario
+
+left to right direction
+
+' Actores
+actor "Usuario" as Usuario
+
+' Casos de uso principales
+usecase "Recibir Notificación de Aprobación" as UC1
+usecase "Recibir Notificación de Rechazo" as UC2
+usecase "Recibir Notificación de Cambio de Estado" as UC3
+usecase "Ver Bandeja de Notificaciones" as UC4
+usecase "Marcar como Leída" as UC5
+
+' Relaciones de actores con casos de uso
+Usuario --> UC1 : Puede recibir notificaciones
+Usuario --> UC2 : Puede recibir notificaciones
+Usuario --> UC3 : Puede recibir notificaciones
+Usuario --> UC4 : Puede ver bandeja
+Usuario --> UC5 : Puede marcar como leída
+
+' Relaciones entre casos de uso
+UC1 ..> UC4 : incluye
+UC2 ..> UC4 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Notificación de aprobación:
+  - Solicitud aprobada
+  - Próximos pasos
+  - Responsable asignado
+  - Tiempo estimado
+end note
+
+note right of UC4
+  Bandeja de notificaciones:
+  - Notificaciones pendientes
+  - Historial de notificaciones
+  - Filtros por tipo
+  - Búsqueda de notificaciones
+end note
+
+@enduml

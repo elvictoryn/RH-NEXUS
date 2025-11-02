@@ -1,0 +1,49 @@
+@startuml Aprobación de Solicitudes - RH
+!theme plain
+title Aprobación de Solicitudes - RH
+
+left to right direction
+
+' Actores
+actor "RH" as RH
+
+' Casos de uso principales
+usecase "Revisar Todas las Solicitudes" as UC1
+usecase "Aprobar Solicitudes Asignadas" as UC2
+usecase "Rechazar Solicitudes Asignadas" as UC3
+usecase "Auto-asignarse Solicitudes" as UC4
+usecase "Cambiar Estado de Solicitudes" as UC5
+
+' Relaciones de actores con casos de uso
+RH --> UC1 : Puede revisar todas las solicitudes
+RH --> UC2 : Puede aprobar solicitudes asignadas
+RH --> UC3 : Puede rechazar solicitudes asignadas
+RH --> UC4 : Puede auto-asignarse
+RH --> UC5 : Puede cambiar estado
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : puede llevar a
+UC1 ..> UC3 : puede llevar a
+UC1 ..> UC4 : puede llevar a
+UC2 ..> UC5 : incluye
+UC3 ..> UC5 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC2
+  Criterios de aprobación RH:
+  - Viabilidad técnica
+  - Disponibilidad de recursos
+  - Alineación con objetivos
+  - Impacto en el equipo
+end note
+
+note right of UC4
+  Auto-asignación:
+  - Solicitudes sin responsable
+  - Prioridad alta
+  - Especialización requerida
+  - Disponibilidad del RH
+end note
+
+@enduml

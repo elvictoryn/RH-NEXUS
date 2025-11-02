@@ -1,0 +1,56 @@
+@startuml Core Classes
+!theme plain
+title Core Classes - RH Nexus
+
+class Conexion {
+    - PDO $pdo
+    + getConexion(): PDO
+    + __construct()
+}
+
+class AuthController {
+    - PDO $db
+    - array $cfg
+    + __construct()
+    + login(): void
+    + logout(): void
+    + showLogin(?string $error): void
+    - setSession(array $u, bool $remember): void
+    - clearSession(): void
+    - goHomeByRole(string $rol): void
+    - notificarAdmins(string $mensaje, ?string $link): void
+}
+
+class UsuariosController {
+    - PDO $db
+    - Usuario $usuarioModel
+    - Departamento $departamentoModel
+    + __construct()
+    + create(): void
+    + index(): void
+    + store(): void
+    + ajax(): void
+}
+
+class Solicitud {
+    - PDO $db
+    + __construct()
+    + crear(array $d): int
+    + getGerenteDeSede(?int $sedeId): ?int
+    - generarFolio(): string
+    + uid(): int
+    + rol(): string
+}
+
+note right of Conexion
+  Singleton pattern para
+  conexión a base de datos
+end note
+
+note right of AuthController
+  Maneja autenticación,
+  sesiones y redirecciones
+  por rol
+end note
+
+@enduml

@@ -1,0 +1,57 @@
+@startuml Crear Solicitud Flow
+!theme plain
+title Crear Solicitud Flow - RH Nexus
+
+start
+
+:Usuario accede a crear solicitud;
+:Verificar permisos por rol;
+
+if (¿Tiene permisos?) then (No)
+    :Mostrar error: Sin permisos;
+    stop
+else (Sí)
+    :Mostrar formulario de solicitud;
+    :Usuario llena datos;
+    :Validar campos obligatorios;
+    
+    if (¿Campos válidos?) then (No)
+        :Mostrar error de validación;
+        stop
+    else (Sí)
+        :Generar folio único;
+        :Obtener datos de sesión;
+        :Determinar gerente de sede;
+        
+        :Aplicar lógica por rol;
+        
+        if (¿Rol = RH?) then (Sí)
+            :Estado = 'aprobada';
+            :RH asignado = usuario actual;
+        else (No)
+            :Estado = 'pendiente';
+            :RH asignado = null;
+        endif
+        
+        :Crear solicitud en BD;
+        
+        if (¿Solicitud creada?) then (Sí)
+            :Mostrar éxito;
+            :Redirigir según rol;
+            
+            if (¿Rol = Jefe Area?) then (Sí)
+                :Redirigir a mis solicitudes;
+            elseif (¿Rol = Gerente?) then (Sí)
+                :Redirigir a solicitudes de sede;
+            elseif (¿Rol = RH?) then (Sí)
+                :Redirigir a todas las solicitudes;
+            endif
+        else (No)
+            :Mostrar error: No se pudo crear;
+        endif
+        
+        stop
+    endif
+endif
+
+@enduml

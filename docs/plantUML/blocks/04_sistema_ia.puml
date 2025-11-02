@@ -1,0 +1,120 @@
+@startuml Diagrama de Bloques - Sistema de Inteligencia Artificial RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Arquitectura del Sistema de IA
+
+package "Entrada de Datos" as Input {
+    component [Datos Candidato] as CandData
+    component [Requisitos Puesto] as JobReqs
+    component [Puntajes Manuales] as ManualScores
+    component [Configuracion IA] as IAConfig
+}
+
+package "Procesamiento de Datos" as Processing {
+    component [Normalizacion] as Normalization
+    component [Validacion Datos] as DataValidation
+    component [Preparacion Payload] as PayloadPrep
+    component [Manejo de Errores] as ErrorHandling
+}
+
+package "Motor de IA" as AIMotor {
+    component [IAClient] as IAClient
+    component [Comunicacion API] as APIComm
+    component [Evaluacion Individual] as IndividualEval
+    component [Ranking Grupal] as GroupRanking
+    component [Calculo Viabilidad] as ViabilityCalc
+}
+
+package "Algoritmos de Evaluacion" as Algorithms {
+    component [Motor Compatibilidad] as CompatEngine
+    component [Scoring System] as ScoringSys
+    component [Normalizacion Educativa] as EduNorm
+    component [Normalizacion Estrategia] as StratNorm
+    component [Calculo Experiencia] as ExpCalc
+}
+
+package "API Externa" as ExternalAPI {
+    component [Servicio IA] as IAService
+    component [Endpoint Predict] as PredictEP
+    component [Endpoint Rank] as RankEP
+    component [Health Check] as HealthEP
+}
+
+package "Salida de Resultados" as Output {
+    component [Puntaje Evaluacion] as EvalScore
+    component [Nivel Viabilidad] as ViabilityLevel
+    component [Ranking Candidatos] as CandidateRanking
+    component [Metricas Compatibilidad] as CompatMetrics
+}
+
+' Flujo de datos
+CandData --> Normalization
+JobReqs --> Normalization
+ManualScores --> PayloadPrep
+IAConfig --> IAClient
+
+Normalization --> DataValidation
+DataValidation --> PayloadPrep
+PayloadPrep --> IAClient
+
+IAClient --> APIComm
+APIComm --> IAService
+IAService --> PredictEP
+IAService --> RankEP
+
+PredictEP --> IndividualEval
+RankEP --> GroupRanking
+IndividualEval --> ViabilityCalc
+
+CompatEngine --> ScoringSys
+EduNorm --> CompatEngine
+StratNorm --> CompatEngine
+ExpCalc --> CompatEngine
+
+ScoringSys --> EvalScore
+ViabilityCalc --> ViabilityLevel
+GroupRanking --> CandidateRanking
+CompatEngine --> CompatMetrics
+
+' Retroalimentación
+EvalScore --> PayloadPrep
+ViabilityLevel --> PayloadPrep
+CandidateRanking --> PayloadPrep
+
+note right of Normalization
+  **Funciones de Normalización:**
+  - ia_norm_upper_no_accents()
+  - ia_normalize_education()
+  - ia_normalize_strategy()
+  - Eliminación de acentos
+  - Estandarización de formatos
+end note
+
+note right of IAClient
+  **Funcionalidades:**
+  - Comunicación con API externa
+  - Manejo de timeouts
+  - Validación de respuestas
+  - Gestión de errores
+  - Autenticación API
+end note
+
+note right of CompatEngine
+  **Cálculo de Compatibilidad:**
+  - Escolaridad (10 puntos)
+  - Experiencia (20 puntos)
+  - Carrera afín (25 puntos)
+  - Áreas de experiencia (20 puntos)
+  - Competencias técnicas (15 puntos)
+  - Nivel de inglés (10 puntos)
+  - **Total: 100 puntos**
+end note
+
+note right of ExternalAPI
+  **Endpoints de IA:**
+  - POST /predict - Evaluación individual
+  - POST /rank - Ranking de candidatos
+  - GET /health - Estado del servicio
+  - Autenticación por API Key
+end note
+
+@enduml

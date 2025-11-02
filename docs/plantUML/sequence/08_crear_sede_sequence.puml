@@ -1,0 +1,30 @@
+@startuml Crear Sede Sequence
+!theme plain
+title Crear Sede Sequence - RH Nexus
+
+actor "Admin" as Admin
+participant "Sede Form" as Form
+participant "Sede Model" as Model
+participant "Database" as DB
+participant "AJAX Validator" as Validator
+
+Admin -> Form: Llena datos de la sede
+Form -> Validator: Verificar nombre único (AJAX)
+Validator -> Model: existeNombre()
+Model -> DB: SELECT COUNT(*) FROM sedes WHERE nombre
+DB --> Model: Resultado
+Model --> Validator: true/false
+Validator --> Form: Nombre disponible/duplicado
+
+alt Nombre disponible
+    Form -> Model: POST /sedes/crear
+    Model -> Model: Validar campos obligatorios
+    Model -> Model: Normalizar datos (MAYÚSCULAS)
+    Model -> DB: INSERT sedes
+    DB --> Model: ID de la sede
+    Model --> Form: Redirect con éxito
+else Nombre duplicado
+    Form --> Admin: Error: Nombre ya existe
+end
+
+@enduml

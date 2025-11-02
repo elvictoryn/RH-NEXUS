@@ -1,0 +1,95 @@
+@startuml Diagrama de Colaboracion - Proceso Completo de Reclutamiento RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Colaboracion en Proceso de Reclutamiento
+
+object "Jefe de Area" as JefeArea
+object "SolicitudController" as SolCtrl
+object "SolicitudModel" as SolModel
+object "FolioGenerator" as FolioGen
+object "EstadoManager" as EstadoMgr
+
+object "Gerente" as Gerente
+object "NotificacionService" as NotifService
+object "AprobacionService" as AprobService
+
+object "RH" as RH
+object "CandidatosController" as CandCtrl
+object "CandidatosModel" as CandModel
+object "IAIntegration" as IAHelper
+object "EvaluacionService" as EvalService
+
+object "SistemaIA" as SistemaIA
+object "RankingService" as RankingService
+object "CompatibilidadEngine" as CompatEngine
+
+object "Database" as DB
+object "NotificationSystem" as NotifSystem
+
+' Creacion de solicitud
+JefeArea --> SolCtrl : 1: crearSolicitud()
+SolCtrl --> SolModel : 2: validarDatos()
+SolModel --> FolioGen : 3: generarFolio()
+FolioGen --> EstadoMgr : 4: establecerEstado(PENDIENTE)
+EstadoMgr --> SolModel : 5: guardarSolicitud()
+SolModel --> DB : 6: insertarSolicitud()
+
+' Notificacion a gerente
+SolModel --> NotifService : 7: notificarNuevaSolicitud()
+NotifService --> NotifSystem : 8: enviarNotificacion()
+NotifSystem --> Gerente : 9: mostrarNotificacion()
+
+' Aprobacion gerencial
+Gerente --> SolCtrl : 10: aprobarSolicitud()
+SolCtrl --> AprobService : 11: procesarAprobacion()
+AprobService --> EstadoMgr : 12: cambiarEstado(APROBADA)
+EstadoMgr --> SolModel : 13: actualizarSolicitud()
+SolModel --> DB : 14: actualizarEstado()
+
+' Notificacion a RH
+SolModel --> NotifService : 15: notificarAprobacion()
+NotifService --> NotifSystem : 16: enviarNotificacion()
+NotifSystem --> RH : 17: mostrarNotificacion()
+
+' Proceso de reclutamiento
+RH --> CandCtrl : 18: registrarCandidato()
+CandCtrl --> CandModel : 19: validarCandidato()
+CandModel --> DB : 20: insertarCandidato()
+
+' Evaluacion con IA
+CandCtrl --> IAHelper : 21: evaluarCandidato()
+IAHelper --> SistemaIA : 22: procesarEvaluacion()
+SistemaIA --> CompatEngine : 23: calcularCompatibilidad()
+CompatEngine --> EvalService : 24: generarPuntaje()
+EvalService --> RankingService : 25: actualizarRanking()
+RankingService --> CandModel : 26: guardarEvaluacion()
+CandModel --> DB : 27: actualizarCandidato()
+
+' Notificacion de evaluacion
+CandModel --> NotifService : 28: notificarEvaluacion()
+NotifService --> NotifSystem : 29: enviarNotificacion()
+NotifSystem --> RH : 30: mostrarNotificacion()
+
+note right of JefeArea
+  **Responsabilidades:**
+  - Crear solicitudes de personal
+  - Definir requisitos del puesto
+  - Aprobar candidatos finales
+end note
+
+note right of RH
+  **Responsabilidades:**
+  - Registrar candidatos
+  - Realizar entrevistas
+  - Evaluar competencias
+  - Seleccionar candidato final
+end note
+
+note right of SistemaIA
+  **Funcionalidades:**
+  - Evaluacion automatica
+  - Calculo de compatibilidad
+  - Generacion de puntajes
+  - Ranking inteligente
+end note
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml Aprobar Solicitud Sequence
+!theme plain
+title Aprobar Solicitud Sequence - RH Nexus
+
+actor "Gerente" as Gerente
+participant "Actions" as Actions
+participant "Database" as DB
+participant "Notification System" as Notif
+
+Gerente -> Actions: POST /solicitudes/acciones
+Actions -> Actions: Validar permisos por rol
+Actions -> DB: SELECT solicitud WHERE id
+DB --> Actions: Datos de solicitud
+
+alt Solicitud encontrada
+    Actions -> Actions: Validar que pertenece a su sede
+    alt Pertenece a su sede
+        Actions -> DB: UPDATE solicitud SET estado='aprobada'
+        DB --> Actions: Confirmación
+        
+        Actions -> Notif: Crear notificación para RH
+        Notif -> DB: INSERT notificaciones
+        DB --> Notif: ID notificación
+        Notif --> Actions: Notificación creada
+        
+        Actions --> Gerente: JSON {ok: true, msg: 'Aprobada'}
+    else No pertenece a su sede
+        Actions --> Gerente: JSON {ok: false, msg: 'Sin permisos'}
+    end
+else Solicitud no encontrada
+    Actions --> Gerente: JSON {ok: false, msg: 'No encontrada'}
+end
+
+@enduml

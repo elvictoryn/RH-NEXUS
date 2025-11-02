@@ -1,0 +1,185 @@
+@startuml Database Schema
+!theme plain
+title Esquema de Base de Datos - RH Nexus
+
+package "Gestión de Usuarios" {
+  class usuarios <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    <color:#ffe66d>UK</color> usuario varchar(50)
+    contrasena varchar(255)
+    rol enum('admin','rh','gerente','jefe_area')
+    nombre_completo varchar(100)
+    <color:#ffe66d>UK</color> numero_empleado varchar(20)
+    correo varchar(100)
+    telefono varchar(15)
+    estado enum('activo','inactivo')
+    fotografia varchar(255)
+    fecha_registro timestamp
+    <color:#4ecdc4>FK</color> sede_id int(11)
+    <color:#4ecdc4>FK</color> departamento_id int(11)
+    --
+    uniq_gerente_sede int(11) VIRTUAL
+    uniq_jefe_sede int(11) VIRTUAL
+    uniq_jefe_dep int(11) VIRTUAL
+    failed_attempts int(11)
+    locked_until datetime
+    last_login datetime
+    last_failed_at datetime
+  }
+}
+
+package "Estructura Organizacional" {
+  class sedes <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    <color:#ffe66d>UK</color> nombre varchar(100)
+    <color:#4ecdc4>FK</color> gerente_id int(11)
+    domicilio varchar(150)
+    numero varchar(10)
+    interior varchar(10)
+    colonia varchar(100)
+    municipio varchar(100)
+    estado varchar(100)
+    cp varchar(10)
+    telefono varchar(20)
+    fecha_registro timestamp
+    activo tinyint(1)
+  }
+
+  class departamentos <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    nombre varchar(100)
+    descripcion text
+    <color:#4ecdc4>FK</color> sede_id int(11)
+    <color:#4ecdc4>FK</color> responsable_id int(11)
+    estado enum('activo','inactivo')
+    creado_en timestamp
+    actualizado_en timestamp
+  }
+}
+
+package "Solicitudes de Personal" {
+  class solicitudes <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    <color:#4ecdc4>FK</color> autor_id int(11)
+    <color:#4ecdc4>FK</color> sede_id int(11)
+    <color:#4ecdc4>FK</color> departamento_id int(11)
+    titulo varchar(160)
+    puesto varchar(120)
+    vacantes int(11)
+    fecha_ingreso_deseada date
+    tipo_contrato varchar(40)
+    modalidad varchar(20)
+    horario varchar(100)
+    salario_min decimal(12,2)
+    salario_max decimal(12,2)
+    escolaridad_min tinyint(4)
+    carrera_estudiada text
+    experiencia_anios int(11)
+    area_experiencia text
+    ingles_combo varchar(20)
+    competencias_json text
+    motivo varchar(30)
+    reemplazo_de varchar(120)
+    prioridad varchar(20)
+    <color:#4ecdc4>FK</color> autorizada_por int(11)
+    autorizada_en datetime
+    <color:#4ecdc4>FK</color> rechazada_por int(11)
+    rechazada_en datetime
+    rechazo_motivo text
+    justificacion text
+    responsabilidades text
+    estado_actual enum('ENVIADA','EN_REV_GER','APROBADA','BUSCANDO','EN_ENTREVISTA','EN_DECISION','CERRADA','RECHAZADA')
+    creada_en datetime
+    actualizado_en datetime
+  }
+
+  class solicitudes_comentarios <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    <color:#4ecdc4>FK</color> solicitud_id int(11)
+    <color:#4ecdc4>FK</color> usuario_id int(11)
+    comentario text
+    creado_en datetime
+  }
+
+  class solicitudes_seguimiento <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    <color:#4ecdc4>FK</color> solicitud_id int(11)
+    estado_anterior varchar(20)
+    estado_nuevo varchar(20)
+    <color:#4ecdc4>FK</color> usuario_id int(11)
+    nota text
+    creado_en datetime
+  }
+}
+
+package "Reclutamiento y Candidatos" {
+  class postulantes_por_vacante <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    <color:#4ecdc4>FK</color> solicitud_id int(11)
+    nombre_completo varchar(200)
+    telefono varchar(30)
+    correo varchar(160)
+    recruitment_strategy enum('Recomendado','Portales de empleo','Headhunting')
+    carrera varchar(200)
+    education_level enum('Preparatoria','Licenciatura','Maestría','Doctorado')
+    experience_years tinyint(3)
+    area_experiencia text
+    competencias_tecnicas text
+    ingles_requerido enum('NO','BASICO','INTERMEDIO','AVANZADO','NATIVO')
+    ingles_postulante enum('NO','BASICO','INTERMEDIO','AVANZADO','NATIVO')
+    personality_score tinyint(3)
+    skill_score tinyint(3)
+    interview_score tinyint(3)
+    puntaje_evaluacion tinyint(3)
+    viabilidad enum('ALTA','MEDIA','BAJA')
+    posicion_ranking int(10)
+    decision_final enum('CONTRATADO','NO_CONTRATADO','PENDIENTE')
+    created_at datetime
+    updated_at datetime
+  }
+}
+
+package "Sistema de Notificaciones" {
+  class notificaciones <<table>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id int(11) NOT NULL
+    <color:#4ecdc4>FK</color> usuario_id int(11)
+    mensaje varchar(255)
+    link varchar(255)
+    leida tinyint(1)
+    expira_en datetime
+    creado_en datetime
+  }
+}
+
+' Relaciones principales
+usuarios ||--o{ sedes : "gerente_id"
+usuarios ||--o{ departamentos : "responsable_id"
+usuarios ||--o{ solicitudes : "autor_id"
+usuarios ||--o{ solicitudes : "autorizada_por"
+usuarios ||--o{ solicitudes : "rechazada_por"
+usuarios ||--o{ solicitudes_comentarios : "usuario_id"
+usuarios ||--o{ solicitudes_seguimiento : "usuario_id"
+usuarios ||--o{ notificaciones : "usuario_id"
+
+sedes ||--o{ departamentos : "sede_id"
+sedes ||--o{ solicitudes : "sede_id"
+
+departamentos ||--o{ solicitudes : "departamento_id"
+
+solicitudes ||--o{ postulantes_por_vacante : "solicitud_id"
+solicitudes ||--o{ solicitudes_comentarios : "solicitud_id"
+solicitudes ||--o{ solicitudes_seguimiento : "solicitud_id"
+
+' Relaciones de usuarios con sedes y departamentos
+usuarios }o--|| sedes : "sede_id"
+usuarios }o--|| departamentos : "departamento_id"
+
+@enduml

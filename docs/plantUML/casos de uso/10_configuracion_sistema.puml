@@ -1,0 +1,58 @@
+@startuml Configuración del Sistema - Administrador
+!theme plain
+title Configuración del Sistema - Administrador
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+
+' Casos de uso principales
+usecase "Configurar Parámetros Generales" as UC1
+usecase "Gestionar Roles y Permisos" as UC2
+usecase "Configurar Flujos de Trabajo" as UC3
+usecase "Gestionar Copias de Seguridad" as UC4
+usecase "Ver Logs del Sistema" as UC5
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede configurar parámetros
+Admin --> UC2 : Puede gestionar roles
+Admin --> UC3 : Puede configurar flujos
+Admin --> UC4 : Puede gestionar backups
+Admin --> UC5 : Puede ver logs
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Parámetros configurables:
+  - Límites del sistema
+  - Tiempos de respuesta
+  - Capacidades de almacenamiento
+  - Límites de usuarios
+  - Configuraciones de rendimiento
+end note
+
+note right of UC2
+  Roles configurables:
+  - Administrador
+  - RH
+  - Gerente
+  - Jefe de Área
+  - Usuario
+end note
+
+note right of UC3
+  Flujos configurables:
+  - Aprobación de solicitudes
+  - Evaluación de candidatos
+  - Selección final
+  - Contratación
+  - Notificaciones
+end note
+
+@enduml

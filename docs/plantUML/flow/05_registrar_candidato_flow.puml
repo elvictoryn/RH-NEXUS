@@ -1,0 +1,52 @@
+@startuml Registrar Candidato Flow
+!theme plain
+title Registrar Candidato Flow - RH Nexus
+
+start
+
+:RH accede a candidatos;
+:Seleccionar solicitud activa;
+
+:Mostrar formulario de candidato;
+:RH llena datos del candidato;
+:Validar campos obligatorios;
+
+if (¿Campos válidos?) then (No)
+    :Mostrar error de validación;
+    stop
+else (Sí)
+    :Registrar candidato en BD;
+    
+    if (¿Candidato registrado?) then (No)
+        :Mostrar error: No se pudo registrar;
+        stop
+    else (Sí)
+        :Obtener datos de solicitud;
+        :Calcular compatibilidad;
+        
+        :Evaluar escolaridad (10%);
+        :Evaluar experiencia (20%);
+        :Evaluar carrera (25%);
+        :Evaluar áreas (20%);
+        :Evaluar competencias (15%);
+        :Evaluar inglés (10%);
+        
+        :Calcular puntaje final (0-100);
+        
+        if (¿Puntaje >= 80?) then (Sí)
+            :Semáforo = 'verde';
+        elseif (¿Puntaje >= 60?) then (Sí)
+            :Semáforo = 'amarillo';
+        else (No)
+            :Semáforo = 'rojo';
+        endif
+        
+        :Actualizar compatibilidad en BD;
+        :Mostrar éxito: Candidato registrado;
+        :Redirigir a lista de candidatos;
+    endif
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml Aprobación de Solicitudes - Administrador
+!theme plain
+title Aprobación de Solicitudes - Administrador
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+
+' Casos de uso principales
+usecase "Revisar Cualquier Solicitud" as UC1
+usecase "Aprobar Cualquier Solicitud" as UC2
+usecase "Rechazar Cualquier Solicitud" as UC3
+usecase "Asignar a RH" as UC4
+usecase "Cambiar Cualquier Estado" as UC5
+usecase "Generar Reportes de Aprobación" as UC6
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede revisar cualquier solicitud
+Admin --> UC2 : Puede aprobar cualquier solicitud
+Admin --> UC3 : Puede rechazar cualquier solicitud
+Admin --> UC4 : Puede asignar a RH
+Admin --> UC5 : Puede cambiar cualquier estado
+Admin --> UC6 : Puede generar reportes
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : puede llevar a
+UC1 ..> UC3 : puede llevar a
+UC1 ..> UC4 : puede llevar a
+UC2 ..> UC5 : incluye
+UC3 ..> UC5 : incluye
+UC4 ..> UC5 : incluye
+UC5 ..> UC6 : incluye
+
+' Notas
+note right of UC2
+  Poderes de Admin:
+  - Aprobar solicitudes de cualquier sede
+  - Sobrepasar límites presupuestarios
+  - Aprobar solicitudes urgentes
+  - Decisión final en conflictos
+end note
+
+note right of UC6
+  Reportes administrativos:
+  - Solicitudes por sede
+  - Tiempos de aprobación
+  - Responsables por solicitud
+  - Tendencias mensuales
+  - Análisis de eficiencia
+end note
+
+@enduml

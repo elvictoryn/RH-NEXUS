@@ -1,0 +1,95 @@
+@startuml Diagrama de Colaboracion - Autenticacion y Seguridad RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Colaboracion en Autenticacion y Seguridad
+
+object "Usuario" as Usuario
+object "LoginForm" as LoginForm
+object "AuthController" as AuthCtrl
+object "UserModel" as UserModel
+object "PasswordManager" as PassMgr
+object "SessionManager" as SessionMgr
+object "SecurityMonitor" as SecMonitor
+object "MiddlewareAuth" as AuthMW
+object "RoleManager" as RoleMgr
+object "Database" as DB
+object "EnvironmentConfig" as EnvConfig
+
+' Proceso de login
+Usuario --> LoginForm : 1: ingresarCredenciales()
+LoginForm --> AuthCtrl : 2: procesarLogin()
+AuthCtrl --> UserModel : 3: buscarUsuario()
+UserModel --> DB : 4: consultarUsuario()
+DB --> UserModel : 5: retornarDatosUsuario()
+UserModel --> AuthCtrl : 6: datosUsuario()
+
+AuthCtrl --> PassMgr : 7: verificarPassword()
+PassMgr --> AuthCtrl : 8: passwordValido()
+
+AuthCtrl --> SecMonitor : 9: registrarIntentoLogin()
+SecMonitor --> AuthCtrl : 10: verificarBloqueo()
+
+AuthCtrl --> SessionMgr : 11: crearSesion()
+SessionMgr --> EnvConfig : 12: obtenerConfigSeguridad()
+EnvConfig --> SessionMgr : 13: configuracionHTTPS()
+SessionMgr --> AuthCtrl : 14: sesionCreada()
+
+AuthCtrl --> RoleMgr : 15: obtenerRolUsuario()
+RoleMgr --> AuthCtrl : 16: rolUsuario()
+
+AuthCtrl --> LoginForm : 17: redireccionarPorRol()
+LoginForm --> Usuario : 18: mostrarDashboard()
+
+' Middleware de autenticacion
+Usuario --> AuthMW : 19: accederRecurso()
+AuthMW --> SessionMgr : 20: verificarSesion()
+SessionMgr --> AuthMW : 21: sesionValida()
+
+AuthMW --> RoleMgr : 22: verificarPermisos()
+RoleMgr --> AuthMW : 23: permisosValidos()
+
+AuthMW --> Usuario : 24: permitirAcceso()
+
+' Proceso de logout
+Usuario --> AuthCtrl : 25: solicitarLogout()
+AuthCtrl --> SessionMgr : 26: destruirSesion()
+SessionMgr --> AuthCtrl : 27: sesionDestruida()
+AuthCtrl --> LoginForm : 28: redireccionarLogin()
+LoginForm --> Usuario : 29: mostrarFormularioLogin()
+
+' Monitoreo de seguridad
+SecMonitor --> DB : 30: registrarActividad()
+SecMonitor --> AuthCtrl : 31: notificarIntentoFallido()
+AuthCtrl --> LoginForm : 32: mostrarErrorSeguridad()
+
+note right of Usuario
+  **Interacciones:**
+  - Ingreso de credenciales
+  - Navegacion por el sistema
+  - Solicitud de logout
+end note
+
+note right of AuthCtrl
+  **Responsabilidades:**
+  - Validar credenciales
+  - Gestionar sesiones
+  - Controlar acceso por rol
+  - Manejar logout
+end note
+
+note right of SecMonitor
+  **Funcionalidades:**
+  - Monitoreo de intentos
+  - Proteccion contra fuerza bruta
+  - Registro de actividades
+  - Alertas de seguridad
+end note
+
+note right of SessionMgr
+  **Funcionalidades:**
+  - Creacion de sesiones
+  - Verificacion de sesiones
+  - Destruccion de sesiones
+  - Configuracion segura
+end note
+
+@enduml

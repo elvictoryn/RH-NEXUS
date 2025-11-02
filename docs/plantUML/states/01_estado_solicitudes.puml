@@ -1,0 +1,129 @@
+@startuml Diagrama de Estados - Solicitudes de Personal RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Estados de Solicitudes de Personal
+
+[*] --> BORRADOR : Crear solicitud
+
+state BORRADOR {
+  BORRADOR : Estado inicial
+  BORRADOR : Puede ser editada
+  BORRADOR : No visible para aprobadores
+}
+
+BORRADOR --> PENDIENTE : Enviar para aprobacion
+BORRADOR --> [*] : Cancelar/eliminar
+
+state PENDIENTE {
+  PENDIENTE : Esperando aprobacion gerencial
+  PENDIENTE : Visible para gerente
+  PENDIENTE : No puede ser editada
+}
+
+PENDIENTE --> APROBADA : Gerente aprueba
+PENDIENTE --> RECHAZADA : Gerente rechaza
+PENDIENTE --> BORRADOR : Regresar para edicion
+
+state APROBADA {
+  APROBADA : Aprobada por gerente
+  APROBADA : Lista para reclutamiento
+  APROBADA : Asignable a RH
+}
+
+APROBADA --> BUSCANDO : RH inicia reclutamiento
+APROBADA --> RECHAZADA : Rechazar despues de aprobacion
+
+state BUSCANDO {
+  BUSCANDO : En proceso de reclutamiento
+  BUSCANDO : RH registra candidatos
+  BUSCANDO : Se realizan evaluaciones
+}
+
+BUSCANDO --> EN_ENTREVISTA : Candidatos seleccionados
+BUSCANDO --> APROBADA : Regresar a aprobacion
+BUSCANDO --> CERRADA : Cancelar reclutamiento
+
+state EN_ENTREVISTA {
+  EN_ENTREVISTA : Candidatos en entrevista
+  EN_ENTREVISTA : Evaluacion manual
+  EN_ENTREVISTA : Puntajes asignados
+}
+
+EN_ENTREVISTA --> EN_DECISION : Entrevistas completadas
+EN_ENTREVISTA --> BUSCANDO : Regresar a busqueda
+
+state EN_DECISION {
+  EN_DECISION : Evaluacion final
+  EN_DECISION : Seleccion de candidato
+  EN_DECISION : Decision de contratacion
+}
+
+EN_DECISION --> CERRADA : Candidato contratado
+EN_DECISION --> BUSCANDO : Buscar otros candidatos
+EN_DECISION --> EN_ENTREVISTA : Mas entrevistas
+
+state CERRADA {
+  CERRADA : Proceso completado
+  CERRADA : Candidato seleccionado
+  CERRADA : No mas cambios
+}
+
+CERRADA --> [*] : Proceso finalizado
+
+state RECHAZADA {
+  RECHAZADA : Solicitud rechazada
+  RECHAZADA : No procede
+  RECHAZADA : Puede ser archivada
+}
+
+RECHAZADA --> [*] : Archivar
+RECHAZADA --> BORRADOR : Revisar y reenviar
+
+note right of BORRADOR
+  **Responsable:** Jefe de Area
+  **Acciones:** Crear, editar, enviar
+  **Visibilidad:** Solo autor
+end note
+
+note right of PENDIENTE
+  **Responsable:** Gerente
+  **Acciones:** Aprobar, rechazar
+  **Visibilidad:** Gerente de sede
+end note
+
+note right of APROBADA
+  **Responsable:** RH
+  **Acciones:** Asignar, iniciar reclutamiento
+  **Visibilidad:** RH y Admin
+end note
+
+note right of BUSCANDO
+  **Responsable:** RH
+  **Acciones:** Registrar candidatos, evaluar
+  **Visibilidad:** RH y Admin
+end note
+
+note right of EN_ENTREVISTA
+  **Responsable:** RH
+  **Acciones:** Realizar entrevistas, puntuar
+  **Visibilidad:** RH y Admin
+end note
+
+note right of EN_DECISION
+  **Responsable:** RH
+  **Acciones:** Seleccionar candidato final
+  **Visibilidad:** RH y Admin
+end note
+
+note right of CERRADA
+  **Estado:** Final
+  **Acciones:** Ninguna
+  **Visibilidad:** Todos los roles
+end note
+
+note right of RECHAZADA
+  **Estado:** Final
+  **Acciones:** Archivar o revisar
+  **Visibilidad:** Autor y Gerente
+end note
+
+@enduml

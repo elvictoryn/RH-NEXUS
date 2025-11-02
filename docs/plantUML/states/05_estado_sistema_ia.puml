@@ -1,0 +1,192 @@
+@startuml Diagrama de Estados - Sistema de IA RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Estados del Sistema de Inteligencia Artificial
+
+[*] --> INACTIVO : Sistema iniciado
+
+state INACTIVO {
+  INACTIVO : IA no disponible
+  INACTIVO : Sin evaluaciones pendientes
+  INACTIVO : Esperando activacion
+}
+
+INACTIVO --> CONECTANDO : Iniciar conexion
+INACTIVO --> ERROR : Error de configuracion
+
+state CONECTANDO {
+  CONECTANDO : Estableciendo conexion
+  CONECTANDO : Verificando API
+  CONECTANDO : Validando credenciales
+}
+
+CONECTANDO --> ACTIVO : Conexion exitosa
+CONECTANDO --> ERROR : Fallo de conexion
+CONECTANDO --> INACTIVO : Cancelar conexion
+
+state ACTIVO {
+  ACTIVO : IA operativa
+  ACTIVO : Lista para evaluaciones
+  ACTIVO : API disponible
+}
+
+ACTIVO --> EVALUANDO : Iniciar evaluacion
+ACTIVO --> MANTENIMIENTO : Modo mantenimiento
+ACTIVO --> ERROR : Error durante operacion
+
+state EVALUANDO {
+  EVALUANDO : Procesando evaluacion
+  EVALUANDO : Analizando candidato
+  EVALUANDO : Calculando compatibilidad
+}
+
+EVALUANDO --> PROCESANDO_IA : Enviar a IA externa
+EVALUANDO --> ERROR : Error en evaluacion
+EVALUANDO --> ACTIVO : Evaluacion completada
+
+state PROCESANDO_IA {
+  PROCESANDO_IA : Comunicacion con API externa
+  PROCESANDO_IA : Enviando datos
+  PROCESANDO_IA : Esperando respuesta
+}
+
+PROCESANDO_IA --> RANKING : Respuesta recibida
+PROCESANDO_IA --> ERROR : Timeout o error de API
+PROCESANDO_IA --> EVALUANDO : Reintentar evaluacion
+
+state RANKING {
+  RANKING : Generando ranking
+  RANKING : Ordenando candidatos
+  RANKING : Calculando puntajes finales
+}
+
+RANKING --> COMPLETADO : Ranking generado
+RANKING --> ERROR : Error en ranking
+RANKING --> EVALUANDO : Recalcular evaluacion
+
+state COMPLETADO {
+  COMPLETADO : Evaluacion completada
+  COMPLETADO : Resultados guardados
+  COMPLETADO : Ranking disponible
+}
+
+COMPLETADO --> ACTIVO : Nueva evaluacion
+COMPLETADO --> MANTENIMIENTO : Modo mantenimiento
+
+state MANTENIMIENTO {
+  MANTENIMIENTO : Sistema en mantenimiento
+  MANTENIMIENTO : Actualizaciones
+  MANTENIMIENTO : No disponible temporalmente
+}
+
+MANTENIMIENTO --> ACTIVO : Mantenimiento completado
+MANTENIMIENTO --> INACTIVO : Desactivar sistema
+
+state ERROR {
+  ERROR : Error en el sistema
+  ERROR : Funcionalidad limitada
+  ERROR : Requiere intervencion
+}
+
+ERROR --> RECONECTANDO : Intentar reconexion
+ERROR --> INACTIVO : Desactivar sistema
+ERROR --> MANTENIMIENTO : Modo mantenimiento
+
+state RECONECTANDO {
+  RECONECTANDO : Intentando reconectar
+  RECONECTANDO : Verificando conectividad
+  RECONECTANDO : Reintentando conexion
+}
+
+RECONECTANDO --> ACTIVO : Reconexion exitosa
+RECONECTANDO --> ERROR : Fallo de reconexion
+RECONECTANDO --> INACTIVO : Abandonar reconexion
+
+' Estados detallados de evaluacion
+state EVALUANDO {
+  state NORMALIZANDO {
+    NORMALIZANDO : Normalizando datos
+    NORMALIZANDO : Limpiando informacion
+    NORMALIZANDO : Estandarizando formatos
+  }
+  
+  state VALIDANDO {
+    VALIDANDO : Validando datos
+    VALIDANDO : Verificando completitud
+    VALIDANDO : Comprobando consistencia
+  }
+  
+  state PREPARANDO {
+    PREPARANDO : Preparando payload
+    PREPARANDO : Formateando datos
+    PREPARANDO : Listo para envio
+  }
+}
+
+EVALUANDO --> NORMALIZANDO : Iniciar normalizacion
+NORMALIZANDO --> VALIDANDO : Normalizacion completada
+VALIDANDO --> PREPARANDO : Validacion exitosa
+PREPARANDO --> PROCESANDO_IA : Payload preparado
+
+' Estados de respuesta de IA
+state PROCESANDO_IA {
+  state ENVIANDO {
+    ENVIANDO : Enviando a API
+    ENVIANDO : Transmitiendo datos
+    ENVIANDO : Esperando confirmacion
+  }
+  
+  state ESPERANDO {
+    ESPERANDO : Esperando respuesta
+    ESPERANDO : Procesando en servidor
+    ESPERANDO : Calculando resultados
+  }
+  
+  state RECIBIENDO {
+    RECIBIENDO : Recibiendo respuesta
+    RECIBIENDO : Procesando datos
+    RECIBIENDO : Validando resultados
+  }
+}
+
+PROCESANDO_IA --> ENVIANDO : Iniciar envio
+ENVIANDO --> ESPERANDO : Envio completado
+ESPERANDO --> RECIBIENDO : Respuesta recibida
+RECIBIENDO --> RANKING : Datos procesados
+
+note right of INACTIVO
+  **Estado:** Inicial
+  **Acciones:** Conectar, configurar
+  **Duracion:** Hasta activacion
+end note
+
+note right of ACTIVO
+  **Estado:** Operativo
+  **Acciones:** Evaluar, procesar
+  **Duracion:** Hasta error o mantenimiento
+end note
+
+note right of EVALUANDO
+  **Proceso:** Evaluacion de candidato
+  **Duracion:** Variable
+  **Recursos:** CPU, memoria, red
+end note
+
+note right of ERROR
+  **Causa:** Fallo del sistema
+  **Acciones:** Reconectar, reparar
+  **Duracion:** Hasta resolucion
+end note
+
+note right of MANTENIMIENTO
+  **Proposito:** Actualizaciones
+  **Acciones:** Mantener, actualizar
+  **Duracion:** Programada
+end note
+
+note right of COMPLETADO
+  **Resultado:** Evaluacion exitosa
+  **Acciones:** Nueva evaluacion
+  **Estado:** Exitoso
+end note
+
+@enduml

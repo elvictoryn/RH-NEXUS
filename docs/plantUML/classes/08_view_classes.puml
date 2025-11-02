@@ -1,0 +1,64 @@
+@startuml View Classes
+!theme plain
+title View Classes - RH Nexus
+
+class BaseView {
+    + render(string $template, array $data): void
+    + escape(string $text): string
+    + formatDate(string $date): string
+    + formatCurrency(float $amount): string
+}
+
+class AdminView {
+    + renderDashboard(array $stats): void
+    + renderUserList(array $users): void
+    + renderUserForm(array $user): void
+    + renderSedeList(array $sedes): void
+    + renderSedeForm(array $sede): void
+    + renderDepartamentoList(array $departamentos): void
+    + renderDepartamentoForm(array $departamento): void
+}
+
+class RHView {
+    + renderCandidatosList(array $candidatos): void
+    + renderCandidatoForm(array $candidato): void
+    + renderEvaluacionForm(array $evaluacion): void
+    + renderReportes(array $data): void
+}
+
+class GerenteView {
+    + renderSolicitudesList(array $solicitudes): void
+    + renderSolicitudDetail(array $solicitud): void
+    + renderAprobacionForm(array $solicitud): void
+}
+
+class JefeAreaView {
+    + renderMisSolicitudes(array $solicitudes): void
+    + renderCrearSolicitudForm(): void
+    + renderSolicitudDetail(array $solicitud): void
+}
+
+class SharedView {
+    + renderHeader(array $user): void
+    + renderFooter(): void
+    + renderNavbar(array $user): void
+    + renderSidebar(array $menu): void
+    + renderFlashMessages(array $messages): void
+}
+
+note right of BaseView
+  Clase base para todas las
+  vistas con métodos comunes
+end note
+
+note right of AdminView
+  Vistas específicas para
+  administradores
+end note
+
+note right of RHView
+  Vistas específicas para
+  recursos humanos
+end note
+
+@enduml

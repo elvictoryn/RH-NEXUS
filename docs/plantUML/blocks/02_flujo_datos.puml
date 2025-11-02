@@ -1,0 +1,126 @@
+@startuml Diagrama de Bloques - Flujo de Datos RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Flujo de Datos
+
+package "Capa de Presentacion" as Presentation {
+    component [Interfaz Usuario] as UserInterface
+    component [Formularios Login] as LoginForms
+    component [Dashboard Usuario] as UserDashboard
+    component [Formularios Candidatos] as CandidateForms
+    component [Sistema Notificaciones] as NotificationUI
+    component [Gestor Archivos] as FileManager
+}
+
+package "Capa de Control" as Control {
+    component [Router Principal] as MainRouter
+    component [AuthController] as AuthCtrl
+    component [UsuariosController] as UserCtrl
+    component [SolicitudesController] as SolCtrl
+    component [CandidatosController] as CandCtrl
+    component [Middleware Auth] as AuthMW
+}
+
+package "Capa de Logica de Negocio" as Business {
+    component [Validacion Credenciales] as CredValidation
+    component [Gestion Usuarios] as UserManagement
+    component [Procesamiento Solicitudes] as SolProcessing
+    component [Evaluacion Candidatos] as CandEvaluation
+    component [Sistema Ranking] as RankingSystem
+    component [Gestion Notificaciones] as NotifManagement
+    component [Validacion Archivos] as FileValidation
+}
+
+package "Sistema de Inteligencia Artificial" as AI {
+    component [Motor Evaluacion] as EvalEngine
+    component [Calculo Compatibilidad] as CompatCalc
+    component [Sistema Puntajes] as ScoringSystem
+    component [Ranking Inteligente] as SmartRanking
+    component [Normalizacion Datos] as DataNormalization
+}
+
+package "Capa de Datos" as Data {
+    component [Conexion BD] as DBConnection
+    component [Modelo Usuario] as UserModel
+    component [Modelo Solicitud] as SolModel
+    component [Modelo Candidato] as CandModel
+    component [Modelo Notificacion] as NotifModel
+    component [Base de Datos MySQL] as Database
+}
+
+' Flujo de autenticacion
+UserInterface --> LoginForms
+LoginForms --> MainRouter
+MainRouter --> AuthCtrl
+AuthCtrl --> CredValidation
+CredValidation --> UserModel
+UserModel --> DBConnection
+DBConnection --> Database
+CredValidation --> UserDashboard
+
+' Flujo gestion usuarios
+UserInterface --> UserCtrl
+UserCtrl --> UserManagement
+UserManagement --> UserModel
+UserManagement --> NotificationUI
+
+' Flujo solicitudes
+UserInterface --> SolCtrl
+SolCtrl --> SolProcessing
+SolProcessing --> SolModel
+SolModel --> DBConnection
+SolProcessing --> NotifManagement
+
+' Flujo candidatos
+UserInterface --> CandidateForms
+CandidateForms --> CandCtrl
+CandCtrl --> CandEvaluation
+CandEvaluation --> CandModel
+CandModel --> DBConnection
+CandEvaluation --> EvalEngine
+EvalEngine --> CompatCalc
+CompatCalc --> ScoringSystem
+ScoringSystem --> SmartRanking
+SmartRanking --> RankingSystem
+
+' Flujo archivos
+UserInterface --> FileManager
+FileManager --> FileValidation
+FileValidation --> CandModel
+
+' Flujo notificaciones
+NotifManagement --> NotificationUI
+NotifManagement --> NotifModel
+NotifModel --> DBConnection
+
+' Conexiones de datos
+UserModel --> DBConnection
+SolModel --> DBConnection
+CandModel --> DBConnection
+NotifModel --> DBConnection
+DBConnection --> Database
+
+' Conexiones IA
+EvalEngine --> DataNormalization
+CompatCalc --> DataNormalization
+ScoringSystem --> DataNormalization
+SmartRanking --> DataNormalization
+
+note right of AI
+  **Procesamiento IA:**
+  - Evaluacion automatica
+  - Calculo de compatibilidad
+  - Sistema de puntajes
+  - Ranking inteligente
+  - Normalizacion de datos
+end note
+
+note right of Database
+  **Almacenamiento:**
+  - Usuarios y roles
+  - Estructura organizacional
+  - Solicitudes de personal
+  - Candidatos y evaluaciones
+  - Historial de actividades
+end note
+
+@enduml

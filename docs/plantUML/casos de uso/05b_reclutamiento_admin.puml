@@ -1,0 +1,61 @@
+@startuml Reclutamiento Inteligente - Administrador
+!theme plain
+title Reclutamiento Inteligente - Administrador
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+actor "Sistema IA" as IA
+
+' Casos de uso principales
+usecase "Filtrar por Criterios Avanzados" as UC1
+usecase "Enviar a Entrevista" as UC2
+usecase "Ver Historial de Candidatos" as UC3
+usecase "Configurar Algoritmos de IA" as UC4
+usecase "Analizar Efectividad del Reclutamiento" as UC5
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede filtrar por criterios avanzados
+Admin --> UC2 : Puede enviar a entrevista
+Admin --> UC3 : Puede ver historial completo
+Admin --> UC4 : Puede configurar algoritmos
+Admin --> UC5 : Puede analizar efectividad
+
+IA --> UC1 : Filtra automáticamente
+IA --> UC2 : Sugiere automáticamente
+IA --> UC5 : Analiza automáticamente
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC5 : incluye
+UC4 ..> UC1 : incluye
+
+' Notas
+note right of UC1
+  Criterios avanzados:
+  - Filtros por experiencia específica
+  - Competencias técnicas
+  - Idiomas requeridos
+  - Disponibilidad geográfica
+  - Rango salarial
+end note
+
+note right of UC4
+  Configuración de IA:
+  - Ponderación de criterios
+  - Umbrales de compatibilidad
+  - Algoritmos de ranking
+  - Aprendizaje automático
+end note
+
+note right of UC5
+  Análisis de efectividad:
+  - Tasa de éxito por fuente
+  - Tiempo promedio de reclutamiento
+  - Calidad de candidatos
+  - ROI del proceso
+end note
+
+@enduml

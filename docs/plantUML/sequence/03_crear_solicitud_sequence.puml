@@ -1,0 +1,38 @@
+@startuml Crear Solicitud Sequence
+!theme plain
+title Crear Solicitud Sequence - RH Nexus
+
+actor "Jefe Area" as Jefe
+participant "Form" as Form
+participant "Solicitud Model" as Model
+participant "Database" as DB
+participant "AuthController" as Auth
+
+Jefe -> Form: Llena formulario de solicitud
+Form -> Model: POST /solicitudes/crear
+
+Model -> Model: generarFolio()
+Model -> DB: SELECT folio WHERE folio LIKE
+DB --> Model: Último folio
+Model -> Model: Crear folio único
+
+Model -> Auth: Obtener rol y usuario actual
+Auth --> Model: Datos de sesión
+
+Model -> Model: Determinar gerente_id según sede
+Model -> DB: SELECT gerente_id FROM sedes
+DB --> Model: ID del gerente
+
+Model -> Model: Aplicar lógica por rol
+alt Rol = RH
+    Model -> Model: estado = 'aprobada'
+    Model -> Model: rh_asignado_id = usuario_actual
+else Otros roles
+    Model -> Model: estado = 'pendiente'
+end
+
+Model -> DB: INSERT solicitud
+DB --> Model: ID de solicitud
+Model --> Form: Redirect con éxito
+
+@enduml

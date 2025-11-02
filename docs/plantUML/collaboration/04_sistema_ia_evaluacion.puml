@@ -1,0 +1,140 @@
+@startuml Diagrama de Colaboracion - Sistema IA y Evaluacion RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Colaboracion en Sistema IA y Evaluacion
+
+object "RH" as RH
+object "CandidatosInterface" as CandUI
+object "CandidatosController" as CandCtrl
+object "CandidatosModel" as CandModel
+object "IAIntegration" as IAHelper
+object "IAClient" as IAClient
+object "DataNormalizer" as DataNorm
+object "CompatibilityEngine" as CompatEngine
+object "ScoringSystem" as ScoringSys
+object "RankingSystem" as RankingSys
+object "Database" as DB
+object "ConfigIA" as IAConfig
+object "NotificationService" as NotifService
+
+' Evaluacion individual de candidato
+RH --> CandUI : 1: solicitarEvaluarCandidato()
+CandUI --> CandCtrl : 2: procesarEvaluacion()
+CandCtrl --> CandModel : 3: obtenerDatosCandidato()
+CandModel --> DB : 4: consultarCandidato()
+DB --> CandModel : 5: retornarDatosCandidato()
+CandModel --> CandCtrl : 6: datosCandidato()
+
+CandCtrl --> IAHelper : 7: evaluarCandidato()
+IAHelper --> DataNorm : 8: normalizarDatos()
+DataNorm --> IAHelper : 9: datosNormalizados()
+
+IAHelper --> IAClient : 10: enviarEvaluacion()
+IAClient --> IAConfig : 11: obtenerConfiguracion()
+IAConfig --> IAClient : 12: configuracionAPI()
+
+IAClient --> IAHelper : 13: resultadoEvaluacion()
+IAHelper --> CompatEngine : 14: calcularCompatibilidad()
+CompatEngine --> ScoringSys : 15: generarPuntaje()
+ScoringSys --> IAHelper : 16: puntajeGenerado()
+
+IAHelper --> CandCtrl : 17: evaluacionCompletada()
+CandCtrl --> CandModel : 18: guardarEvaluacion()
+CandModel --> DB : 19: actualizarCandidato()
+DB --> CandModel : 20: candidatoActualizado()
+
+' Ranking de candidatos
+RH --> CandUI : 21: solicitarRankingCandidatos()
+CandUI --> CandCtrl : 22: procesarRanking()
+CandCtrl --> CandModel : 23: obtenerCandidatos()
+CandModel --> DB : 24: consultarCandidatos()
+DB --> CandModel : 25: retornarCandidatos()
+CandModel --> CandCtrl : 26: listaCandidatos()
+
+CandCtrl --> IAHelper : 27: generarRanking()
+IAHelper --> IAClient : 28: solicitarRanking()
+IAClient --> IAHelper : 29: rankingGenerado()
+
+IAHelper --> RankingSys : 30: procesarRanking()
+RankingSys --> IAHelper : 31: rankingProcesado()
+IAHelper --> CandCtrl : 32: rankingCompletado()
+
+CandCtrl --> CandModel : 33: actualizarRankings()
+CandModel --> DB : 34: actualizarRankings()
+DB --> CandModel : 35: rankingsActualizados()
+
+CandCtrl --> CandUI : 36: mostrarRanking()
+CandUI --> RH : 37: presentarRanking()
+
+' Evaluacion manual
+RH --> CandUI : 38: realizarEvaluacionManual()
+CandUI --> CandCtrl : 39: procesarEvaluacionManual()
+CandCtrl --> CandModel : 40: obtenerCandidato()
+CandModel --> DB : 41: consultarCandidato()
+DB --> CandModel : 42: retornarCandidato()
+CandModel --> CandCtrl : 43: datosCandidato()
+
+CandCtrl --> CandUI : 44: mostrarFormularioEvaluacion()
+CandUI --> RH : 45: presentarFormulario()
+
+RH --> CandUI : 46: enviarPuntajesManuales()
+CandUI --> CandCtrl : 47: procesarPuntajes()
+CandCtrl --> ScoringSys : 48: combinarPuntajes()
+ScoringSys --> CandCtrl : 49: puntajeCombinado()
+
+CandCtrl --> CandModel : 50: guardarEvaluacionManual()
+CandModel --> DB : 51: actualizarEvaluacion()
+DB --> CandModel : 52: evaluacionActualizada()
+
+' Notificaciones de evaluacion
+CandModel --> NotifService : 53: notificarEvaluacion()
+NotifService --> RH : 54: mostrarNotificacion()
+
+' Calculo de viabilidad
+CandCtrl --> IAHelper : 55: calcularViabilidad()
+IAHelper --> CompatEngine : 56: evaluarViabilidad()
+CompatEngine --> IAHelper : 57: viabilidadCalculada()
+IAHelper --> CandCtrl : 58: resultadoViabilidad()
+
+CandCtrl --> CandModel : 59: actualizarViabilidad()
+CandModel --> DB : 60: guardarViabilidad()
+DB --> CandModel : 61: viabilidadGuardada()
+
+note right of RH
+  **Responsabilidades:**
+  - Evaluar candidatos individualmente
+  - Generar rankings de candidatos
+  - Realizar evaluaciones manuales
+  - Calcular viabilidad de candidatos
+  - Gestionar proceso de evaluacion
+end note
+
+note right of IAHelper
+  **Funcionalidades:**
+  - Coordinar evaluaciones con IA
+  - Normalizar datos de entrada
+  - Gestionar comunicacion con API
+  - Procesar resultados de IA
+  - Manejar errores de evaluacion
+end note
+
+note right of CompatEngine
+  **Calculos:**
+  - Escolaridad (10 puntos)
+  - Experiencia (20 puntos)
+  - Carrera afin (25 puntos)
+  - Areas de experiencia (20 puntos)
+  - Competencias tecnicas (15 puntos)
+  - Nivel de ingles (10 puntos)
+  - **Total: 100 puntos**
+end note
+
+note right of ScoringSys
+  **Funcionalidades:**
+  - Generar puntajes automaticos
+  - Combinar puntajes manuales
+  - Calcular promedios
+  - Aplicar ponderaciones
+  - Generar metricas finales
+end note
+
+@enduml

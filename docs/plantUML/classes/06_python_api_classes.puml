@@ -1,0 +1,50 @@
+@startuml Python API Classes
+!theme plain
+title Python API Classes - RH Nexus
+
+class CandidateEvaluator {
+    - model: RandomForestClassifier
+    - features: list
+    + __init__(model_path: str)
+    + load_model(path: str): RandomForestClassifier
+    + load_candidates(csv_path: str): DataFrame
+    + evaluate_candidates(df: DataFrame, threshold: float): DataFrame
+    + detect_id(df: DataFrame): str
+    + print_results(df: DataFrame, group_size: int): void
+}
+
+class ModelTrainer {
+    - features: list
+    - model: RandomForestClassifier
+    + __init__()
+    + load_data(csv_path: str): DataFrame
+    + preprocess_data(df: DataFrame): DataFrame
+    + train_model(X: array, y: array): RandomForestClassifier
+    + save_model(model: RandomForestClassifier, path: str): void
+    + evaluate_model(model: RandomForestClassifier, X_test: array, y_test: array): dict
+}
+
+class DataProcessor {
+    + normalize_features(df: DataFrame): DataFrame
+    + encode_categorical(df: DataFrame): DataFrame
+    + handle_missing_values(df: DataFrame): DataFrame
+    + scale_features(df: DataFrame): DataFrame
+}
+
+note right of CandidateEvaluator
+  Clase principal para
+  evaluación de candidatos
+  usando machine learning
+end note
+
+note right of ModelTrainer
+  Clase para entrenamiento
+  del modelo de Random Forest
+end note
+
+note right of DataProcessor
+  Clase para procesamiento
+  y normalización de datos
+end note
+
+@enduml

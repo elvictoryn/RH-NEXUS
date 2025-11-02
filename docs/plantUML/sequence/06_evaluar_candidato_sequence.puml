@@ -1,0 +1,35 @@
+@startuml Evaluar Candidato Sequence
+!theme plain
+title Evaluar Candidato Sequence - RH Nexus
+
+actor "RH" as RH
+participant "Evaluation Form" as Form
+participant "Database" as DB
+participant "Scoring System" as Scoring
+
+RH -> Form: Ingresa puntajes de evaluación
+Form -> DB: POST /candidatos/evaluar
+
+DB -> DB: SELECT candidato actual
+DB --> Form: Datos del candidato
+
+Form -> Scoring: Calcular puntaje final
+Scoring -> Scoring: PersonalityScore (0-100)
+Scoring -> Scoring: SkillScore (0-100)
+Scoring -> Scoring: InterviewScore (0-100)
+
+Scoring -> Scoring: Promedio = (PS + SS + IS) / 3
+Scoring -> Scoring: Determinar viabilidad
+alt Puntaje >= 80
+    Scoring -> Scoring: Viabilidad = 'ALTA'
+else Puntaje >= 60
+    Scoring -> Scoring: Viabilidad = 'MEDIA'
+else Puntaje < 60
+    Scoring -> Scoring: Viabilidad = 'BAJA'
+end
+
+Scoring -> DB: UPDATE postulantes_por_vacante SET puntajes
+DB --> Scoring: Confirmación
+Scoring --> Form: Evaluación guardada
+
+@enduml

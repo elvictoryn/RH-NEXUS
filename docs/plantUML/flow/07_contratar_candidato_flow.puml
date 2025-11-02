@@ -1,0 +1,43 @@
+@startuml Contratar Candidato Flow
+!theme plain
+title Contratar Candidato Flow - RH Nexus
+
+start
+
+:RH accede a candidatos;
+:Seleccionar candidato final;
+:Mostrar confirmación;
+
+if (¿Confirmar contratación?) then (No)
+    :Cancelar operación;
+    stop
+else (Sí)
+    :Validar que candidato existe;
+    
+    if (¿Candidato válido?) then (No)
+        :Mostrar error: Candidato no encontrado;
+        stop
+    else (Sí)
+        :Marcar candidato como contratado;
+        :Actualizar Decisión_Final = 'CONTRATADO';
+        
+        :Cerrar solicitud automáticamente;
+        :Actualizar estado_actual = 'CERRADA';
+        
+        :Crear notificaciones;
+        :Notificar a gerente de sede;
+        :Notificar a jefe de área;
+        :Notificar a administrador;
+        
+        if (¿Notificaciones creadas?) then (Sí)
+            :Mostrar éxito: Contratación completada;
+            :Redirigir a solicitudes cerradas;
+        else (No)
+            :Mostrar advertencia: Contratación sin notificaciones;
+        endif
+    endif
+endif
+
+stop
+
+@enduml

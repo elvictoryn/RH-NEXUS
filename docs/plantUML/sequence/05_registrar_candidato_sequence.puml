@@ -1,0 +1,35 @@
+@startuml Registrar Candidato Sequence
+!theme plain
+title Registrar Candidato Sequence - RH Nexus
+
+actor "RH" as RH
+participant "Candidatos Form" as Form
+participant "Database" as DB
+participant "Compatibility Engine" as Engine
+
+RH -> Form: Llena datos del candidato
+Form -> DB: POST /candidatos/registrar
+
+DB -> DB: INSERT postulantes_por_vacante
+DB --> Form: ID del candidato
+
+Form -> Engine: Calcular compatibilidad
+Engine -> DB: SELECT datos de solicitud
+DB --> Engine: Requisitos del puesto
+
+Engine -> Engine: compat_calc()
+Engine -> Engine: Evaluar escolaridad (10%)
+Engine -> Engine: Evaluar experiencia (20%)
+Engine -> Engine: Evaluar carrera (25%)
+Engine -> Engine: Evaluar áreas (20%)
+Engine -> Engine: Evaluar competencias (15%)
+Engine -> Engine: Evaluar inglés (10%)
+
+Engine -> Engine: Calcular puntaje final (0-100)
+Engine -> Engine: Determinar semáforo (verde/amarillo/rojo)
+
+Engine -> DB: UPDATE postulantes_por_vacante SET compat_porcentaje, semaforo
+DB --> Engine: Confirmación
+Engine --> Form: Candidato registrado con compatibilidad
+
+@enduml

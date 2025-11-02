@@ -1,0 +1,143 @@
+@startuml Diagrama de Bloques - Proceso de Reclutamiento RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso Completo de Reclutamiento
+
+package "Fase 1: Creacion de Solicitud" as Phase1 {
+    component [Jefe de Area] as JefeArea
+    component [Formulario Solicitud] as SolForm
+    component [Generador Folios] as FolioGen
+    component [Estado PENDIENTE] as EstadoPendiente
+}
+
+package "Fase 2: Aprobacion Gerencial" as Phase2 {
+    component [Gerente] as Gerente
+    component [Sistema Notificaciones] as NotifSystem
+    component [Aprobador Solicitudes] as SolApprover
+    component [Estado APROBADA] as EstadoAprobada
+    component [Estado RECHAZADA] as EstadoRechazada
+}
+
+package "Fase 3: Reclutamiento y Evaluacion" as Phase3 {
+    component [RH] as RH
+    component [Registro Candidatos] as CandRegister
+    component [Sistema IA] as AI
+    component [Evaluacion Automatica] as AutoEval
+    component [Calculo Compatibilidad] as CompatCalc
+    component [Generador Puntajes] as ScoreGen
+}
+
+package "Fase 4: Evaluacion Manual" as Phase4 {
+    component [Entrevistador] as Interviewer
+    component [Sistema Entrevistas] as InterviewSystem
+    component [Puntajes Manuales] as ManualScores
+    component [Evaluacion Completa] as CompleteEval
+    component [Combinador Puntajes] as ScoreCombiner
+}
+
+package "Fase 5: Ranking y Seleccion" as Phase5 {
+    component [Sistema Ranking] as RankingSystem
+    component [Ordenador Candidatos] as CandSorter
+    component [Lista Ordenada] as SortedList
+    component [Visualizador Ranking] as RankingViewer
+}
+
+package "Fase 6: Seleccion Final" as Phase6 {
+    component [Selector Final] as FinalSelector
+    component [Estado CONTRATADO] as EstadoContratado
+    component [Cierre Solicitud] as SolCloser
+    component [Notificaciones Finales] as FinalNotif
+}
+
+package "Base de Datos" as Database {
+    component [Modelo Solicitud] as SolModel
+    component [Modelo Candidato] as CandModel
+    component [Modelo Evaluacion] as EvalModel
+    component [MySQL Database] as MySQL
+}
+
+' Flujo Fase 1
+JefeArea --> SolForm
+SolForm --> FolioGen
+FolioGen --> EstadoPendiente
+EstadoPendiente --> SolModel
+SolModel --> MySQL
+
+' Flujo Fase 2
+EstadoPendiente --> NotifSystem
+NotifSystem --> Gerente
+Gerente --> SolApprover
+SolApprover --> EstadoAprobada
+SolApprover --> EstadoRechazada
+EstadoAprobada --> NotifSystem
+EstadoRechazada --> NotifSystem
+
+' Flujo Fase 3
+EstadoAprobada --> RH
+RH --> CandRegister
+CandRegister --> CandModel
+CandModel --> MySQL
+RH --> AI
+AI --> AutoEval
+AutoEval --> CompatCalc
+CompatCalc --> ScoreGen
+ScoreGen --> EvalModel
+EvalModel --> MySQL
+
+' Flujo Fase 4
+RH --> Interviewer
+Interviewer --> InterviewSystem
+InterviewSystem --> ManualScores
+ManualScores --> CompleteEval
+CompleteEval --> ScoreCombiner
+ScoreCombiner --> EvalModel
+
+' Flujo Fase 5
+RH --> RankingSystem
+RankingSystem --> CandSorter
+CandSorter --> SortedList
+SortedList --> RankingViewer
+RankingViewer --> EvalModel
+
+' Flujo Fase 6
+RH --> FinalSelector
+FinalSelector --> EstadoContratado
+EstadoContratado --> SolCloser
+SolCloser --> FinalNotif
+FinalNotif --> JefeArea
+FinalNotif --> Gerente
+
+' Conexiones de base de datos
+SolModel --> MySQL
+CandModel --> MySQL
+EvalModel --> MySQL
+
+note right of AI
+  **Proceso de Evaluacion IA:**
+  1. Normalizacion de datos
+  2. Calculo de compatibilidad
+  3. Evaluacion automatica
+  4. Generacion de ranking
+  5. Calculo de viabilidad
+end note
+
+note right of Database
+  **Estados de Solicitud:**
+  - PENDIENTE: Creada por jefe
+  - APROBADA: Aprobada por gerente
+  - RECHAZADA: Rechazada por gerente
+  - BUSCANDO: En proceso de reclutamiento
+  - EN_ENTREVISTA: Candidatos en entrevista
+  - EN_DECISION: Evaluacion final
+  - CERRADA: Proceso completado
+end note
+
+note right of RH
+  **Responsabilidades RH:**
+  - Registrar candidatos
+  - Realizar entrevistas
+  - Evaluar competencias
+  - Seleccionar candidato final
+  - Gestionar proceso completo
+end note
+
+@enduml

@@ -1,0 +1,47 @@
+@startuml Reportes y Analytics - RH
+!theme plain
+title Reportes y Analytics - RH
+
+left to right direction
+
+' Actores
+actor "RH" as RH
+
+' Casos de uso principales
+usecase "Generar Reporte de Solicitudes" as UC1
+usecase "Ver Dashboard de RH" as UC2
+usecase "Analizar Eficiencia de Reclutamiento" as UC3
+usecase "Exportar Reportes" as UC4
+usecase "Filtrar Datos por Período" as UC5
+
+' Relaciones de actores con casos de uso
+RH --> UC1 : Puede generar reportes
+RH --> UC2 : Puede ver dashboard
+RH --> UC3 : Puede analizar eficiencia
+RH --> UC4 : Puede exportar reportes
+RH --> UC5 : Puede filtrar datos
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Tipos de reportes RH:
+  - Resumen de solicitudes
+  - Detalle por proceso
+  - Candidatos por estado
+  - Tiempos de evaluación
+end note
+
+note right of UC3
+  Análisis de eficiencia:
+  - Tiempo promedio de contratación
+  - Fuentes de reclutamiento más efectivas
+  - Costo por contratación
+  - Tasa de éxito por proceso
+end note
+
+@enduml

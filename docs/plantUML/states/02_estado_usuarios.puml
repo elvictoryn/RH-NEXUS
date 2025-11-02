@@ -1,0 +1,134 @@
+@startuml Diagrama de Estados - Usuarios del Sistema RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Estados de Usuarios
+
+[*] --> CREADO : Registrar usuario
+
+state CREADO {
+  CREADO : Usuario recien creado
+  CREADO : Datos basicos completos
+  CREADO : Contrasena temporal
+}
+
+CREADO --> ACTIVO : Activar cuenta
+CREADO --> INACTIVO : Desactivar inmediatamente
+
+state ACTIVO {
+  ACTIVO : Usuario funcional
+  ACTIVO : Puede acceder al sistema
+  ACTIVO : Todas las funciones disponibles
+}
+
+ACTIVO --> INACTIVO : Desactivar cuenta
+ACTIVO --> BLOQUEADO : Bloqueo por seguridad
+ACTIVO --> SUSPENDIDO : Suspension temporal
+
+state INACTIVO {
+  INACTIVO : Cuenta desactivada
+  INACTIVO : No puede acceder
+  INACTIVO : Datos preservados
+}
+
+INACTIVO --> ACTIVO : Reactivar cuenta
+INACTIVO --> ELIMINADO : Eliminar permanentemente
+
+state BLOQUEADO {
+  BLOQUEADO : Bloqueo por seguridad
+  BLOQUEADO : Intentos fallidos de login
+  BLOQUEADO : Acceso denegado
+}
+
+BLOQUEADO --> ACTIVO : Desbloquear manualmente
+BLOQUEADO --> INACTIVO : Desactivar permanentemente
+
+state SUSPENDIDO {
+  SUSPENDIDO : Suspension temporal
+  SUSPENDIDO : Acceso limitado
+  SUSPENDIDO : Periodo definido
+}
+
+SUSPENDIDO --> ACTIVO : Fin de suspension
+SUSPENDIDO --> INACTIVO : Suspension permanente
+
+state ELIMINADO {
+  ELIMINADO : Usuario eliminado
+  ELIMINADO : Datos removidos
+  ELIMINADO : No recuperable
+}
+
+ELIMINADO --> [*] : Proceso finalizado
+
+' Estados especiales para roles
+state ACTIVO {
+  state ADMIN {
+    ADMIN : Administrador del sistema
+    ADMIN : Acceso completo
+    ADMIN : Gestion de usuarios
+  }
+  
+  state RH {
+    RH : Recursos Humanos
+    RH : Gestion de candidatos
+    RH : Proceso de reclutamiento
+  }
+  
+  state GERENTE {
+    GERENTE : Gerente de sede
+    GERENTE : Aprobacion de solicitudes
+    GERENTE : Vista de su sede
+  }
+  
+  state JEFE_AREA {
+    JEFE_AREA : Jefe de departamento
+    JEFE_AREA : Creacion de solicitudes
+    JEFE_AREA : Vista de su area
+  }
+}
+
+ACTIVO --> ADMIN : Asignar rol admin
+ACTIVO --> RH : Asignar rol RH
+ACTIVO --> GERENTE : Asignar rol gerente
+ACTIVO --> JEFE_AREA : Asignar rol jefe
+
+ADMIN --> ACTIVO : Cambiar rol
+RH --> ACTIVO : Cambiar rol
+GERENTE --> ACTIVO : Cambiar rol
+JEFE_AREA --> ACTIVO : Cambiar rol
+
+note right of CREADO
+  **Acciones:** Activar, desactivar
+  **Responsable:** Administrador
+  **Duracion:** Temporal
+end note
+
+note right of ACTIVO
+  **Acciones:** Todas las permitidas
+  **Responsable:** Usuario
+  **Duracion:** Indefinida
+end note
+
+note right of INACTIVO
+  **Acciones:** Reactivar, eliminar
+  **Responsable:** Administrador
+  **Duracion:** Indefinida
+end note
+
+note right of BLOQUEADO
+  **Causa:** Seguridad
+  **Acciones:** Desbloquear, desactivar
+  **Responsable:** Administrador
+end note
+
+note right of SUSPENDIDO
+  **Causa:** Disciplinaria
+  **Acciones:** Reactivar, desactivar
+  **Responsable:** Administrador
+end note
+
+note right of ELIMINADO
+  **Estado:** Final
+  **Acciones:** Ninguna
+  **Recuperacion:** No posible
+end note
+
+@enduml

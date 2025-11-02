@@ -1,0 +1,57 @@
+@startuml Reportes y Analytics - Administrador
+!theme plain
+title Reportes y Analytics - Administrador
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+
+' Casos de uso principales
+usecase "Ver Dashboard Ejecutivo" as UC1
+usecase "Analizar Eficiencia Global" as UC2
+usecase "Comparar Rendimiento Global" as UC3
+usecase "Ver Tendencias Globales" as UC4
+usecase "Configurar Métricas del Sistema" as UC5
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede ver dashboard ejecutivo
+Admin --> UC2 : Puede analizar eficiencia global
+Admin --> UC3 : Puede comparar rendimiento global
+Admin --> UC4 : Puede ver tendencias globales
+Admin --> UC5 : Puede configurar métricas
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Dashboard ejecutivo:
+  - Métricas globales
+  - Gráficos interactivos
+  - Alertas en tiempo real
+  - Filtros por sede/departamento
+end note
+
+note right of UC2
+  Análisis de eficiencia global:
+  - Tiempo promedio de contratación
+  - Fuentes de reclutamiento más efectivas
+  - Costo por contratación
+  - Tasa de éxito por proceso
+  - Comparación entre sedes
+end note
+
+note right of UC5
+  Métricas configurables:
+  - KPIs del sistema
+  - Umbrales de alerta
+  - Períodos de análisis
+  - Criterios de comparación
+  - Frecuencia de reportes
+end note
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml Middleware Classes
+!theme plain
+title Middleware Classes - RH Nexus
+
+class AuthMiddleware {
+    + checkSession(): void
+    + validateInactivity(): void
+    + redirectToLogin(): void
+    + clearSession(): void
+}
+
+class SolicitudesAuthMiddleware {
+    + checkAccess(): void
+    + validateRole(): void
+    + redirectToLogin(): void
+}
+
+note right of AuthMiddleware
+  Middleware para validación
+  de sesiones y tiempo de
+  inactividad
+end note
+
+note right of SolicitudesAuthMiddleware
+  Middleware específico para
+  control de acceso al módulo
+  de solicitudes
+end note
+
+@enduml

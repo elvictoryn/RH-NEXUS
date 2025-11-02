@@ -1,0 +1,69 @@
+@startuml Controller Classes
+!theme plain
+title Controller Classes - RH Nexus
+
+class UsuariosController {
+    - PDO $db
+    - Usuario $usuarioModel
+    - Departamento $departamentoModel
+    + __construct()
+    + create(): void
+    + index(): void
+    + store(): void
+    + ajax(): void
+}
+
+class AuthController {
+    - PDO $db
+    - array $cfg
+    + __construct()
+    + login(): void
+    + logout(): void
+    + showLogin(?string $error): void
+    - setSession(array $u, bool $remember): void
+    - clearSession(): void
+    - goHomeByRole(string $rol): void
+    - notificarAdmins(string $mensaje, ?string $link): void
+}
+
+class UsuarioCrea {
+    - PDO $db
+    + __construct()
+    + existeUsuario(string $u): bool
+    + existeNumEmpleado(string $ne): bool
+    + existeGerenteEnSede(?int $sedeId): bool
+    + existeJefeEnDeptoSede(?int $sedeId, ?int $depId): bool
+    + sedesActivas(): array
+    + departamentosActivos(?int $sedeId): array
+    + crear(array $d): int
+}
+
+class UsuarioEdita {
+    - PDO $db
+    + __construct()
+    + obtenerPorId(int $id): ?array
+    + existeUsuarioEditando(string $u, int $id): bool
+    + existeNumeroEmpleadoEditando(string $ne, int $id): bool
+    + existeGerenteEnSedeEditando(?int $sedeId, int $id): bool
+    + existeJefeEnDeptoSedeEditando(?int $sedeId, ?int $depId, int $id): bool
+    + actualizar(array $d): bool
+    + asignarResponsableDepto(int $depId, int $userId): bool
+    + setGerenteSede(int $sedeId, int $userId): bool
+}
+
+note right of UsuariosController
+  Controlador principal para
+  gestión de usuarios
+end note
+
+note right of UsuarioCrea
+  Controlador especializado
+  para creación de usuarios
+end note
+
+note right of UsuarioEdita
+  Controlador especializado
+  para edición de usuarios
+end note
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml Crear Departamento Flow
+!theme plain
+title Crear Departamento Flow - RH Nexus
+
+start
+
+:Admin accede a crear departamento;
+:Mostrar formulario de departamento;
+
+:Admin llena datos de departamento;
+:Validar campos obligatorios;
+
+if (¿Campos válidos?) then (No)
+    :Mostrar error de validación;
+    stop
+else (Sí)
+    :Verificar nombre único en sede (AJAX);
+    
+    if (¿Nombre ya existe en sede?) then (Sí)
+        :Mostrar error: Nombre duplicado en sede;
+        stop
+    else (No)
+        :Normalizar datos (MAYÚSCULAS);
+        :Validar que sede existe;
+        
+        if (¿Sede válida?) then (No)
+            :Mostrar error: Sede inválida;
+            stop
+        else (Sí)
+            :Crear departamento en BD;
+            
+            if (¿Departamento creado?) then (Sí)
+                :Mostrar éxito: Departamento creado;
+                :Redirigir a lista de departamentos;
+            else (No)
+                :Mostrar error: No se pudo crear;
+            endif
+        endif
+    endif
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml Reclutamiento Inteligente - RH
+!theme plain
+title Reclutamiento Inteligente - RH
+
+left to right direction
+
+' Actores
+actor "RH" as RH
+actor "Sistema IA" as IA
+
+' Casos de uso principales
+usecase "Registrar Candidato" as UC1
+usecase "Gestionar Candidatos" as UC2
+usecase "Evaluar Compatibilidad" as UC3
+usecase "Generar Ranking" as UC4
+usecase "Buscar Candidatos" as UC5
+
+' Relaciones de actores con casos de uso
+RH --> UC1 : Puede registrar candidatos
+RH --> UC2 : Puede gestionar candidatos
+RH --> UC3 : Puede evaluar compatibilidad
+RH --> UC4 : Puede generar ranking
+RH --> UC5 : Puede buscar candidatos
+
+IA --> UC3 : Evalúa compatibilidad automáticamente
+IA --> UC4 : Genera ranking automáticamente
+IA --> UC5 : Busca candidatos automáticamente
+
+' Relaciones entre casos de uso
+UC1 ..> UC3 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Registrar candidato:
+  - Datos personales
+  - Experiencia laboral
+  - Competencias técnicas
+  - Escolaridad
+end note
+
+note right of UC3
+  Criterios de evaluación:
+  - Compatibilidad técnica (25%)
+  - Experiencia laboral (20%)
+  - Escolaridad (10%)
+  - Idiomas (10%)
+  - Competencias blandas (15%)
+  - Otros factores (20%)
+end note
+
+@enduml

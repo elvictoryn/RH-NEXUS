@@ -1,0 +1,165 @@
+@startuml Diagrama de Estados - Candidatos RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Estados de Candidatos
+
+[*] --> REGISTRADO : Registrar candidato
+
+state REGISTRADO {
+  REGISTRADO : Candidato registrado
+  REGISTRADO : Datos basicos completos
+  REGISTRADO : Sin evaluacion
+}
+
+REGISTRADO --> EVALUANDO : Iniciar evaluacion
+REGISTRADO --> DESCARTADO : Descartar candidato
+
+state EVALUANDO {
+  EVALUANDO : En proceso de evaluacion
+  EVALUANDO : Evaluacion automatica (IA)
+  EVALUANDO : Evaluacion manual
+}
+
+EVALUANDO --> ENTREVISTADO : Completar evaluacion
+EVALUANDO --> DESCARTADO : Descartar en evaluacion
+
+state ENTREVISTADO {
+  ENTREVISTADO : Evaluacion completada
+  ENTREVISTADO : Puntajes asignados
+  ENTREVISTADO : Ranking generado
+}
+
+ENTREVISTADO --> SELECCIONADO : Seleccionar candidato
+ENTREVISTADO --> DESCARTADO : Descartar despues de entrevista
+ENTREVISTADO --> EN_ESPERA : Poner en espera
+
+state SELECCIONADO {
+  SELECCIONADO : Candidato seleccionado
+  SELECCIONADO : Mejor opcion
+  SELECCIONADO : Listo para contratacion
+}
+
+SELECCIONADO --> CONTRATADO : Contratar candidato
+SELECCIONADO --> DESCARTADO : Descartar seleccion
+
+state EN_ESPERA {
+  EN_ESPERA : Candidato en espera
+  EN_ESPERA : Posible alternativa
+  EN_ESPERA : Reserva para futuro
+}
+
+EN_ESPERA --> SELECCIONADO : Seleccionar de espera
+EN_ESPERA --> DESCARTADO : Descartar de espera
+
+state CONTRATADO {
+  CONTRATADO : Candidato contratado
+  CONTRATADO : Proceso exitoso
+  CONTRATADO : Solicitud cerrada
+}
+
+CONTRATADO --> [*] : Proceso finalizado
+
+state DESCARTADO {
+  DESCARTADO : Candidato descartado
+  DESCARTADO : No seleccionado
+  DESCARTADO : Proceso terminado
+}
+
+DESCARTADO --> [*] : Proceso finalizado
+
+' Estados de evaluacion detallados
+state EVALUANDO {
+  state EVALUACION_IA {
+    EVALUACION_IA : Evaluacion automatica
+    EVALUACION_IA : Sistema de IA
+    EVALUACION_IA : Puntaje de compatibilidad
+  }
+  
+  state EVALUACION_MANUAL {
+    EVALUACION_MANUAL : Evaluacion manual
+    EVALUACION_MANUAL : Puntajes de entrevista
+    EVALUACION_MANUAL : Evaluacion de competencias
+  }
+  
+  state RANKING {
+    RANKING : Generacion de ranking
+    RANKING : Ordenamiento de candidatos
+    RANKING : Comparacion de puntajes
+  }
+}
+
+EVALUACION_IA --> EVALUACION_MANUAL : Completar IA
+EVALUACION_MANUAL --> RANKING : Completar manual
+RANKING --> ENTREVISTADO : Ranking completado
+
+' Estados de viabilidad
+state ENTREVISTADO {
+  state VIABILIDAD_ALTA {
+    VIABILIDAD_ALTA : Alta viabilidad
+    VIABILIDAD_ALTA : Puntaje > 80
+    VIABILIDAD_ALTA : Prioridad alta
+  }
+  
+  state VIABILIDAD_MEDIA {
+    VIABILIDAD_MEDIA : Media viabilidad
+    VIABILIDAD_MEDIA : Puntaje 50-80
+    VIABILIDAD_MEDIA : Prioridad media
+  }
+  
+  state VIABILIDAD_BAJA {
+    VIABILIDAD_BAJA : Baja viabilidad
+    VIABILIDAD_BAJA : Puntaje < 50
+    VIABILIDAD_BAJA : Prioridad baja
+  }
+}
+
+ENTREVISTADO --> VIABILIDAD_ALTA : Puntaje alto
+ENTREVISTADO --> VIABILIDAD_MEDIA : Puntaje medio
+ENTREVISTADO --> VIABILIDAD_BAJA : Puntaje bajo
+
+VIABILIDAD_ALTA --> SELECCIONADO : Seleccionar prioritario
+VIABILIDAD_MEDIA --> EN_ESPERA : Considerar alternativo
+VIABILIDAD_BAJA --> DESCARTADO : Descartar por puntaje
+
+note right of REGISTRADO
+  **Responsable:** RH
+  **Acciones:** Evaluar, descartar
+  **Duracion:** Hasta evaluacion
+end note
+
+note right of EVALUANDO
+  **Responsable:** Sistema IA + RH
+  **Acciones:** Evaluar automatica y manual
+  **Duracion:** Variable
+end note
+
+note right of ENTREVISTADO
+  **Responsable:** RH
+  **Acciones:** Seleccionar, descartar, esperar
+  **Duracion:** Hasta decision
+end note
+
+note right of SELECCIONADO
+  **Responsable:** RH
+  **Acciones:** Contratar, descartar
+  **Duracion:** Hasta contratacion
+end note
+
+note right of CONTRATADO
+  **Estado:** Final exitoso
+  **Acciones:** Ninguna
+  **Resultado:** Candidato contratado
+end note
+
+note right of DESCARTADO
+  **Estado:** Final
+  **Acciones:** Ninguna
+  **Resultado:** Candidato no seleccionado
+end note
+
+note right of EN_ESPERA
+  **Estado:** Intermedio
+  **Acciones:** Seleccionar, descartar
+  **Uso:** Alternativas de respaldo
+end note
+
+@enduml

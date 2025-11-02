@@ -1,0 +1,48 @@
+@startuml Evaluación de Candidatos - RH
+!theme plain
+title Evaluación de Candidatos - RH
+
+left to right direction
+
+' Actores
+actor "RH" as RH
+
+' Casos de uso principales
+usecase "Registrar Puntaje de Personalidad" as UC1
+usecase "Registrar Puntaje Técnico" as UC2
+usecase "Registrar Puntaje de Entrevista" as UC3
+usecase "Calcular Puntaje Final" as UC4
+usecase "Determinar Viabilidad" as UC5
+
+' Relaciones de actores con casos de uso
+RH --> UC1 : Puede registrar puntaje de personalidad
+RH --> UC2 : Puede registrar puntaje técnico
+RH --> UC3 : Puede registrar puntaje de entrevista
+RH --> UC4 : Puede calcular puntaje final
+RH --> UC5 : Puede determinar viabilidad
+
+' Relaciones entre casos de uso
+UC1 ..> UC4 : incluye
+UC2 ..> UC4 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Puntaje de personalidad:
+  - Liderazgo
+  - Trabajo en equipo
+  - Comunicación
+  - Adaptabilidad
+  - Motivación
+end note
+
+note right of UC4
+  Cálculo del puntaje final:
+  - Promedio de los 3 puntajes
+  - Peso por tipo de evaluación
+  - Ajustes por relevancia
+  - Factor de confianza
+end note
+
+@enduml

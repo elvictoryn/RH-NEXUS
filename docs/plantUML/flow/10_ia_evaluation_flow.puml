@@ -1,0 +1,52 @@
+@startuml IA Evaluation Flow
+!theme plain
+title IA Evaluation Flow - RH Nexus
+
+start
+
+:RH accede a evaluación IA;
+:Seleccionar candidatos para evaluar;
+
+:Iniciar proceso de evaluación IA;
+:Cargar modelo Random Forest;
+
+if (¿Modelo cargado?) then (No)
+    :Mostrar error: Modelo no disponible;
+    stop
+else (Sí)
+    :Cargar datos de candidatos;
+    
+    if (¿Datos válidos?) then (No)
+        :Mostrar error: Datos inválidos;
+        stop
+    else (Sí)
+        :Preprocesar datos;
+        :Normalizar características;
+        :Aplicar modelo Random Forest;
+        :Calcular probabilidades;
+        
+        :Aplicar threshold (default 0.80);
+        
+        if (¿Probabilidad >= threshold?) then (Sí)
+            :Decisión = 'APTO';
+        else (No)
+            :Decisión = 'NO APTO';
+        endif
+        
+        :Generar ranking por puntaje;
+        :Crear reporte de evaluación;
+        :Actualizar BD con resultados IA;
+        
+        if (¿Resultados guardados?) then (Sí)
+            :Mostrar reporte de evaluación;
+            :Exportar resultados a CSV;
+            :Mostrar éxito: Evaluación IA completada;
+        else (No)
+            :Mostrar error: No se pudieron guardar resultados;
+        endif
+    endif
+endif
+
+stop
+
+@enduml

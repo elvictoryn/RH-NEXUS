@@ -1,0 +1,76 @@
+@startuml Solicitudes de Personal
+!theme plain
+title Solicitudes de Personal - Casos de Uso
+
+left to right direction
+
+' Actores
+actor "Jefe de Área" as JefeArea
+actor "Gerente" as Gerente
+actor "RH" as RH
+
+' Casos de uso principales
+usecase "Crear Solicitud" as UC1
+usecase "Definir Requisitos del Puesto" as UC2
+usecase "Configurar Etapas de Selección" as UC3
+usecase "Gestionar Solicitudes" as UC4
+usecase "Ver Estado de Solicitud" as UC5
+usecase "Buscar Solicitudes" as UC6
+usecase "Exportar Solicitud" as UC7
+usecase "Ver Historial" as UC8
+
+' Relaciones de actores con casos de uso
+JefeArea --> UC1 : Puede crear solicitudes
+JefeArea --> UC2 : Puede definir requisitos
+JefeArea --> UC3 : Puede configurar etapas
+JefeArea --> UC4 : Puede gestionar sus solicitudes
+JefeArea --> UC5 : Puede ver estado
+JefeArea --> UC6 : Puede buscar sus solicitudes
+JefeArea --> UC8 : Puede ver historial
+
+Gerente --> UC4 : Puede gestionar solicitudes de su sede
+Gerente --> UC5 : Puede ver estado de su sede
+Gerente --> UC6 : Puede buscar solicitudes de su sede
+Gerente --> UC8 : Puede ver historial de su sede
+
+RH --> UC4 : Puede gestionar todas las solicitudes
+RH --> UC5 : Puede ver estado completo
+RH --> UC6 : Puede buscar todas las solicitudes
+RH --> UC7 : Puede exportar solicitudes
+RH --> UC8 : Puede ver historial completo
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC1 ..> UC3 : incluye
+UC4 ..> UC5 : incluye
+UC4 ..> UC6 : incluye
+UC4 ..> UC8 : incluye
+
+' Notas
+note right of UC1
+  Crear nueva solicitud:
+  - Datos del puesto
+  - Justificación
+  - Presupuesto
+  - Fecha deseada
+end note
+
+note right of UC2
+  Requisitos del puesto:
+  - Escolaridad mínima
+  - Años de experiencia
+  - Competencias técnicas
+  - Idiomas requeridos
+  - Rango salarial
+end note
+
+note right of UC3
+  Etapas de selección:
+  - Revisión de CV
+  - Entrevista técnica
+  - Entrevista de personalidad
+  - Pruebas específicas
+  - Decisión final
+end note
+
+@enduml

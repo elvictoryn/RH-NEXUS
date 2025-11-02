@@ -1,0 +1,55 @@
+@startuml Reportes y Analytics - Gerente
+!theme plain
+title Reportes y Analytics - Gerente
+
+left to right direction
+
+' Actores
+actor "Gerente" as Gerente
+
+' Casos de uso principales
+usecase "Ver Dashboard de su Sede" as UC1
+usecase "Ver Métricas de Tiempo de su Sede" as UC2
+usecase "Filtrar Datos de su Sede" as UC3
+usecase "Comparar Rendimiento de su Sede" as UC4
+usecase "Ver Tendencias de su Sede" as UC5
+
+' Relaciones de actores con casos de uso
+Gerente --> UC1 : Puede ver dashboard de su sede
+Gerente --> UC2 : Puede ver métricas de su sede
+Gerente --> UC3 : Puede filtrar datos de su sede
+Gerente --> UC4 : Puede comparar rendimiento de su sede
+Gerente --> UC5 : Puede ver tendencias de su sede
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Dashboard de sede:
+  - Métricas de su sede
+  - Gráficos específicos
+  - Alertas de su sede
+  - Filtros por departamento
+end note
+
+note right of UC4
+  Comparación de rendimiento:
+  - Por departamento
+  - Por período
+  - Por tipo de solicitud
+  - Por responsable
+end note
+
+note right of UC5
+  Tendencias de sede:
+  - Crecimiento de solicitudes
+  - Estacionalidad local
+  - Cambios en demanda
+  - Predicciones locales
+end note
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml Utility Classes
+!theme plain
+title Utility Classes - RH Nexus
+
+class CompatibilityEngine {
+    + compat_calc(array $candidato, array $solicitud): array
+    + escolar_to_ord(string $escolaridad): int
+    + ingles_rank(string $nivel): int
+    + list_norm(string $texto): array
+}
+
+class ScoringSystem {
+    + calculatePersonalityScore(int $score): int
+    + calculateSkillScore(int $score): int
+    + calculateInterviewScore(int $score): int
+    + calculateFinalScore(int $ps, int $ss, int $is): int
+    + determineViabilidad(int $score): string
+}
+
+class NotificationSystem {
+    + sendNotification(int $usuario_id, string $mensaje, ?string $link): void
+    + createNotification(int $usuario_id, string $mensaje, ?string $link, int $leida, string $expira_en): void
+    + notifyAdmins(string $mensaje, ?string $link): void
+}
+
+class FileUploadHandler {
+    + validateImage(array $file): bool
+    + generateUniqueName(string $extension): string
+    + saveImage(array $file, string $path): bool
+    + validateMimeType(string $mime): bool
+    + validateFileSize(int $size): bool
+}
+
+note right of CompatibilityEngine
+  Motor de compatibilidad
+  para evaluación de
+  candidatos
+end note
+
+note right of ScoringSystem
+  Sistema de puntuación
+  para evaluación de
+  candidatos
+end note
+
+note right of NotificationSystem
+  Sistema de notificaciones
+  automáticas
+end note
+
+@enduml

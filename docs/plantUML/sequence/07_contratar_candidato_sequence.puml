@@ -1,0 +1,32 @@
+@startuml Contratar Candidato Sequence
+!theme plain
+title Contratar Candidato Sequence - RH Nexus
+
+actor "RH" as RH
+participant "Contratation Form" as Form
+participant "Database" as DB
+participant "Notification System" as Notif
+
+RH -> Form: Selecciona candidato para contratar
+Form -> DB: POST /candidatos/contratar
+
+DB -> DB: SELECT candidato y solicitud
+DB --> Form: Datos del candidato
+
+Form -> DB: UPDATE postulantes_por_vacante SET Decisión_Final='CONTRATADO'
+DB --> Form: Candidato marcado como contratado
+
+Form -> DB: UPDATE solicitudes SET estado_actual='CERRADA'
+DB --> Form: Solicitud cerrada
+
+Form -> Notif: Crear notificación de contratación
+Notif -> DB: INSERT notificaciones
+DB --> Notif: Notificación creada
+
+Notif -> Notif: Notificar a gerente de la sede
+Notif -> Notif: Notificar a jefe de área
+Notif -> Notif: Notificar a administrador
+
+Form --> RH: Candidato contratado y solicitud cerrada
+
+@enduml

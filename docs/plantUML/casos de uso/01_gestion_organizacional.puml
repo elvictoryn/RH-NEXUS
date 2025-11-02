@@ -1,0 +1,59 @@
+@startuml Gestión Organizacional
+!theme plain
+title Gestión Organizacional - Casos de Uso
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+
+' Casos de uso principales
+usecase "Crear Sede" as UC1
+usecase "Gestionar Sedes" as UC2
+usecase "Crear Departamento" as UC3
+usecase "Gestionar Departamentos" as UC4
+usecase "Asignar Responsables" as UC5
+usecase "Ver Estructura Organizacional" as UC6
+usecase "Configurar Jerarquía" as UC7
+usecase "Exportar Organigrama" as UC8
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede crear sedes
+Admin --> UC2 : Puede gestionar sedes
+Admin --> UC3 : Puede crear departamentos
+Admin --> UC4 : Puede gestionar departamentos
+Admin --> UC5 : Puede asignar responsables
+Admin --> UC6 : Puede ver estructura
+Admin --> UC7 : Puede configurar jerarquía
+Admin --> UC8 : Puede exportar organigrama
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC3 ..> UC4 : incluye
+UC5 ..> UC4 : incluye
+UC6 ..> UC2 : incluye
+UC6 ..> UC4 : incluye
+
+' Notas
+note right of UC1
+  Crear nueva sede:
+  - Nombre único
+  - Dirección completa
+  - Datos de contacto
+end note
+
+note right of UC3
+  Crear departamento:
+  - Nombre único por sede
+  - Descripción de funciones
+  - Asignar a sede existente
+end note
+
+note right of UC5
+  Asignar responsables:
+  - Gerente por sede
+  - Jefe por departamento
+  - Validar disponibilidad
+end note
+
+@enduml

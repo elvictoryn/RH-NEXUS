@@ -1,0 +1,181 @@
+@startuml Diagrama de Estados - Sesiones de Usuario RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Estados de Sesiones de Usuario
+
+[*] --> NO_AUTENTICADO : Usuario no logueado
+
+state NO_AUTENTICADO {
+  NO_AUTENTICADO : Sin sesion activa
+  NO_AUTENTICADO : Acceso denegado
+  NO_AUTENTICADO : Debe autenticarse
+}
+
+NO_AUTENTICADO --> AUTENTICANDO : Intentar login
+NO_AUTENTICADO --> BLOQUEADO : Demasiados intentos
+
+state AUTENTICANDO {
+  AUTENTICANDO : Verificando credenciales
+  AUTENTICANDO : Validando usuario
+  AUTENTICANDO : Procesando autenticacion
+}
+
+AUTENTICANDO --> AUTENTICADO : Login exitoso
+AUTENTICANDO --> FALLO_LOGIN : Credenciales incorrectas
+AUTENTICANDO --> BLOQUEADO : Maximo intentos alcanzado
+
+state FALLO_LOGIN {
+  FALLO_LOGIN : Credenciales incorrectas
+  FALLO_LOGIN : Intento fallido
+  FALLO_LOGIN : Debe reintentar
+}
+
+FALLO_LOGIN --> AUTENTICANDO : Reintentar login
+FALLO_LOGIN --> BLOQUEADO : Demasiados fallos
+FALLO_LOGIN --> NO_AUTENTICADO : Cancelar login
+
+state BLOQUEADO {
+  BLOQUEADO : Cuenta bloqueada
+  BLOQUEADO : Demasiados intentos fallidos
+  BLOQUEADO : Acceso temporalmente denegado
+}
+
+BLOQUEADO --> NO_AUTENTICADO : Desbloqueo automatico
+BLOQUEADO --> AUTENTICADO : Desbloqueo manual
+
+state AUTENTICADO {
+  AUTENTICADO : Sesion activa
+  AUTENTICADO : Acceso permitido
+  AUTENTICADO : Usuario logueado
+}
+
+AUTENTICADO --> ACTIVO : Usuario activo
+AUTENTICADO --> INACTIVO : Usuario inactivo
+AUTENTICADO --> EXPIRADO : Sesion expirada
+
+state ACTIVO {
+  ACTIVO : Usuario navegando
+  ACTIVO : Realizando acciones
+  ACTIVO : Sesion vigente
+}
+
+ACTIVO --> INACTIVO : Sin actividad
+ACTIVO --> EXPIRADO : Tiempo agotado
+ACTIVO --> CERRANDO : Iniciar logout
+
+state INACTIVO {
+  INACTIVO : Sin actividad reciente
+  INACTIVO : Sesion pausada
+  INACTIVO : Esperando actividad
+}
+
+INACTIVO --> ACTIVO : Reanudar actividad
+INACTIVO --> EXPIRADO : Tiempo de inactividad agotado
+INACTIVO --> CERRANDO : Logout manual
+
+state EXPIRADO {
+  EXPIRADO : Sesion expirada
+  EXPIRADO : Tiempo limite alcanzado
+  EXPIRADO : Debe reautenticarse
+}
+
+EXPIRADO --> NO_AUTENTICADO : Redirigir a login
+EXPIRADO --> AUTENTICANDO : Reautenticacion automatica
+
+state CERRANDO {
+  CERRANDO : Procesando logout
+  CERRANDO : Limpiando sesion
+  CERRANDO : Cerrando conexion
+}
+
+CERRANDO --> NO_AUTENTICADO : Logout completado
+
+' Estados de roles dentro de sesion activa
+state ACTIVO {
+  state ADMIN_SESION {
+    ADMIN_SESION : Sesion de administrador
+    ADMIN_SESION : Acceso completo
+    ADMIN_SESION : Todas las funciones
+  }
+  
+  state RH_SESION {
+    RH_SESION : Sesion de RH
+    RH_SESION : Gestion de candidatos
+    RH_SESION : Proceso de reclutamiento
+  }
+  
+  state GERENTE_SESION {
+    GERENTE_SESION : Sesion de gerente
+    GERENTE_SESION : Aprobacion de solicitudes
+    GERENTE_SESION : Vista de sede
+  }
+  
+  state JEFE_SESION {
+    JEFE_SESION : Sesion de jefe de area
+    JEFE_SESION : Creacion de solicitudes
+    JEFE_SESION : Vista de departamento
+  }
+}
+
+ACTIVO --> ADMIN_SESION : Rol administrador
+ACTIVO --> RH_SESION : Rol RH
+ACTIVO --> GERENTE_SESION : Rol gerente
+ACTIVO --> JEFE_SESION : Rol jefe de area
+
+' Estados de seguridad
+state BLOQUEADO {
+  state BLOQUEO_TEMPORAL {
+    BLOQUEO_TEMPORAL : Bloqueo por tiempo
+    BLOQUEO_TEMPORAL : 15 minutos
+    BLOQUEO_TEMPORAL : Desbloqueo automatico
+  }
+  
+  state BLOQUEO_PERMANENTE {
+    BLOQUEO_PERMANENTE : Bloqueo permanente
+    BLOQUEO_PERMANENTE : Requiere intervencion
+    BLOQUEO_PERMANENTE : Desbloqueo manual
+  }
+}
+
+BLOQUEADO --> BLOQUEO_TEMPORAL : Bloqueo por intentos
+BLOQUEADO --> BLOQUEO_PERMANENTE : Bloqueo por seguridad
+
+BLOQUEO_TEMPORAL --> NO_AUTENTICADO : Desbloqueo automatico
+BLOQUEO_PERMANENTE --> NO_AUTENTICADO : Desbloqueo manual
+
+note right of NO_AUTENTICADO
+  **Acciones:** Login, registro
+  **Acceso:** Solo publico
+  **Duracion:** Indefinida
+end note
+
+note right of AUTENTICANDO
+  **Proceso:** Validacion
+  **Duracion:** Segundos
+  **Seguridad:** Verificacion de credenciales
+end note
+
+note right of AUTENTICADO
+  **Acceso:** Completo
+  **Duracion:** Hasta logout o expiracion
+  **Seguridad:** Sesion activa
+end note
+
+note right of ACTIVO
+  **Estado:** Operativo
+  **Acciones:** Todas las permitidas
+  **Monitoreo:** Actividad del usuario
+end note
+
+note right of BLOQUEADO
+  **Causa:** Seguridad
+  **Duracion:** Temporal o permanente
+  **Acciones:** Desbloquear, esperar
+end note
+
+note right of EXPIRADO
+  **Causa:** Tiempo limite
+  **Acciones:** Reautenticacion
+  **Seguridad:** Proteccion de sesion
+end note
+
+@enduml

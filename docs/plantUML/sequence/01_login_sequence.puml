@@ -1,0 +1,29 @@
+@startuml Login Sequence
+!theme plain
+title Login Sequence - RH Nexus
+
+actor "Usuario" as User
+participant "Login Form" as Form
+participant "AuthController" as Auth
+participant "Database" as DB
+participant "Session" as Session
+
+User -> Form: Ingresa credenciales
+Form -> Auth: POST /login
+Auth -> DB: SELECT usuario WHERE usuario/numero_empleado
+DB --> Auth: Datos del usuario
+
+alt Usuario válido
+    Auth -> Auth: Verificar contraseña
+    Auth -> Auth: Verificar estado activo
+    Auth -> Auth: Verificar bloqueo temporal
+    Auth -> Session: Crear sesión
+    Auth -> Auth: goHomeByRole()
+    Auth --> Form: Redirect según rol
+else Usuario inválido
+    Auth -> Auth: Incrementar intentos fallidos
+    Auth -> DB: UPDATE failed_attempts
+    Auth --> Form: Mostrar error
+end
+
+@enduml

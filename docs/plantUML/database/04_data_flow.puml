@@ -1,0 +1,182 @@
+@startuml Data Flow
+!theme plain
+title Flujo de Datos - RH Nexus
+
+package "Gestión de Usuarios" {
+  class Usuario <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    usuario
+    contrasena
+    rol
+    nombre_completo
+    numero_empleado
+    correo
+    telefono
+    estado
+    fotografia
+    fecha_registro
+    --
+    <color:#4ecdc4>FK</color> sede_id
+    <color:#4ecdc4>FK</color> departamento_id
+    failed_attempts
+    locked_until
+    last_login
+    last_failed_at
+  }
+}
+
+package "Estructura Organizacional" {
+  class Sede <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    nombre
+    <color:#4ecdc4>FK</color> gerente_id
+    domicilio
+    numero
+    interior
+    colonia
+    municipio
+    estado
+    cp
+    telefono
+    fecha_registro
+    activo
+  }
+
+  class Departamento <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    nombre
+    descripcion
+    <color:#4ecdc4>FK</color> sede_id
+    <color:#4ecdc4>FK</color> responsable_id
+    estado
+    creado_en
+    actualizado_en
+  }
+}
+
+package "Solicitudes de Personal" {
+  class Solicitud <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    <color:#4ecdc4>FK</color> autor_id
+    <color:#4ecdc4>FK</color> sede_id
+    <color:#4ecdc4>FK</color> departamento_id
+    titulo
+    puesto
+    vacantes
+    fecha_ingreso_deseada
+    tipo_contrato
+    modalidad
+    horario
+    salario_min
+    salario_max
+    escolaridad_min
+    carrera_estudiada
+    experiencia_anios
+    area_experiencia
+    ingles_combo
+    competencias_json
+    motivo
+    reemplazo_de
+    prioridad
+    <color:#4ecdc4>FK</color> autorizada_por
+    autorizada_en
+    <color:#4ecdc4>FK</color> rechazada_por
+    rechazada_en
+    rechazo_motivo
+    justificacion
+    responsabilidades
+    estado_actual
+    creada_en
+    actualizado_en
+  }
+
+  class Comentario <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    <color:#4ecdc4>FK</color> solicitud_id
+    <color:#4ecdc4>FK</color> usuario_id
+    comentario
+    creado_en
+  }
+
+  class Seguimiento <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    <color:#4ecdc4>FK</color> solicitud_id
+    estado_anterior
+    estado_nuevo
+    <color:#4ecdc4>FK</color> usuario_id
+    nota
+    creado_en
+  }
+}
+
+package "Reclutamiento y Candidatos" {
+  class Candidato <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    <color:#4ecdc4>FK</color> solicitud_id
+    nombre_completo
+    telefono
+    correo
+    recruitment_strategy
+    carrera
+    education_level
+    experience_years
+    area_experiencia
+    competencias_tecnicas
+    ingles_requerido
+    ingles_postulante
+    personality_score
+    skill_score
+    interview_score
+    puntaje_evaluacion
+    viabilidad
+    posicion_ranking
+    decision_final
+    created_at
+    updated_at
+  }
+}
+
+package "Sistema de Notificaciones" {
+  class Notificacion <<entity>> {
+    --
+    <b><color:#ff6b6b>PK</color></b> id
+    <color:#4ecdc4>FK</color> usuario_id
+    mensaje
+    link
+    leida
+    expira_en
+    creado_en
+  }
+}
+
+' Flujo de datos principal
+Usuario ||--o{ Sede : "gerente_id"
+Usuario ||--o{ Departamento : "responsable_id"
+Usuario ||--o{ Solicitud : "autor_id"
+Usuario ||--o{ Solicitud : "autorizada_por"
+Usuario ||--o{ Solicitud : "rechazada_por"
+Usuario ||--o{ Comentario : "usuario_id"
+Usuario ||--o{ Seguimiento : "usuario_id"
+Usuario ||--o{ Notificacion : "usuario_id"
+
+Sede ||--o{ Departamento : "sede_id"
+Sede ||--o{ Solicitud : "sede_id"
+
+Departamento ||--o{ Solicitud : "departamento_id"
+
+Solicitud ||--o{ Candidato : "solicitud_id"
+Solicitud ||--o{ Comentario : "solicitud_id"
+Solicitud ||--o{ Seguimiento : "solicitud_id"
+
+' Relaciones de usuarios con sedes y departamentos
+Usuario }o--|| Sede : "sede_id"
+Usuario }o--|| Departamento : "departamento_id"
+
+@enduml

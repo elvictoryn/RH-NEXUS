@@ -1,0 +1,61 @@
+@startuml Gestión de Usuarios
+!theme plain
+title Gestión de Usuarios - Casos de Uso
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+actor "Usuario" as Usuario
+
+' Casos de uso principales
+usecase "Registrar Usuario" as UC1
+usecase "Gestionar Usuarios" as UC2
+usecase "Asignar Roles" as UC3
+usecase "Iniciar Sesión" as UC4
+usecase "Gestionar Perfil" as UC5
+usecase "Cambiar Contraseña" as UC6
+usecase "Activar/Desactivar Usuario" as UC7
+usecase "Ver Historial de Usuario" as UC8
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede registrar usuarios
+Admin --> UC2 : Puede gestionar usuarios
+Admin --> UC3 : Puede asignar roles
+Admin --> UC7 : Puede activar/desactivar
+Admin --> UC8 : Puede ver historial
+
+Usuario --> UC4 : Puede iniciar sesión
+Usuario --> UC5 : Puede gestionar perfil
+Usuario --> UC6 : Puede cambiar contraseña
+
+' Relaciones entre casos de uso
+UC1 ..> UC3 : incluye
+UC2 ..> UC7 : incluye
+UC5 ..> UC6 : incluye
+
+' Notas
+note right of UC1
+  Registrar nuevo usuario:
+  - Datos personales
+  - Usuario único
+  - Contraseña segura
+  - Asignar rol
+end note
+
+note right of UC3
+  Roles disponibles:
+  - Administrador
+  - RH
+  - Gerente
+  - Jefe de Área
+end note
+
+note right of UC4
+  Seguridad:
+  - Máximo 5 intentos
+  - Bloqueo temporal
+  - Validación automática
+end note
+
+@enduml

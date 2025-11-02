@@ -1,0 +1,55 @@
+@startuml Evaluación de Candidatos - Administrador
+!theme plain
+title Evaluación de Candidatos - Administrador
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+
+' Casos de uso principales
+usecase "Ver Resultados de Evaluación" as UC1
+usecase "Generar Reporte de Evaluación" as UC2
+usecase "Comparar Candidatos" as UC3
+usecase "Configurar Criterios de Evaluación" as UC4
+usecase "Analizar Tendencias de Evaluación" as UC5
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede ver resultados
+Admin --> UC2 : Puede generar reportes
+Admin --> UC3 : Puede comparar candidatos
+Admin --> UC4 : Puede configurar criterios
+Admin --> UC5 : Puede analizar tendencias
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC5 : incluye
+UC4 ..> UC1 : incluye
+
+' Notas
+note right of UC2
+  Reporte de evaluación:
+  - Resumen de resultados
+  - Puntos fuertes y débiles
+  - Recomendaciones
+  - Comparación con estándares
+end note
+
+note right of UC4
+  Criterios configurables:
+  - Peso de cada evaluación
+  - Umbrales de viabilidad
+  - Factores de ajuste
+  - Métricas de calidad
+end note
+
+note right of UC5
+  Análisis de tendencias:
+  - Evolución de puntajes
+  - Patrones por tipo de puesto
+  - Efectividad de evaluadores
+  - Mejoras en el proceso
+end note
+
+@enduml

@@ -1,0 +1,43 @@
+@startuml Evaluar Candidato Flow
+!theme plain
+title Evaluar Candidato Flow - RH Nexus
+
+start
+
+:RH accede a evaluación;
+:Seleccionar candidato;
+:Mostrar formulario de evaluación;
+
+:RH ingresa puntajes;
+:Validar rangos (0-100);
+
+if (¿Puntajes válidos?) then (No)
+    :Mostrar error: Rangos inválidos;
+    stop
+else (Sí)
+    :Calcular puntaje final;
+    :Puntaje = (Personalidad + Técnico + Entrevista) / 3;
+    
+    :Determinar viabilidad;
+    
+    if (¿Puntaje >= 80?) then (Sí)
+        :Viabilidad = 'ALTA';
+    elseif (¿Puntaje >= 60?) then (Sí)
+        :Viabilidad = 'MEDIA';
+    else (No)
+        :Viabilidad = 'BAJA';
+    endif
+    
+    :Actualizar puntajes en BD;
+    
+    if (¿Puntajes actualizados?) then (Sí)
+        :Mostrar éxito: Evaluación guardada;
+        :Redirigir a lista de candidatos;
+    else (No)
+        :Mostrar error: No se pudo guardar;
+    endif
+endif
+
+stop
+
+@enduml

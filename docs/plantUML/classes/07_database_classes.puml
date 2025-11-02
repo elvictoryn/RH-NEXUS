@@ -1,0 +1,114 @@
+@startuml Database Classes
+!theme plain
+title Database Classes - RH Nexus
+
+class DatabaseSchema {
+    + usuarios: table
+    + sedes: table
+    + departamentos: table
+    + solicitudes: table
+    + postulantes_por_vacante: table
+    + notificaciones: table
+}
+
+class UsuariosTable {
+    + id: int (PK)
+    + nombre_completo: varchar
+    + usuario: varchar (UNIQUE)
+    + contrasena: varchar
+    + rol: enum
+    + numero_empleado: varchar (UNIQUE)
+    + correo: varchar
+    + telefono: varchar
+    + fotografia: varchar
+    + sede_id: int (FK)
+    + departamento_id: int (FK)
+    + estado: enum
+    + failed_attempts: int
+    + locked_until: datetime
+    + last_login: datetime
+    + created_at: datetime
+    + updated_at: datetime
+}
+
+class SedesTable {
+    + id: int (PK)
+    + nombre: varchar (UNIQUE)
+    + domicilio: varchar
+    + numero: varchar
+    + interior: varchar
+    + colonia: varchar
+    + municipio: varchar
+    + estado: varchar
+    + cp: varchar
+    + telefono: varchar
+    + gerente_id: int (FK)
+    + activo: boolean
+    + created_at: datetime
+    + updated_at: datetime
+}
+
+class DepartamentosTable {
+    + id: int (PK)
+    + nombre: varchar
+    + descripcion: text
+    + sede_id: int (FK)
+    + responsable_id: int (FK)
+    + estado: boolean
+    + created_at: datetime
+    + updated_at: datetime
+}
+
+class SolicitudesTable {
+    + id: int (PK)
+    + folio: varchar (UNIQUE)
+    + sede_id: int (FK)
+    + departamento_id: int (FK)
+    + gerente_id: int (FK)
+    + creado_por: int (FK)
+    + puesto: varchar
+    + titulo: varchar
+    + vacantes: int
+    + motivo: varchar
+    + reemplazo_de: varchar
+    + fecha_ingreso_deseada: date
+    + justificacion: text
+    + tipo_contrato: varchar
+    + modalidad: varchar
+    + horario: varchar
+    + salario_min: decimal
+    + salario_max: decimal
+    + escolaridad_min: int
+    + carrera_estudiada: varchar
+    + experiencia_anios: int
+    + area_experiencia: varchar
+    + ingles_req: boolean
+    + ingles_nivel_min: int
+    + competencias_json: json
+    + responsabilidades: text
+    + etapas_json: json
+    + prioridad: varchar
+    + estado: varchar
+    + rh_asignado_id: int (FK)
+    + es_borrador: boolean
+    + created_at: datetime
+    + updated_at: datetime
+}
+
+note right of DatabaseSchema
+  Esquema principal de la
+  base de datos del sistema
+end note
+
+note right of UsuariosTable
+  Tabla principal de usuarios
+  con autenticación y roles
+end note
+
+note right of SolicitudesTable
+  Tabla de solicitudes de
+  personal con todos los
+  campos requeridos
+end note
+
+@enduml

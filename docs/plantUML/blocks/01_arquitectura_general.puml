@@ -1,0 +1,98 @@
+@startuml Diagrama de Bloques - Arquitectura General RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Arquitectura General
+
+package "Capa de Presentacion" as Presentation {
+    component [Login/Autenticacion] as Login
+    component [Dashboard Admin] as AdminDash
+    component [Dashboard RH] as RHDash
+    component [Dashboard Gerente] as GerenteDash
+    component [Dashboard Jefe Area] as JefeDash
+    component [Gestion Candidatos] as CandidatosUI
+    component [Sistema Notificaciones] as NotifUI
+}
+
+package "Capa de Control" as Control {
+    component [Router Principal] as Router
+    component [AuthController] as AuthCtrl
+    component [UsuariosController] as UserCtrl
+    component [Middleware Auth] as AuthMW
+    component [Middleware Solicitudes] as SolMW
+}
+
+package "Capa de Logica de Negocio" as Business {
+    component [Gestion Usuarios] as UserLogic
+    component [Gestion Organizacional] as OrgLogic
+    component [Gestion Solicitudes] as SolLogic
+    component [Sistema de Candidatos] as CandLogic
+    component [Motor de Compatibilidad] as CompatEngine
+    component [Sistema de Notificaciones] as NotifLogic
+}
+
+package "Sistema de Inteligencia Artificial" as AI {
+    component [IAClient] as IAClient
+    component [IAIntegration] as IAHelper
+    component [Evaluacion Automatica] as AutoEval
+    component [Sistema de Ranking] as Ranking
+    component [Normalizacion de Datos] as DataNorm
+}
+
+package "Capa de Datos" as Data {
+    component [Conexion BD] as DBConn
+    component [Modelo Usuario] as UserModel
+    component [Modelo Sede] as SedeModel
+    component [Modelo Departamento] as DeptModel
+    component [Modelo Solicitud] as SolModel
+    component [Base de Datos MySQL] as Database
+}
+
+package "Configuracion y Servicios" as Config {
+    component [Environment Config] as EnvConfig
+    component [Configuracion IA] as IAConfig
+    component [Sistema de Archivos] as FileSystem
+    component [Servicios AJAX] as AJAXServices
+}
+
+' Conexiones principales
+Router --> AuthCtrl
+Router --> UserCtrl
+Router --> AuthMW
+Router --> SolMW
+
+AuthCtrl --> UserLogic
+UserCtrl --> UserLogic
+AuthMW --> AuthCtrl
+SolMW --> SolLogic
+
+UserLogic --> UserModel
+OrgLogic --> SedeModel
+OrgLogic --> DeptModel
+SolLogic --> SolModel
+CandLogic --> CompatEngine
+NotifLogic --> AJAXServices
+
+UserModel --> DBConn
+SedeModel --> DBConn
+DeptModel --> DBConn
+SolModel --> DBConn
+DBConn --> Database
+
+CandLogic --> IAClient
+CompatEngine --> IAHelper
+IAClient --> AutoEval
+IAHelper --> DataNorm
+AutoEval --> Ranking
+
+Login --> AuthCtrl
+AdminDash --> Router
+RHDash --> Router
+GerenteDash --> Router
+JefeDash --> Router
+CandidatosUI --> CandLogic
+NotifUI --> NotifLogic
+
+EnvConfig --> DBConn
+IAConfig --> IAClient
+FileSystem --> CandidatosUI
+
+@enduml

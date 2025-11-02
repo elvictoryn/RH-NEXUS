@@ -1,0 +1,67 @@
+@startuml System Flow
+!theme plain
+title System Flow - RH Nexus
+
+start
+
+:Usuario accede al sistema;
+:Verificar autenticación;
+
+if (¿Usuario autenticado?) then (No)
+    :Redirigir a login;
+    stop
+else (Sí)
+    :Verificar rol de usuario;
+    
+    if (¿Rol = Admin?) then (Sí)
+        :Mostrar dashboard de administrador;
+        :Acceso a todas las funciones;
+        
+        :Gestión de usuarios;
+        :Gestión de sedes;
+        :Gestión de departamentos;
+        :Gestión de solicitudes;
+        :Gestión de candidatos;
+        :Reportes y analytics;
+        :Configuración del sistema;
+        
+    elseif (¿Rol = RH?) then (Sí)
+        :Mostrar dashboard de RH;
+        :Acceso a funciones de RH;
+        
+        :Gestión de solicitudes;
+        :Gestión de candidatos;
+        :Evaluación de candidatos;
+        :Proceso de contratación;
+        :Reportes de RH;
+        
+    elseif (¿Rol = Gerente?) then (Sí)
+        :Mostrar dashboard de gerente;
+        :Acceso a funciones de gerente;
+        
+        :Aprobar solicitudes de su sede;
+        :Ver reportes de su sede;
+        :Gestionar solicitudes pendientes;
+        
+    elseif (¿Rol = Jefe Area?) then (Sí)
+        :Mostrar dashboard de jefe de área;
+        :Acceso a funciones de jefe;
+        
+        :Crear solicitudes de personal;
+        :Ver sus solicitudes;
+        :Gestionar solicitudes de su área;
+    endif
+    
+    :Usuario realiza acciones;
+    :Sistema procesa solicitudes;
+    :Sistema envía notificaciones;
+    :Sistema actualiza estados;
+    
+    :Usuario cierra sesión;
+    :Limpiar sesión;
+    :Redirigir a login;
+endif
+
+stop
+
+@enduml

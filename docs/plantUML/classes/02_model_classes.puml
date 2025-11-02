@@ -1,0 +1,56 @@
+@startuml Model Classes
+!theme plain
+title Model Classes - RH Nexus
+
+class Usuario {
+    - PDO $pdo
+    + __construct()
+    + crear(array $datos): bool
+    + existeUsuario(string $usuario): bool
+    + existeNumeroEmpleado(string $numero): bool
+    + existeJefeEnDepartamento(int $sede_id, int $departamento_id): bool
+    + existeGerenteEnSede(int $sede_id): bool
+    + obtenerTodosActivos(): array
+    + eliminarLogico(int $id): bool
+    + obtenerPorId(int $id): array
+}
+
+class Sede {
+    - PDO $pdo
+    + __construct()
+    + crear(array $data): bool
+    + existeNombre(string $nombre): bool
+    + existeNombreExcepto(string $nombre, int $id): bool
+    + desactivar(int $id): bool
+    + obtenerTodas(): array
+    + obtenerPorId(int $id): array
+    + actualizar(int $id, array $data): bool
+}
+
+class Departamento {
+    - PDO $pdo
+    + __construct()
+    + crear(array $data): bool
+    + existeNombreEnSede(string $nombre, int $sede_id): bool
+    + existeNombreEnSedeEditando(string $nombre, int $sede_id, int $id): bool
+    + obtenerTodosConSede(): array
+    + obtenerPorId(int $id): array
+    + actualizar(int $id, array $data): bool
+    + eliminarLogico(int $id): bool
+    + listarSedesActivas(): array
+    + obtenerPorSede(int $sede_id): array
+}
+
+note right of Usuario
+  Modelo para gestión de
+  usuarios con validaciones
+  de duplicados
+end note
+
+note right of Sede
+  Modelo para gestión de
+  sedes con validaciones
+  de nombres únicos
+end note
+
+@enduml

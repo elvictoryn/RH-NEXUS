@@ -1,0 +1,44 @@
+@startuml Crear Usuario Sequence
+!theme plain
+title Crear Usuario Sequence - RH Nexus
+
+actor "Admin" as Admin
+participant "Form" as Form
+participant "UsuariosController" as Controller
+participant "Usuario Model" as Model
+participant "Database" as DB
+participant "File System" as FS
+
+Admin -> Form: Llena formulario de usuario
+Form -> Controller: POST /admin/usuarios/crear
+
+Controller -> Controller: Validar campos obligatorios
+Controller -> Model: existeUsuario()
+Model -> DB: SELECT usuario
+DB --> Model: Resultado
+Model --> Controller: true/false
+
+alt Usuario ya existe
+    Controller --> Form: Error: Usuario duplicado
+else Usuario disponible
+    Controller -> Model: existeNumeroEmpleado()
+    Model -> DB: SELECT numero_empleado
+    DB --> Model: Resultado
+    Model --> Controller: true/false
+    
+    alt Número empleado duplicado
+        Controller --> Form: Error: Número empleado duplicado
+    else Datos únicos
+        Controller -> Controller: Validar reglas de negocio
+        Controller -> Controller: Procesar fotografía
+        Controller -> FS: Guardar imagen
+        FS --> Controller: Ruta de imagen
+        Controller -> Model: crear()
+        Model -> DB: INSERT usuario
+        DB --> Model: ID del usuario
+        Model --> Controller: Éxito
+        Controller --> Form: Redirect a lista
+    end
+end
+
+@enduml

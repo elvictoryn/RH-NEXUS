@@ -1,0 +1,145 @@
+@startuml Diagrama de Colaboracion - Gestion de Usuarios RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Colaboracion en Gestion de Usuarios
+
+object "Administrador" as Admin
+object "UserInterface" as UserUI
+object "UsuariosController" as UserCtrl
+object "UserModel" as UserModel
+object "SedeModel" as SedeModel
+object "DeptModel" as DeptModel
+object "FileManager" as FileMgr
+object "ValidationEngine" as ValEngine
+object "RoleManager" as RoleMgr
+object "MiddlewareAuth" as AuthMW
+object "Database" as DB
+object "NotificationService" as NotifService
+
+' Creacion de usuario
+Admin --> UserUI : 1: solicitarCrearUsuario()
+UserUI --> UserCtrl : 2: mostrarFormulario()
+UserCtrl --> SedeModel : 3: obtenerSedes()
+SedeModel --> DB : 4: consultarSedes()
+DB --> SedeModel : 5: retornarSedes()
+SedeModel --> UserCtrl : 6: sedesDisponibles()
+
+UserCtrl --> DeptModel : 7: obtenerDepartamentos()
+DeptModel --> DB : 8: consultarDepartamentos()
+DB --> DeptModel : 9: retornarDepartamentos()
+DeptModel --> UserCtrl : 10: departamentosDisponibles()
+
+UserCtrl --> UserUI : 11: mostrarFormularioCompleto()
+UserUI --> Admin : 12: presentarFormulario()
+
+Admin --> UserUI : 13: enviarDatosUsuario()
+UserUI --> UserCtrl : 14: procesarCreacion()
+UserCtrl --> ValEngine : 15: validarDatos()
+ValEngine --> UserCtrl : 16: datosValidos()
+
+UserCtrl --> RoleMgr : 17: asignarRol()
+RoleMgr --> UserCtrl : 18: rolAsignado()
+
+UserCtrl --> UserModel : 19: crearUsuario()
+UserModel --> DB : 20: insertarUsuario()
+DB --> UserModel : 21: usuarioCreado()
+UserModel --> UserCtrl : 22: confirmacionCreacion()
+
+UserCtrl --> NotifService : 23: notificarCreacion()
+NotifService --> Admin : 24: confirmarCreacion()
+
+' Edicion de usuario
+Admin --> UserUI : 25: solicitarEditarUsuario()
+UserUI --> UserCtrl : 26: cargarDatosUsuario()
+UserCtrl --> UserModel : 27: obtenerUsuario()
+UserModel --> DB : 28: consultarUsuario()
+DB --> UserModel : 29: retornarDatosUsuario()
+UserModel --> UserCtrl : 30: datosUsuario()
+
+UserCtrl --> UserUI : 31: mostrarFormularioEdicion()
+UserUI --> Admin : 32: presentarFormularioEdicion()
+
+Admin --> UserUI : 33: enviarDatosActualizados()
+UserUI --> UserCtrl : 34: procesarActualizacion()
+UserCtrl --> ValEngine : 35: validarDatosActualizados()
+ValEngine --> UserCtrl : 36: datosValidos()
+
+UserCtrl --> UserModel : 37: actualizarUsuario()
+UserModel --> DB : 38: actualizarUsuario()
+DB --> UserModel : 39: usuarioActualizado()
+UserModel --> UserCtrl : 40: confirmacionActualizacion()
+
+' Gestion de archivos
+Admin --> UserUI : 41: subirArchivo()
+UserUI --> UserCtrl : 42: procesarArchivo()
+UserCtrl --> FileMgr : 43: validarArchivo()
+FileMgr --> UserCtrl : 44: archivoValido()
+
+UserCtrl --> FileMgr : 45: guardarArchivo()
+FileMgr --> UserCtrl : 46: archivoGuardado()
+
+UserCtrl --> UserModel : 47: actualizarRutaArchivo()
+UserModel --> DB : 48: actualizarArchivo()
+DB --> UserModel : 49: archivoActualizado()
+
+' Eliminacion logica
+Admin --> UserUI : 50: solicitarEliminarUsuario()
+UserUI --> UserCtrl : 51: procesarEliminacion()
+UserCtrl --> AuthMW : 52: verificarPermisos()
+AuthMW --> UserCtrl : 53: permisosValidos()
+
+UserCtrl --> UserModel : 54: eliminarUsuario()
+UserModel --> DB : 55: eliminarLogico()
+DB --> UserModel : 56: usuarioEliminado()
+UserModel --> UserCtrl : 57: confirmacionEliminacion()
+
+UserCtrl --> NotifService : 58: notificarEliminacion()
+NotifService --> Admin : 59: confirmarEliminacion()
+
+' Consulta de usuarios
+Admin --> UserUI : 60: solicitarListaUsuarios()
+UserUI --> UserCtrl : 61: obtenerUsuarios()
+UserCtrl --> UserModel : 62: listarUsuarios()
+UserModel --> DB : 63: consultarUsuarios()
+DB --> UserModel : 64: retornarUsuarios()
+UserModel --> UserCtrl : 65: listaUsuarios()
+
+UserCtrl --> UserUI : 66: mostrarListaUsuarios()
+UserUI --> Admin : 67: presentarListaUsuarios()
+
+note right of Admin
+  **Responsabilidades:**
+  - Crear usuarios del sistema
+  - Editar informacion de usuarios
+  - Gestionar archivos de usuarios
+  - Eliminar usuarios (logico)
+  - Consultar lista de usuarios
+end note
+
+note right of UserCtrl
+  **Funcionalidades:**
+  - Gestionar CRUD de usuarios
+  - Validar datos de entrada
+  - Coordinar con modelos
+  - Gestionar archivos
+  - Controlar permisos
+end note
+
+note right of ValEngine
+  **Validaciones:**
+  - Datos obligatorios
+  - Formatos correctos
+  - Unicidad de usuarios
+  - Integridad referencial
+  - Seguridad de archivos
+end note
+
+note right of FileMgr
+  **Funcionalidades:**
+  - Validacion de archivos
+  - Almacenamiento seguro
+  - Gestion de rutas
+  - Control de tamanos
+  - Verificacion de tipos
+end note
+
+@enduml

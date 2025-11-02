@@ -1,0 +1,57 @@
+@startuml Notificaciones - Sistema
+!theme plain
+title Notificaciones - Sistema
+
+left to right direction
+
+' Actores
+actor "Sistema" as Sistema
+
+' Casos de uso principales
+usecase "Enviar Notificaciones Automáticas" as UC1
+usecase "Enviar Alertas de Vencimiento" as UC2
+usecase "Enviar Recordatorios" as UC3
+usecase "Configurar Preferencias de Usuario" as UC4
+usecase "Gestionar Cola de Notificaciones" as UC5
+
+' Relaciones de actores con casos de uso
+Sistema --> UC1 : Envía notificaciones automáticamente
+Sistema --> UC2 : Envía alertas automáticamente
+Sistema --> UC3 : Envía recordatorios automáticamente
+Sistema --> UC4 : Configura preferencias automáticamente
+Sistema --> UC5 : Gestiona cola automáticamente
+
+' Relaciones entre casos de uso
+UC1 ..> UC5 : incluye
+UC2 ..> UC5 : incluye
+UC3 ..> UC5 : incluye
+UC4 ..> UC1 : incluye
+
+' Notas
+note right of UC1
+  Notificaciones automáticas:
+  - Cambios de estado
+  - Aprobaciones/rechazos
+  - Asignaciones
+  - Vencimientos
+  - Recordatorios
+end note
+
+note right of UC4
+  Preferencias configurables:
+  - Tipo de notificación
+  - Canal preferido
+  - Frecuencia
+  - Horario de envío
+  - Prioridad
+end note
+
+note right of UC5
+  Gestión de cola:
+  - Priorización de notificaciones
+  - Reintentos automáticos
+  - Límites de envío
+  - Monitoreo de entrega
+end note
+
+@enduml

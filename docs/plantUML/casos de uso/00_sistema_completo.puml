@@ -1,0 +1,244 @@
+@startuml Sistema RH Nexus - Vista General
+!theme plain
+title Sistema RH Nexus - Vista General de Módulos
+
+left to right direction
+
+' Actores principales
+actor "Administrador" as Admin
+actor "RH" as RH
+actor "Gerente" as Gerente
+actor "Jefe de Área" as JefeArea
+actor "Candidato" as Candidato
+actor "Sistema IA" as IA
+
+' Módulos del sistema
+package "🏢 Gestión Organizacional" {
+    usecase "Gestionar Sedes" as UC1
+    usecase "Gestionar Departamentos" as UC2
+    usecase "Configurar Estructura" as UC3
+}
+
+package "👥 Gestión de Usuarios" {
+    usecase "Registrar Usuarios" as UC4
+    usecase "Gestionar Roles" as UC5
+    usecase "Control de Acceso" as UC6
+}
+
+package "📝 Solicitudes de Personal" {
+    usecase "Crear Solicitudes" as UC7
+    usecase "Definir Requisitos" as UC8
+    usecase "Configurar Etapas" as UC9
+}
+
+package "✅ Aprobación de Solicitudes" {
+    usecase "Revisar Solicitudes" as UC10
+    usecase "Aprobar/Rechazar" as UC11
+    usecase "Asignar Responsables" as UC12
+}
+
+package "🤖 Reclutamiento Inteligente" {
+    usecase "Registrar Candidatos" as UC13
+    usecase "Evaluación Automática" as UC14
+    usecase "Ranking de Candidatos" as UC15
+}
+
+package "📊 Evaluación de Candidatos" {
+    usecase "Entrevistas" as UC16
+    usecase "Pruebas Técnicas" as UC17
+    usecase "Evaluación de Personalidad" as UC18
+}
+
+package "🎯 Selección y Contratación" {
+    usecase "Seleccionar Candidato" as UC19
+    usecase "Generar Oferta" as UC20
+    usecase "Proceso de Contratación" as UC21
+}
+
+package "📈 Reportes y Analytics" {
+    usecase "Reportes de Solicitudes" as UC22
+    usecase "Analytics de Proceso" as UC23
+    usecase "Dashboard Ejecutivo" as UC24
+}
+
+package "🔔 Notificaciones" {
+    usecase "Notificaciones Automáticas" as UC25
+    usecase "Configurar Preferencias" as UC26
+    usecase "Gestión de Alertas" as UC27
+}
+
+package "⚙️ Configuración del Sistema" {
+    usecase "Configurar Parámetros" as UC28
+    usecase "Gestionar Permisos" as UC29
+    usecase "Configurar Integraciones" as UC30
+}
+
+' Relaciones de actores con módulos
+Admin --> UC1 : Puede gestionar
+Admin --> UC2 : Puede gestionar
+Admin --> UC3 : Puede configurar
+Admin --> UC4 : Puede registrar
+Admin --> UC5 : Puede gestionar
+Admin --> UC6 : Puede controlar
+Admin --> UC7 : Puede crear
+Admin --> UC8 : Puede definir
+Admin --> UC9 : Puede configurar
+Admin --> UC10 : Puede revisar
+Admin --> UC11 : Puede aprobar/rechazar
+Admin --> UC12 : Puede asignar
+Admin --> UC13 : Puede registrar
+Admin --> UC14 : Puede evaluar
+Admin --> UC15 : Puede generar
+Admin --> UC16 : Puede realizar
+Admin --> UC17 : Puede aplicar
+Admin --> UC18 : Puede evaluar
+Admin --> UC19 : Puede seleccionar
+Admin --> UC20 : Puede generar
+Admin --> UC21 : Puede gestionar
+Admin --> UC22 : Puede generar
+Admin --> UC23 : Puede analizar
+Admin --> UC24 : Puede crear
+Admin --> UC25 : Puede configurar
+Admin --> UC26 : Puede configurar
+Admin --> UC27 : Puede gestionar
+Admin --> UC28 : Puede configurar
+Admin --> UC29 : Puede gestionar
+Admin --> UC30 : Puede configurar
+
+RH --> UC4 : Puede registrar
+RH --> UC5 : Puede gestionar
+RH --> UC6 : Puede controlar
+RH --> UC7 : Puede crear
+RH --> UC8 : Puede definir
+RH --> UC9 : Puede configurar
+RH --> UC10 : Puede revisar
+RH --> UC11 : Puede aprobar/rechazar
+RH --> UC12 : Puede asignar
+RH --> UC13 : Puede registrar
+RH --> UC14 : Puede evaluar
+RH --> UC15 : Puede generar
+RH --> UC16 : Puede realizar
+RH --> UC17 : Puede aplicar
+RH --> UC18 : Puede evaluar
+RH --> UC19 : Puede seleccionar
+RH --> UC20 : Puede generar
+RH --> UC21 : Puede gestionar
+RH --> UC22 : Puede generar
+RH --> UC23 : Puede analizar
+RH --> UC24 : Puede crear
+RH --> UC25 : Puede configurar
+RH --> UC26 : Puede configurar
+RH --> UC27 : Puede gestionar
+
+Gerente --> UC1 : Puede ver sedes
+Gerente --> UC2 : Puede ver departamentos
+Gerente --> UC7 : Puede crear
+Gerente --> UC8 : Puede definir
+Gerente --> UC9 : Puede configurar
+Gerente --> UC10 : Puede revisar de su sede
+Gerente --> UC11 : Puede aprobar/rechazar de su sede
+Gerente --> UC12 : Puede asignar de su sede
+Gerente --> UC13 : Puede ver candidatos de su sede
+Gerente --> UC14 : Puede ver evaluaciones de su sede
+Gerente --> UC15 : Puede ver ranking de su sede
+Gerente --> UC16 : Puede ver entrevistas de su sede
+Gerente --> UC17 : Puede ver pruebas de su sede
+Gerente --> UC18 : Puede ver evaluaciones de su sede
+Gerente --> UC19 : Puede seleccionar de su sede
+Gerente --> UC20 : Puede ver ofertas de su sede
+Gerente --> UC21 : Puede ver contrataciones de su sede
+Gerente --> UC22 : Puede ver reportes de su sede
+Gerente --> UC23 : Puede analizar de su sede
+Gerente --> UC24 : Puede ver dashboard de su sede
+Gerente --> UC25 : Puede configurar de su sede
+Gerente --> UC26 : Puede configurar de su sede
+Gerente --> UC27 : Puede gestionar de su sede
+
+JefeArea --> UC1 : Puede ver sedes
+JefeArea --> UC2 : Puede ver departamentos
+JefeArea --> UC7 : Puede crear
+JefeArea --> UC8 : Puede definir
+JefeArea --> UC9 : Puede configurar
+JefeArea --> UC10 : Puede ver solicitudes de su área
+JefeArea --> UC11 : Puede ver aprobaciones de su área
+JefeArea --> UC12 : Puede ver asignaciones de su área
+JefeArea --> UC13 : Puede ver candidatos de su área
+JefeArea --> UC14 : Puede ver evaluaciones de su área
+JefeArea --> UC15 : Puede ver ranking de su área
+JefeArea --> UC16 : Puede ver entrevistas de su área
+JefeArea --> UC17 : Puede ver pruebas de su área
+JefeArea --> UC18 : Puede ver evaluaciones de su área
+JefeArea --> UC19 : Puede ver selecciones de su área
+JefeArea --> UC20 : Puede ver ofertas de su área
+JefeArea --> UC21 : Puede ver contrataciones de su área
+JefeArea --> UC22 : Puede ver reportes de su área
+JefeArea --> UC23 : Puede analizar de su área
+JefeArea --> UC24 : Puede ver dashboard de su área
+JefeArea --> UC25 : Puede configurar de su área
+JefeArea --> UC26 : Puede configurar de su área
+JefeArea --> UC27 : Puede gestionar de su área
+
+Candidato --> UC13 : Puede registrarse
+Candidato --> UC16 : Puede participar en entrevistas
+Candidato --> UC17 : Puede realizar pruebas
+Candidato --> UC18 : Puede participar en evaluaciones
+Candidato --> UC20 : Puede recibir ofertas
+Candidato --> UC21 : Puede ser contratado
+
+IA --> UC14 : Evalúa automáticamente
+IA --> UC15 : Genera ranking automáticamente
+IA --> UC23 : Analiza automáticamente
+IA --> UC25 : Configura automáticamente
+
+' Relaciones entre módulos
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC4 ..> UC5 : incluye
+UC5 ..> UC6 : incluye
+UC7 ..> UC8 : incluye
+UC8 ..> UC9 : incluye
+UC10 ..> UC11 : incluye
+UC11 ..> UC12 : incluye
+UC13 ..> UC14 : incluye
+UC14 ..> UC15 : incluye
+UC16 ..> UC17 : incluye
+UC17 ..> UC18 : incluye
+UC19 ..> UC20 : incluye
+UC20 ..> UC21 : incluye
+UC22 ..> UC23 : incluye
+UC23 ..> UC24 : incluye
+UC25 ..> UC26 : incluye
+UC26 ..> UC27 : incluye
+UC28 ..> UC29 : incluye
+UC29 ..> UC30 : incluye
+
+' Notas
+note right of UC1
+  Gestión Organizacional:
+  - Sedes y departamentos
+  - Estructura jerárquica
+  - Configuración de roles
+end note
+
+note right of UC13
+  Reclutamiento Inteligente:
+  - Evaluación automática
+  - Ranking de candidatos
+  - Análisis de compatibilidad
+end note
+
+note right of UC22
+  Reportes y Analytics:
+  - Métricas en tiempo real
+  - Análisis predictivo
+  - Dashboard ejecutivo
+end note
+
+note right of UC25
+  Notificaciones:
+  - Automáticas
+  - Personalizables
+  - Multi-canal
+end note
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml Selección y Contratación - Administrador
+!theme plain
+title Selección y Contratación - Administrador
+
+left to right direction
+
+' Actores
+actor "Administrador" as Admin
+
+' Casos de uso principales
+usecase "Cerrar Solicitud" as UC1
+usecase "Ver Historial de Contrataciones" as UC2
+usecase "Generar Reporte de Contratación" as UC3
+usecase "Configurar Procesos de Contratación" as UC4
+usecase "Analizar Efectividad del Proceso" as UC5
+
+' Relaciones de actores con casos de uso
+Admin --> UC1 : Puede cerrar solicitud
+Admin --> UC2 : Puede ver historial
+Admin --> UC3 : Puede generar reportes
+Admin --> UC4 : Puede configurar procesos
+Admin --> UC5 : Puede analizar efectividad
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC5 : incluye
+UC4 ..> UC1 : incluye
+
+' Notas
+note right of UC3
+  Reporte incluye:
+  - Resumen del proceso
+  - Candidatos evaluados
+  - Criterios utilizados
+  - Decisión final
+  - Lecciones aprendidas
+end note
+
+note right of UC4
+  Procesos configurables:
+  - Flujo de aprobación
+  - Documentos requeridos
+  - Tiempos de respuesta
+  - Notificaciones automáticas
+  - Validaciones
+end note
+
+note right of UC5
+  Análisis de efectividad:
+  - Tiempo promedio de contratación
+  - Tasa de éxito por proceso
+  - Calidad de selección
+  - Satisfacción del candidato
+  - ROI del proceso
+end note
+
+@enduml

@@ -1,0 +1,59 @@
+@startuml Aprobar Solicitud Flow
+!theme plain
+title Aprobar Solicitud Flow - RH Nexus
+
+start
+
+:Gerente accede a solicitudes;
+:Mostrar solicitudes de su sede;
+
+:Gerente selecciona solicitud;
+:Mostrar detalles de solicitud;
+
+:Gerente decide acción;
+
+if (¿Acción = Aprobar?) then (Sí)
+    :Validar permisos;
+    
+    if (¿Pertenece a su sede?) then (No)
+        :Mostrar error: Sin permisos;
+        stop
+    else (Sí)
+        :Actualizar estado a 'aprobada';
+        :Crear notificación para RH;
+        :Mostrar éxito: Solicitud aprobada;
+    endif
+    
+elseif (¿Acción = Rechazar?) then (Sí)
+    :Solicitar motivo de rechazo;
+    :Validar permisos;
+    
+    if (¿Pertenece a su sede?) then (No)
+        :Mostrar error: Sin permisos;
+        stop
+    else (Sí)
+        :Actualizar estado a 'rechazada';
+        :Guardar motivo de rechazo;
+        :Crear notificación para solicitante;
+        :Mostrar éxito: Solicitud rechazada;
+    endif
+    
+elseif (¿Acción = Solicitar Modificaciones?) then (Sí)
+    :Solicitar comentarios;
+    :Validar permisos;
+    
+    if (¿Pertenece a su sede?) then (No)
+        :Mostrar error: Sin permisos;
+        stop
+    else (Sí)
+        :Actualizar estado a 'requiere_modificaciones';
+        :Guardar comentarios;
+        :Crear notificación para solicitante;
+        :Mostrar éxito: Modificaciones solicitadas;
+    endif
+endif
+
+:Redirigir a lista de solicitudes;
+stop
+
+@enduml

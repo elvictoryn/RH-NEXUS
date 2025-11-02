@@ -1,0 +1,48 @@
+@startuml Selección y Contratación - RH
+!theme plain
+title Selección y Contratación - RH
+
+left to right direction
+
+' Actores
+actor "RH" as RH
+
+' Casos de uso principales
+usecase "Seleccionar Candidato" as UC1
+usecase "Generar Oferta de Trabajo" as UC2
+usecase "Enviar Oferta" as UC3
+usecase "Procesar Contratación" as UC4
+usecase "Registrar Contratación" as UC5
+
+' Relaciones de actores con casos de uso
+RH --> UC1 : Puede seleccionar candidato
+RH --> UC2 : Puede generar oferta
+RH --> UC3 : Puede enviar oferta
+RH --> UC4 : Puede procesar contratación
+RH --> UC5 : Puede registrar contratación
+
+' Relaciones entre casos de uso
+UC1 ..> UC2 : incluye
+UC2 ..> UC3 : incluye
+UC3 ..> UC4 : incluye
+UC4 ..> UC5 : incluye
+
+' Notas
+note right of UC1
+  Selección de candidato:
+  - Mejor puntaje de evaluación
+  - Compatibilidad con el puesto
+  - Disponibilidad inmediata
+  - Aceptación de condiciones
+end note
+
+note right of UC2
+  Información de oferta:
+  - Salario base
+  - Beneficios adicionales
+  - Horario de trabajo
+  - Ubicación
+  - Fecha de inicio
+end note
+
+@enduml

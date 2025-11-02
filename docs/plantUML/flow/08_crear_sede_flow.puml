@@ -1,0 +1,51 @@
+@startuml Crear Sede Flow
+!theme plain
+title Crear Sede Flow - RH Nexus
+
+start
+
+:Admin accede a crear sede;
+:Mostrar formulario de sede;
+
+:Admin llena datos de sede;
+:Validar campos obligatorios;
+
+if (¿Campos válidos?) then (No)
+    :Mostrar error de validación;
+    stop
+else (Sí)
+    :Verificar nombre único (AJAX);
+    
+    if (¿Nombre ya existe?) then (Sí)
+        :Mostrar error: Nombre duplicado;
+        stop
+    else (No)
+        :Normalizar datos (MAYÚSCULAS);
+        :Validar formato de CP (5 dígitos);
+        
+        if (¿CP válido?) then (No)
+            :Mostrar error: CP inválido;
+            stop
+        else (Sí)
+            :Validar formato de teléfono (10 dígitos);
+            
+            if (¿Teléfono válido?) then (No)
+                :Mostrar error: Teléfono inválido;
+                stop
+            else (Sí)
+                :Crear sede en BD;
+                
+                if (¿Sede creada?) then (Sí)
+                    :Mostrar éxito: Sede creada;
+                    :Redirigir a lista de sedes;
+                else (No)
+                    :Mostrar error: No se pudo crear;
+                endif
+            endif
+        endif
+    endif
+endif
+
+stop
+
+@enduml

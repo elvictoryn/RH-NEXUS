@@ -1,0 +1,85 @@
+@startuml Class Relationships
+!theme plain
+title Class Relationships - RH Nexus
+
+class Conexion {
+    + getConexion(): PDO
+}
+
+class AuthController {
+    - PDO $db
+    + login(): void
+    + logout(): void
+}
+
+class UsuariosController {
+    - PDO $db
+    + store(): void
+}
+
+class Usuario {
+    - PDO $pdo
+    + crear(): bool
+}
+
+class Sede {
+    - PDO $pdo
+    + crear(): bool
+}
+
+class Departamento {
+    - PDO $pdo
+    + crear(): bool
+}
+
+class Solicitud {
+    - PDO $db
+    + crear(): int
+}
+
+class CompatibilityEngine {
+    + compat_calc(): array
+}
+
+class ScoringSystem {
+    + calculateFinalScore(): int
+}
+
+class NotificationSystem {
+    + sendNotification(): void
+}
+
+' Relationships
+Conexion --> AuthController : provides
+Conexion --> UsuariosController : provides
+Conexion --> Usuario : provides
+Conexion --> Sede : provides
+Conexion --> Departamento : provides
+Conexion --> Solicitud : provides
+
+AuthController --> Usuario : uses
+UsuariosController --> Usuario : uses
+UsuariosController --> Departamento : uses
+
+Usuario --> Sede : belongs to
+Usuario --> Departamento : belongs to
+Departamento --> Sede : belongs to
+Solicitud --> Usuario : created by
+Solicitud --> Sede : belongs to
+Solicitud --> Departamento : belongs to
+
+CompatibilityEngine --> Solicitud : evaluates
+ScoringSystem --> Usuario : scores
+NotificationSystem --> Usuario : notifies
+
+note right of Conexion
+  Singleton pattern para
+  conexión a base de datos
+end note
+
+note right of AuthController
+  Controlador principal de
+  autenticación
+end note
+
+@enduml

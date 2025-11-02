@@ -1,0 +1,138 @@
+@startuml Diagrama de Colaboracion - Notificaciones del Sistema RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Colaboracion en Sistema de Notificaciones
+
+object "Usuario" as Usuario
+object "NotificationUI" as NotifUI
+object "NotificationBell" as NotifBell
+object "NotificacionesAction" as NotifAction
+object "SolicitudModel" as SolModel
+object "ComentariosModel" as ComentModel
+object "UserModel" as UserModel
+object "Database" as DB
+object "AJAXHandler" as AJAXHandler
+object "SessionManager" as SessionMgr
+object "RoleManager" as RoleMgr
+object "NotificationService" as NotifService
+object "SecurityMonitor" as SecMonitor
+
+' Carga de notificaciones
+Usuario --> NotifUI : 1: solicitarNotificaciones()
+NotifUI --> NotifAction : 2: cargarNotificaciones()
+NotifAction --> SessionMgr : 3: obtenerUsuarioActual()
+SessionMgr --> NotifAction : 4: datosUsuario()
+
+NotifAction --> RoleMgr : 5: obtenerRolUsuario()
+RoleMgr --> NotifAction : 6: rolUsuario()
+
+NotifAction --> SolModel : 7: obtenerNotificacionesSolicitudes()
+SolModel --> DB : 8: consultarNotificaciones()
+DB --> SolModel : 9: retornarNotificaciones()
+SolModel --> NotifAction : 10: notificacionesSolicitudes()
+
+NotifAction --> ComentModel : 11: obtenerNotificacionesComentarios()
+ComentModel --> DB : 12: consultarComentarios()
+DB --> ComentModel : 13: retornarComentarios()
+ComentModel --> NotifAction : 14: notificacionesComentarios()
+
+NotifAction --> NotifService : 15: procesarNotificaciones()
+NotifService --> NotifAction : 16: notificacionesProcesadas()
+NotifAction --> NotifUI : 17: mostrarNotificaciones()
+NotifUI --> Usuario : 18: presentarNotificaciones()
+
+' Filtrado de notificaciones
+Usuario --> NotifUI : 19: filtrarNotificaciones()
+NotifUI --> NotifAction : 20: aplicarFiltros()
+NotifAction --> SolModel : 21: filtrarPorTipo()
+SolModel --> DB : 22: consultarConFiltros()
+DB --> SolModel : 23: retornarFiltradas()
+SolModel --> NotifAction : 24: notificacionesFiltradas()
+
+NotifAction --> NotifUI : 25: mostrarFiltradas()
+NotifUI --> Usuario : 26: presentarFiltradas()
+
+' Generacion de notificaciones por cambio de estado
+SolModel --> NotifService : 27: notificarCambioEstado()
+NotifService --> UserModel : 28: obtenerUsuariosNotificar()
+UserModel --> DB : 29: consultarUsuariosRol()
+DB --> UserModel : 30: retornarUsuarios()
+UserModel --> NotifService : 31: listaUsuarios()
+
+NotifService --> NotifAction : 32: crearNotificacion()
+NotifAction --> DB : 33: insertarNotificacion()
+DB --> NotifAction : 34: notificacionCreada()
+
+' Notificaciones de seguridad
+SecMonitor --> NotifService : 35: notificarIntentoFallido()
+NotifService --> NotifAction : 36: crearNotificacionSeguridad()
+NotifAction --> DB : 37: insertarNotificacionSeguridad()
+DB --> NotifAction : 38: notificacionSeguridadCreada()
+
+' Notificaciones de nueva solicitud
+SolModel --> NotifService : 39: notificarNuevaSolicitud()
+NotifService --> UserModel : 40: obtenerGerentes()
+UserModel --> DB : 41: consultarGerentes()
+DB --> UserModel : 42: retornarGerentes()
+UserModel --> NotifService : 43: listaGerentes()
+
+NotifService --> NotifAction : 44: crearNotificacionSolicitud()
+NotifAction --> DB : 45: insertarNotificacionSolicitud()
+DB --> NotifAction : 46: notificacionSolicitudCreada()
+
+' Actualizacion de notificaciones via AJAX
+Usuario --> NotifBell : 47: actualizarNotificaciones()
+NotifBell --> AJAXHandler : 48: solicitarActualizacion()
+AJAXHandler --> NotifAction : 49: obtenerNuevasNotificaciones()
+NotifAction --> SolModel : 50: consultarNuevas()
+SolModel --> DB : 51: consultarNuevas()
+DB --> SolModel : 52: retornarNuevas()
+SolModel --> NotifAction : 53: nuevasNotificaciones()
+
+NotifAction --> AJAXHandler : 54: retornarNotificaciones()
+AJAXHandler --> NotifBell : 55: actualizarContador()
+NotifBell --> Usuario : 56: mostrarContador()
+
+' Marcar notificacion como leida
+Usuario --> NotifUI : 57: marcarComoLeida()
+NotifUI --> NotifAction : 58: procesarMarcado()
+NotifAction --> DB : 59: actualizarEstadoNotificacion()
+DB --> NotifAction : 60: notificacionMarcada()
+NotifAction --> NotifUI : 61: confirmarMarcado()
+NotifUI --> Usuario : 62: actualizarInterfaz()
+
+note right of Usuario
+  **Interacciones:**
+  - Solicitar notificaciones
+  - Filtrar notificaciones
+  - Marcar como leidas
+  - Actualizar via AJAX
+end note
+
+note right of NotifAction
+  **Funcionalidades:**
+  - Cargar notificaciones
+  - Aplicar filtros
+  - Crear notificaciones
+  - Procesar marcado
+  - Gestionar AJAX
+end note
+
+note right of NotifService
+  **Responsabilidades:**
+  - Procesar notificaciones
+  - Determinar destinatarios
+  - Crear notificaciones
+  - Gestionar tipos de notificacion
+  - Coordinar con modelos
+end note
+
+note right of SecMonitor
+  **Funcionalidades:**
+  - Monitorear intentos de login
+  - Detectar actividades sospechosas
+  - Generar alertas de seguridad
+  - Notificar administradores
+  - Registrar eventos de seguridad
+end note
+
+@enduml

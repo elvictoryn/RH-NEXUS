@@ -1,0 +1,123 @@
+# RH-NEXUS - Sistema de Gestión de RH con IA
+## Presentación para Cartel de Feria
+
+---
+
+## 1. INTRODUCCIÓN
+
+**RH-NEXUS** es un sistema integral de gestión de recursos humanos que automatiza y optimiza los procesos de reclutamiento mediante inteligencia artificial.
+
+**Objetivos:**
+- Automatizar el proceso completo de reclutamiento de personal
+- Integrar evaluación inteligente de candidatos mediante IA
+- Reducir tiempos de selección y aumentar objetividad
+- Centralizar gestión de usuarios, solicitudes y estructura organizacional
+
+---
+
+## 2. PROBLEMA/HIPÓTESIS
+
+Los procesos tradicionales de reclutamiento presentan ineficiencias: tiempos prolongados generando costos elevados y pérdida de talento, subjetividad basada en impresiones personales más que criterios objetivos, falta de estandarización produciendo inconsistencias y sesgos, y dificultades para gestionar múltiples solicitudes simultáneamente. La hipótesis plantea que un sistema automatizado con inteligencia artificial para evaluación y ranking de candidatos, junto con digitalización completa de procesos administrativos, mejorará significativamente la eficiencia reduciendo tiempos de selección en al menos un 40% mediante automatización de evaluaciones iniciales. Un algoritmo objetivo basado en criterios medibles aumentará objetividad eliminando subjetividades y sesgos, mientras que centralización y flujo automatizado reducirá errores mejorando comunicación entre roles, facilitando identificación candidatos mediante ranking.
+
+---
+
+## 3. METODOLOGÍA
+
+Se aplicó metodología ágil en tres etapas: desarrollo del sistema de gestión de recursos humanos con arquitectura MVC, implementación de reclutamiento inteligente con integración de IA para evaluación y ranking de candidatos, y optimización del flujo de aprobaciones.
+
+**Herramientas y técnicas**
+- Backend y frontend: PHP 8.0+ y tecnologías web (HTML5, CSS3, JavaScript, Bootstrap 5).
+- IA: API REST con cURL y API keys.
+- Base de datos: MySQL con PDO.
+- Documentación: PlantUML y Git.
+
+Esta metodología aseguró escalabilidad, seguridad y funcionalidad en la solución propuesta.
+
+---
+
+## 4. DESARROLLO Y TECNOLOGÍA
+
+**Stack Tecnológico:**
+- **Backend**: PHP 8.0+ (POO), PDO, Arquitectura MVC
+- **Base de Datos**: MySQL con relaciones normalizadas
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5
+- **IA**: API REST para evaluación automática y ranking inteligente
+- **Seguridad**: HTTPS forzado, protección contra fuerza bruta
+
+**Características Principales:**
+- Autenticación multi-rol (Admin, RH, Gerente, Jefe de Área)
+- Gestión completa de solicitudes con flujo de aprobación
+- Sistema de candidatos con evaluación automática y manual
+- Algoritmo de compatibilidad (100 puntos: escolaridad, experiencia, carrera, competencias, inglés)
+- Ranking inteligente mediante IA
+- Sistema de notificaciones en tiempo real
+
+---
+
+## 5. FIGURAS
+
+**Diagramas Disponibles:**
+- 11 Diagramas de Casos de Uso
+- 11 Diagramas de Secuencia
+- 10 Diagramas de Clases
+- 13 Diagramas de Actividades
+- 6 Diagramas de Bloques (Arquitectura)
+- 5 Diagramas de Estados
+- 5 Diagramas de Colaboración
+- 4 Diagramas de Base de Datos
+
+**Figuras Recomendadas para Cartel:**
+1. Diagrama de Arquitectura General
+2. Diagrama de Flujo de Reclutamiento
+3. Diagrama de Bloques del Sistema de IA
+4. Diagrama de Casos de Uso Completo
+5. Diagrama de Estados de Solicitudes
+
+---
+
+## 6. RESULTADOS
+
+**Funcionalidad:**
+✅ Sistema operativo con 8 módulos principales
+✅ Integración exitosa de servicio de IA
+✅ Sistema multi-usuario con 4 roles diferenciados
+✅ Gestión completa del ciclo de reclutamiento
+
+**Tecnología:**
+✅ Arquitectura escalable y mantenible
+✅ Sistema seguro con protección contra ataques
+✅ Interfaz intuitiva y responsive
+✅ Base de datos normalizada y optimizada
+
+**Documentación:**
+✅ 75+ diagramas UML generados
+✅ Diccionarios de datos y clases completos
+✅ Documentación técnica exhaustiva
+
+**Comparación con Hipótesis:**
+- ✅ Evaluación automática optimiza tiempos
+- ✅ Algoritmo de compatibilidad proporciona criterios objetivos
+- ✅ Digitalización completa elimina redundancias
+- ✅ Arquitectura modular permite escalabilidad
+
+---
+
+## 7. CONCLUSIONES / TRABAJO FUTURO
+
+El sistema RH-NEXUS demuestra que la integración de inteligencia artificial acelera significativamente el proceso de evaluación inicial de candidatos, mientras que el algoritmo de compatibilidad proporciona criterios objetivos y reproducibles que eliminan subjetividades tradicionales. La digitalización completa elimina redundancias y errores manuales, mejorando la eficiencia operativa del departamento de recursos humanos. La arquitectura modular permite adaptación a diferentes organizaciones, ofreciendo una herramienta poderosa para optimizar tiempos de reclutamiento. Para la organización, los datos centralizados facilitan análisis y toma de decisiones estratégicas, mientras que para los candidatos el proceso resulta más ágil y transparente. El sistema contribuye como modelo replicable para la industria mediante metodología de integración de IA en procesos de selección y documentación exhaustiva como referencia técnica. Como trabajo futuro, se contempla implementar sistema de reportes y analytics avanzados, integración con portales de empleo para recepción automática de CVs, dashboard de métricas en tiempo real y aplicación móvil para acceso desde dispositivos móviles. A mediano plazo se integrará con sistemas de nómina y contabilidad, se desarrollará módulo de evaluación de desempeño post-contratación y sistema de capacitación. A largo plazo se implementará aprendizaje automático para mejora continua del algoritmo, análisis predictivo de rotación de personal, integración con servicios cloud y arquitectura de microservicios para mayor escalabilidad, consolidando RH-NEXUS como plataforma integral de gestión de recursos humanos.
+
+---
+
+## RESUMEN EJECUTIVO
+
+**RH-NEXUS** automatiza el proceso de reclutamiento mediante inteligencia artificial, integrando evaluación automática, gestión de solicitudes y sistema de notificaciones en una plataforma web moderna y segura.
+
+**Tecnologías:** PHP 8.0, MySQL, JavaScript, Bootstrap, API REST (IA)
+
+**Resultados:** Sistema operativo con 8 módulos, 75+ diagramas UML, integración IA exitosa
+
+**Impacto:** Optimización de procesos de RH, mejora en calidad de contrataciones
+
+---
+
+*Sistema RH-NEXUS - Presentación Feria de Proyectos*

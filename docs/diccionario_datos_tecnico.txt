@@ -1,0 +1,285 @@
+DICCIONARIO DE DATOS TECNICO - SISTEMA RH NEXUS
+===============================================
+(Orientado a Desarrolladores)
+
+CONTROLADORES
+=============
+
+AuthController
+- Ubicacion: app/controllers/AuthController.php
+- Propósito: Gestionar autenticación y sesiones de usuario
+- Métodos principales: login(), logout(), showLogin()
+- Dependencias: Usuario (modelo), Conexion, Environment
+- Responsabilidades: Validar credenciales, manejar sesiones, redireccionar por rol
+
+UsuariosController
+- Ubicacion: app/controllers/usuariosController.php
+- Propósito: Gestionar operaciones CRUD de usuarios
+- Métodos principales: create(), index(), store(), ajax()
+- Dependencias: Usuario (modelo), Sede (modelo), Departamento (modelo)
+- Responsabilidades: Validar datos, manejar subida de archivos, generar respuestas JSON
+
+SedeController
+- Ubicacion: app/controllers/sedeController.php
+- Propósito: Gestionar operaciones CRUD de sedes
+- Métodos principales: create(), index(), store(), ajax()
+- Dependencias: Sede (modelo), Conexion
+- Responsabilidades: Validar datos de entrada, controlar acceso por roles
+
+DepartamentoController
+- Ubicacion: app/controllers/departamentoController.php
+- Propósito: Gestionar operaciones CRUD de departamentos
+- Métodos principales: create(), index(), store(), ajax()
+- Dependencias: Departamento (modelo), Sede (modelo), Conexion
+- Responsabilidades: Validar datos, controlar acceso, generar respuestas AJAX
+
+SolicitudController
+- Ubicacion: app/controllers/solicitudController.php
+- Propósito: Gestionar operaciones CRUD de solicitudes de personal
+- Métodos principales: create(), index(), store(), ajax()
+- Dependencias: Solicitud (modelo), Usuario (modelo), Sede (modelo), Departamento (modelo)
+- Responsabilidades: Validar datos, manejar flujo de aprobación, generar respuestas JSON
+
+
+MODELOS
+=======
+
+Usuario
+- Ubicacion: app/models/Usuario.php
+- Propósito: Gestionar datos de usuarios en la base de datos
+- Métodos principales: crear(), existeUsuario(), obtenerTodosActivos(), eliminarLogico()
+- Tabla BD: usuarios
+- Campos principales: id, nombre_completo, usuario, contrasena, rol, numero_empleado, correo, sede_id, departamento_id
+- Validaciones: Usuario único, número empleado único, jefe por departamento, gerente por sede
+
+Sede
+- Ubicacion: app/models/Sede.php
+- Propósito: Gestionar datos de sedes en la base de datos
+- Métodos principales: crear(), existeNombre(), obtenerTodas(), actualizar()
+- Tabla BD: sedes
+- Campos principales: id, nombre, domicilio, numero, interior, colonia, municipio, estado, cp, telefono
+- Validaciones: Nombre único, datos de contacto completos
+
+Departamento
+- Ubicacion: app/models/departamento.php
+- Propósito: Gestionar datos de departamentos en la base de datos
+- Métodos principales: crear(), existeNombreEnSede(), obtenerTodosConSede(), eliminarLogico()
+- Tabla BD: departamentos
+- Campos principales: id, nombre, descripcion, sede_id, estado, creado_en, actualizado_en
+- Validaciones: Nombre único por sede, relación con sede válida
+
+Solicitud
+- Ubicacion: app/models/Solicitud.php
+- Propósito: Gestionar datos de solicitudes de personal en la base de datos
+- Métodos principales: crear(), generarFolio(), getGerenteDeSede()
+- Tabla BD: solicitudes
+- Campos principales: id, folio, autor_id, sede_id, departamento_id, titulo, puesto, vacantes, fecha_ingreso_deseada, tipo_contrato, modalidad, horario, salario_min, salario_max, escolaridad_min, carrera_estudiada, experiencia_anios, area_experiencia, ingles_combo, competencias_json, motivo, reemplazo_de, prioridad, estado_actual, creada_en
+- Validaciones: Folio único, datos completos, fechas válidas
+
+
+CONFIGURACION
+=============
+
+Conexion
+- Ubicacion: config/conexion.php
+- Propósito: Gestionar conexiones a la base de datos
+- Métodos principales: getConexion()
+- Dependencias: Environment, PDO
+- Configuración: Diferente para desarrollo y producción
+- Optimizaciones: Timeout 30s, charset utf8mb4, conexiones no persistentes
+
+Environment
+- Ubicacion: config/environment.php
+- Propósito: Detectar entorno y configurar constantes
+- Funciones principales: isInfinityFree(), isHTTPS(), getBaseURL()
+- Constantes: ENVIRONMENT, BASE_PATH, DB_CONFIG, IS_HTTPS, BASE_URL
+- Detección: HTTP_HOST, HTTPS, SERVER_PORT
+
+App
+- Ubicacion: config/app.php
+- Propósito: Configuración general de la aplicación
+- Configuraciones: APP_KEY, REMEMBER_DAYS, INACTIVITY_MINUTES, LOGIN_MAX_ATTEMPTS, AUTO_UNLOCK_MIN
+- Seguridad: Clave para firmar cookies, políticas de sesión
+
+
+MIDDLEWARES
+===========
+
+auth.php
+- Ubicacion: app/middlewares/auth.php
+- Propósito: Verificar autenticación y controlar inactividad
+- Funcionalidad: Verificar sesión activa, controlar tiempo de inactividad (30 min)
+- Redirecciones: A login si no autenticado, a login si sesión expirada
+- Dependencias: Sesiones PHP, Environment
+
+solicitudes_auth.php
+- Ubicacion: app/middlewares/solicitudes_auth.php
+- Propósito: Controlar acceso al módulo de solicitudes
+- Roles permitidos: admin, rh, gerente, jefe_area
+- Funcionalidad: Verificar rol válido, redirigir si no autorizado
+- Dependencias: Sesiones PHP, Environment
+
+
+VISTAS/INTERFACES
+=================
+
+admin.php
+- Ubicacion: public/admin.php
+- Propósito: Dashboard principal del administrador
+- Funcionalidad: Acceso completo al sistema, gestión de usuarios, sedes y departamentos
+- Dependencias: AuthController, UsuarioController, SedeController, DepartamentoController
+- Características: Interfaz completa, estadísticas generales
+
+rh.php
+- Ubicacion: public/rh.php
+- Propósito: Dashboard de recursos humanos
+- Funcionalidad: Gestión de solicitudes de personal, usuarios de RH
+- Dependencias: SolicitudController, UsuarioController
+- Características: Enfoque en solicitudes y personal
+
+gerente.php
+- Ubicacion: public/gerente.php
+- Propósito: Dashboard del gerente
+- Funcionalidad: Gestión de solicitudes de su sede, aprobaciones
+- Dependencias: SolicitudController, UsuarioController
+- Características: Limitado a su sede
+
+jefe_area.php
+- Ubicacion: public/jefe_area.php
+- Propósito: Dashboard del jefe de área
+- Funcionalidad: Gestión de solicitudes de su departamento, aprobaciones
+- Dependencias: SolicitudController, UsuarioController
+- Características: Limitado a su departamento
+
+login.php
+- Ubicacion: public/login.php
+- Propósito: Formulario de autenticación
+- Funcionalidad: Login de usuarios, validación de credenciales
+- Dependencias: AuthController, SweetAlert2
+- Características: Formulario seguro, validación en tiempo real
+
+
+CLASES DE VISTAS ESPECIFICAS
+============================
+
+UsuarioCrea
+- Ubicacion: app/views/admin/usuarios/crear_usuario.php
+- Propósito: Lógica para crear usuarios
+- Métodos principales: existeUsuario(), crear(), sedesActivas()
+- Validaciones: Usuario único, número empleado único, jefe por departamento
+- Dependencias: Conexion, Usuario (modelo), Sede (modelo), Departamento (modelo)
+
+UsuarioEdita
+- Ubicacion: app/views/admin/usuarios/editar_usuario.php
+- Propósito: Lógica para editar usuarios
+- Métodos principales: obtenerPorId(), actualizar(), asignarResponsableDepto()
+- Validaciones: Usuario único (excepto actual), número empleado único (excepto actual)
+- Dependencias: Conexion, Usuario (modelo), Sede (modelo), Departamento (modelo)
+
+
+UTILIDADES
+==========
+
+SweetAlert2
+- Ubicacion: public/js/sweetalert2.min.js
+- Propósito: Notificaciones y alertas al usuario
+- Funcionalidad: Mensajes de éxito/error, confirmaciones, alertas personalizadas
+- Integración: JavaScript, AJAX
+- Características: Responsive, customizable, accesible
+
+JavaScript/AJAX
+- Ubicacion: public/js/
+- Propósito: Peticiones asíncronas y validaciones
+- Funcionalidad: Comunicación con controladores, actualización de interfaz
+- Dependencias: jQuery, SweetAlert2
+- Características: Validación en tiempo real, actualización sin recarga
+
+
+PYTHON API
+==========
+
+EvaluadorCandidatos
+- Ubicacion: python_api/evaluar_candidatos_nuevos.py
+- Propósito: Evaluar candidatos usando machine learning
+- Funcionalidad: Cargar modelo, evaluar candidatos, generar reportes
+- Dependencias: pandas, numpy, joblib, scikit-learn
+- Características: Evaluación automática, scoring de candidatos
+
+ModeloEntrenamiento
+- Ubicacion: python_api/modelo_entrenamiento.ipynb
+- Propósito: Entrenar modelo de machine learning
+- Funcionalidad: Procesar datos, entrenar modelo, validar resultados
+- Dependencias: pandas, numpy, scikit-learn, matplotlib
+- Características: Jupyter notebook, visualizaciones, métricas de rendimiento
+
+
+ARCHIVOS DE CONFIGURACION
+=========================
+
+.htaccess
+- Ubicacion: RH-NEXUS/.htaccess
+- Propósito: Configuración de Apache para redirecciones
+- Funcionalidad: Redirigir a sistema_rh/public/, seguridad
+- Reglas: RewriteEngine, RewriteRule, RewriteCond
+- Seguridad: Bloquear archivos sensibles, headers de seguridad
+
+.htaccess_https
+- Ubicacion: RH-NEXUS/.htaccess_https
+- Propósito: Forzar HTTPS en InfinityFree
+- Funcionalidad: Redirección HTTP a HTTPS, headers de seguridad
+- Reglas: RewriteCond HTTPS off, RewriteRule redirect
+- Seguridad: HSTS, headers de seguridad
+
+public/.htaccess
+- Ubicacion: public/.htaccess
+- Propósito: Rewrite rules para URLs limpias
+- Funcionalidad: Redirigir todas las rutas a index.php
+- Reglas: RewriteCond !-f, RewriteCond !-d, RewriteRule ^ index.php
+
+
+ARCHIVOS PRINCIPALES
+===================
+
+index.php
+- Ubicacion: public/index.php
+- Propósito: Punto de entrada principal del sistema
+- Funcionalidad: Routing, redirección según entorno
+- Dependencias: Environment, routing system
+- Características: Detección automática de entorno, redirección inteligente
+
+logout.php
+- Ubicacion: public/logout.php
+- Propósito: Cerrar sesión de usuario
+- Funcionalidad: Limpiar sesión, redirigir a login
+- Dependencias: AuthController, sesiones PHP
+- Características: Limpieza completa de sesión, redirección segura
+
+
+ARQUITECTURA DEL SISTEMA
+========================
+
+Patron MVC
+- Modelo: Gestión de datos (Usuario, Sede, Departamento, Solicitud)
+- Vista: Interfaz de usuario (admin.php, rh.php, gerente.php, jefe_area.php, login.php)
+- Controlador: Lógica de negocio (AuthController, UsuariosController, etc.)
+
+Separacion de Responsabilidades
+- Controladores: Manejan peticiones, validan datos, coordinan modelos y vistas
+- Modelos: Gestionan datos, validan reglas de negocio, interactúan con BD
+- Vistas: Presentan datos, capturan entrada del usuario, manejan interacciones
+
+Configuracion Dinamica
+- Detección automática de entorno (desarrollo/producción)
+- Configuración de base de datos según entorno
+- URLs dinámicas según protocolo (HTTP/HTTPS)
+
+Seguridad
+- Autenticación: Login seguro con hash de contraseñas
+- Autorización: Control de acceso por roles
+- Sesiones: Control de inactividad, limpieza automática
+- HTTPS: Forzado en producción, cookies seguras
+
+Escalabilidad
+- Estructura modular: Fácil agregar nuevos módulos
+- Separación de capas: Cambios independientes
+- Configuración centralizada: Fácil mantenimiento

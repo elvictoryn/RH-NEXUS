@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH-NEXUS - Sistema de Gestión de RH con IA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 4px solid #0D6EFD;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #0D6EFD;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.2em;
+            color: #666;
+        }
+        .section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        .section h2 {
+            color: #0D6EFD;
+            font-size: 1.8em;
+            border-bottom: 2px solid #0D6EFD;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .section h3 {
+            color: #2563eb;
+            font-size: 1.4em;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .section li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #0D6EFD;
+            margin: 15px 0;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .card h4 {
+            color: #0D6EFD;
+            margin-bottom: 10px;
+        }
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+        .checklist li:before {
+            content: "✓ ";
+            color: #16a34a;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .summary {
+            background: linear-gradient(135deg, #0D6EFD 0%, #6ea8fe 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .summary h2 {
+            color: white;
+            border-bottom: 2px solid white;
+            margin-bottom: 15px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            color: #666;
+        }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>RH-NEXUS</h1>
+            <p>Sistema de Gestión de Recursos Humanos con Inteligencia Artificial</p>
+        </div>
+
+        <div class="section">
+            <h2>1. INTRODUCCIÓN</h2>
+            <p>Sistema integral de gestión de recursos humanos que automatiza y optimiza los procesos de reclutamiento mediante inteligencia artificial.</p>
+            <div class="highlight">
+                <strong>Objetivos:</strong>
+                <ul class="checklist">
+                    <li>Automatizar el proceso completo de reclutamiento de personal</li>
+                    <li>Integrar evaluación inteligente de candidatos mediante IA</li>
+                    <li>Reducir tiempos de selección en un 40%</li>
+                    <li>Aumentar objetividad en decisiones de contratación</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. PROBLEMA/HIPÓTESIS</h2>
+            <p>Los procesos tradicionales de reclutamiento presentan ineficiencias: tiempos prolongados generando costos elevados y pérdida de talento, subjetividad basada en impresiones personales más que criterios objetivos, falta de estandarización produciendo inconsistencias y sesgos, y dificultades para gestionar múltiples solicitudes simultáneamente. La hipótesis plantea que un sistema automatizado con inteligencia artificial para evaluación y ranking de candidatos, junto con digitalización completa de procesos administrativos, mejorará significativamente la eficiencia reduciendo tiempos de selección en al menos un 40% mediante automatización de evaluaciones iniciales. Un algoritmo objetivo basado en criterios medibles aumentará objetividad eliminando subjetividades y sesgos, mientras que centralización y flujo automatizado reducirá errores mejorando comunicación entre roles, facilitando identificación candidatos mediante ranking.</p>
+        </div>
+
+        <div class="section">
+            <h2>3. METODOLOGÍA</h2>
+            <p>Se aplicó metodología ágil en tres etapas: desarrollo del sistema de gestión de recursos humanos con arquitectura MVC, implementación de reclutamiento inteligente con integración de IA para evaluación y ranking de candidatos, y optimización del flujo de aprobaciones.</p>
+            <h3>Herramientas y técnicas</h3>
+            <ul>
+                <li>Backend y frontend: PHP 8.0+ y tecnologías web (HTML5, CSS3, JavaScript, Bootstrap 5).</li>
+                <li>IA: API REST con cURL y API keys.</li>
+                <li>Base de datos: MySQL con PDO.</li>
+                <li>Documentación: PlantUML y Git.</li>
+            </ul>
+            <p>Esta metodología aseguró escalabilidad, seguridad y funcionalidad en la solución propuesta.</p>
+        </div>
+
+        <div class="section">
+            <h2>4. DESARROLLO Y TECNOLOGÍA</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>Stack Tecnológico</h4>
+                    <ul>
+                        <li><strong>Backend:</strong> PHP 8.0+ (POO), PDO, MVC</li>
+                        <li><strong>Base Datos:</strong> MySQL normalizada</li>
+                        <li><strong>Frontend:</strong> HTML5, CSS3, JS, Bootstrap 5</li>
+                        <li><strong>IA:</strong> API REST para evaluación</li>
+                        <li><strong>Seguridad:</strong> HTTPS, protección fuerza bruta</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Características Principales</h4>
+                    <ul class="checklist">
+                        <li>Autenticación multi-rol (4 roles)</li>
+                        <li>Gestión completa de solicitudes</li>
+                        <li>Evaluación automática y manual</li>
+                        <li>Algoritmo de compatibilidad (100 puntos)</li>
+                        <li>Ranking inteligente mediante IA</li>
+                        <li>Notificaciones en tiempo real</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>5. FIGURAS</h2>
+            <p><strong>Documentación Visual Completa:</strong></p>
+            <ul>
+                <li>11 Diagramas de Casos de Uso</li>
+                <li>11 Diagramas de Secuencia</li>
+                <li>10 Diagramas de Clases</li>
+                <li>13 Diagramas de Actividades</li>
+                <li>6 Diagramas de Bloques (Arquitectura)</li>
+                <li>5 Diagramas de Estados</li>
+                <li>5 Diagramas de Colaboración</li>
+                <li>4 Diagramas de Base de Datos</li>
+            </ul>
+            <p><strong>Total: 75+ Diagramas UML Generados</strong></p>
+            <div class="highlight">
+                <strong>Figuras Clave para Cartel:</strong>
+                <ol>
+                    <li>Diagrama de Arquitectura General</li>
+                    <li>Diagrama de Flujo de Reclutamiento</li>
+                    <li>Diagrama de Bloques del Sistema de IA</li>
+                    <li>Diagrama de Casos de Uso Completo</li>
+                    <li>Diagrama de Estados de Solicitudes</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>6. RESULTADOS</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>Funcionalidad</h4>
+                    <ul class="checklist">
+                        <li>Sistema operativo con 8 módulos</li>
+                        <li>Integración exitosa de servicio de IA</li>
+                        <li>Sistema multi-usuario con 4 roles</li>
+                        <li>Gestión completa del ciclo de reclutamiento</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Tecnología</h4>
+                    <ul class="checklist">
+                        <li>Arquitectura escalable</li>
+                        <li>Sistema seguro</li>
+                        <li>Interfaz intuitiva y responsive</li>
+                        <li>Base de datos optimizada</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Documentación</h4>
+                    <ul class="checklist">
+                        <li>75+ diagramas UML generados</li>
+                        <li>Diccionarios de datos completos</li>
+                        <li>Documentación técnica exhaustiva</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight">
+                <strong>Comparación con Hipótesis:</strong>
+                <ul class="checklist">
+                    <li>Evaluación automática optimiza tiempos</li>
+                    <li>Algoritmo proporciona criterios objetivos</li>
+                    <li>Digitalización elimina redundancias</li>
+                    <li>Arquitectura permite escalabilidad</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>7. CONCLUSIONES / TRABAJO FUTURO</h2>
+            <p>El sistema RH-NEXUS demuestra que la integración de inteligencia artificial acelera significativamente el proceso de evaluación inicial de candidatos, mientras que el algoritmo de compatibilidad proporciona criterios objetivos y reproducibles que eliminan subjetividades tradicionales. La digitalización completa elimina redundancias y errores manuales, mejorando la eficiencia operativa del departamento de recursos humanos. La arquitectura modular permite adaptación a diferentes organizaciones, ofreciendo una herramienta poderosa para optimizar tiempos de reclutamiento. Para la organización, los datos centralizados facilitan análisis y toma de decisiones estratégicas, mientras que para los candidatos el proceso resulta más ágil y transparente. El sistema contribuye como modelo replicable para la industria mediante metodología de integración de IA en procesos de selección y documentación exhaustiva como referencia técnica. Como trabajo futuro, se contempla implementar sistema de reportes y analytics avanzados, integración con portales de empleo para recepción automática de CVs, dashboard de métricas en tiempo real y aplicación móvil para acceso desde dispositivos móviles. A mediano plazo se integrará con sistemas de nómina y contabilidad, se desarrollará módulo de evaluación de desempeño post-contratación y sistema de capacitación. A largo plazo se implementará aprendizaje automático para mejora continua del algoritmo, análisis predictivo de rotación de personal, integración con servicios cloud y arquitectura de microservicios para mayor escalabilidad, consolidando RH-NEXUS como plataforma integral de gestión de recursos humanos.</p>
+        </div>
+
+        <div class="summary">
+            <h2>RESUMEN EJECUTIVO</h2>
+            <p><strong>RH-NEXUS</strong> automatiza el proceso de reclutamiento mediante inteligencia artificial, integrando evaluación automática, gestión de solicitudes y sistema de notificaciones en una plataforma web moderna y segura.</p>
+            <div style="margin-top: 20px;">
+                <p><strong>Tecnologías:</strong> PHP 8.0, MySQL, JavaScript, Bootstrap, API REST (IA)</p>
+                <p><strong>Resultados:</strong> Sistema operativo con 8 módulos, 75+ diagramas UML, integración IA exitosa</p>
+                <p><strong>Impacto:</strong> Optimización de procesos de RH, mejora en calidad de contrataciones</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Sistema RH-NEXUS</strong> - Presentación Feria de Proyectos</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,932 @@
+DICCIONARIO DE DATOS - SISTEMA RH-NEXUS
+==========================================
+
+CONCEPTOS DE USUARIOS
+=====================
+
+id_usuario
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único del usuario en el sistema
+- Ejemplo: 1, 2, 3, 100
+
+nombre_completo
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Texto en mayúsculas, sin caracteres especiales
+- Descripción breve: Nombre completo del empleado
+- Ejemplo: JUAN PEREZ GARCIA
+
+usuario
+- Tipo de concepto: Identificador de acceso
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: varchar(50)
+- Tamaño: 50
+- Dominio: Texto único, alfanumérico
+- Descripción breve: Nombre de usuario para login
+- Ejemplo: jperez, admin, rh001
+
+contrasena
+- Tipo de concepto: Credencial de seguridad
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: varchar(255)
+- Tamaño: 255
+- Dominio: Hash de contraseña encriptada
+- Descripción breve: Contraseña encriptada del usuario
+- Ejemplo: $2y$10$abc123def456...
+
+rol
+- Tipo de concepto: Clasificador
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: enum
+- Tamaño: 20
+- Dominio: admin, rh, gerente, jefe_area
+- Descripción breve: Rol o nivel de acceso del usuario
+- Ejemplo: admin, rh, gerente, jefe_area
+
+numero_empleado
+- Tipo de concepto: Identificador laboral
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: varchar(20)
+- Tamaño: 20
+- Dominio: Texto único alfanumérico
+- Descripción breve: Número de empleado único en la empresa
+- Ejemplo: EMP001, 2024001, RH-001
+
+correo
+- Tipo de concepto: Contacto
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Formato de email válido
+- Descripción breve: Dirección de correo electrónico
+- Ejemplo: juan.perez@empresa.com
+
+telefono
+- Tipo de concepto: Contacto
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: varchar(15)
+- Tamaño: 15
+- Dominio: Números de teléfono válidos
+- Descripción breve: Número de teléfono de contacto
+- Ejemplo: 5512345678, +52-55-1234-5678
+
+fotografia
+- Tipo de concepto: Archivo multimedia
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: varchar(255)
+- Tamaño: 255
+- Dominio: Ruta de archivo de imagen
+- Descripción breve: Ruta del archivo de fotografía del usuario
+- Ejemplo: /img/usuarios/foto123.jpg
+
+estado
+- Tipo de concepto: Estado del registro
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: enum
+- Tamaño: 10
+- Dominio: activo, inactivo
+- Descripción breve: Estado del usuario en el sistema
+- Ejemplo: activo, inactivo
+
+failed_attempts
+- Tipo de concepto: Contador de seguridad
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros de 0 a 5
+- Descripción breve: Número de intentos fallidos de login
+- Ejemplo: 0, 1, 2, 3, 4, 5
+
+locked_until
+- Tipo de concepto: Timestamp de seguridad
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: datetime
+- Tamaño: 19
+- Dominio: Fecha y hora futura o NULL
+- Descripción breve: Fecha hasta la cual está bloqueada la cuenta
+- Ejemplo: 2024-01-15 14:30:00
+
+last_login
+- Tipo de concepto: Timestamp de actividad
+- Entidad a la que pertenece: usuarios
+- Tipo de dato: datetime
+- Tamaño: 19
+- Dominio: Fecha y hora de último acceso
+- Descripción breve: Fecha y hora del último login exitoso
+- Ejemplo: 2024-01-15 09:15:30
+
+CONCEPTOS DE SEDES
+==================
+
+id_sede
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: sedes
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único de la sede
+- Ejemplo: 1, 2, 3, 10
+
+nombre_sede
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Texto único en mayúsculas
+- Descripción breve: Nombre de la sede física
+- Ejemplo: MATRIZ CENTRO, SUCURSAL NORTE
+
+domicilio
+- Tipo de concepto: Dirección física
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(150)
+- Tamaño: 150
+- Dominio: Texto de dirección completa
+- Descripción breve: Calle y número de la sede
+- Ejemplo: AV. REFORMA 123
+
+numero
+- Tipo de concepto: Dirección física
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(10)
+- Tamaño: 10
+- Dominio: Número exterior
+- Descripción breve: Número exterior del edificio
+- Ejemplo: 123, 456-A
+
+interior
+- Tipo de concepto: Dirección física
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(10)
+- Tamaño: 10
+- Dominio: Número interior opcional
+- Descripción breve: Número interior del edificio
+- Ejemplo: 2, A, 301
+
+colonia
+- Tipo de concepto: Dirección física
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Nombre de colonia
+- Descripción breve: Colonia donde se ubica la sede
+- Ejemplo: CENTRO, POLANCO, SANTA FE
+
+municipio
+- Tipo de concepto: Dirección física
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Nombre de municipio
+- Descripción breve: Municipio de la sede
+- Ejemplo: MIGUEL HIDALGO, CUAUHTEMOC
+
+estado
+- Tipo de concepto: Dirección física
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Nombre de estado
+- Descripción breve: Estado donde se ubica la sede
+- Ejemplo: CIUDAD DE MEXICO, JALISCO
+
+cp
+- Tipo de concepto: Código postal
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(10)
+- Tamaño: 10
+- Dominio: 5 dígitos numéricos
+- Descripción breve: Código postal de la sede
+- Ejemplo: 06600, 44100
+
+telefono_sede
+- Tipo de concepto: Contacto
+- Entidad a la que pertenece: sedes
+- Tipo de dato: varchar(20)
+- Tamaño: 20
+- Dominio: Número de teléfono válido
+- Descripción breve: Teléfono principal de la sede
+- Ejemplo: 5512345678
+
+gerente_id
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: sedes
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de usuario con rol gerente
+- Descripción breve: ID del gerente asignado a la sede
+- Ejemplo: 5, 12, 25
+
+activo
+- Tipo de concepto: Estado del registro
+- Entidad a la que pertenece: sedes
+- Tipo de dato: tinyint(1)
+- Tamaño: 1
+- Dominio: 0 o 1
+- Descripción breve: Indica si la sede está activa
+- Ejemplo: 1, 0
+
+CONCEPTOS DE DEPARTAMENTOS
+==========================
+
+id_departamento
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: departamentos
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único del departamento
+- Ejemplo: 1, 2, 3, 15
+
+nombre_departamento
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: departamentos
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Texto único por sede en mayúsculas
+- Descripción breve: Nombre del departamento
+- Ejemplo: SISTEMAS, RECURSOS HUMANOS, VENTAS
+
+descripcion
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: departamentos
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: Texto descriptivo
+- Descripción breve: Descripción de las funciones del departamento
+- Ejemplo: GESTION DE SISTEMAS INFORMATICOS Y TECNOLOGIA
+
+sede_id
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: departamentos
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de sede válida
+- Descripción breve: ID de la sede a la que pertenece el departamento
+- Ejemplo: 1, 2, 3
+
+responsable_id
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: departamentos
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de usuario con rol jefe_area
+- Descripción breve: ID del responsable del departamento
+- Ejemplo: 8, 15, 22
+
+estado_departamento
+- Tipo de concepto: Estado del registro
+- Entidad a la que pertenece: departamentos
+- Tipo de dato: enum
+- Tamaño: 10
+- Dominio: activo, inactivo
+- Descripción breve: Estado del departamento
+- Ejemplo: activo, inactivo
+
+CONCEPTOS DE SOLICITUDES
+========================
+
+id_solicitud
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único de la solicitud
+- Ejemplo: 1, 2, 3, 100
+
+folio
+- Tipo de concepto: Identificador único
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: varchar(20)
+- Tamaño: 20
+- Dominio: Formato SOL-YYYYMM-####
+- Descripción breve: Folio único de la solicitud
+- Ejemplo: SOL-202401-0001, SOL-202401-0002
+
+autor_id
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de usuario válido
+- Descripción breve: ID del usuario que creó la solicitud
+- Ejemplo: 5, 12, 25
+
+titulo
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: varchar(160)
+- Tamaño: 160
+- Dominio: Texto descriptivo
+- Descripción breve: Título de la solicitud de personal
+- Ejemplo: SOLICITUD DESARROLLADOR SENIOR
+
+puesto
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: varchar(120)
+- Tamaño: 120
+- Dominio: Texto del puesto solicitado
+- Descripción breve: Nombre del puesto a cubrir
+- Ejemplo: DESARROLLADOR SENIOR, ANALISTA DE SISTEMAS
+
+vacantes
+- Tipo de concepto: Cantidad
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos
+- Descripción breve: Número de vacantes solicitadas
+- Ejemplo: 1, 2, 5
+
+fecha_ingreso_deseada
+- Tipo de concepto: Fecha
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: date
+- Tamaño: 10
+- Dominio: Fecha futura válida
+- Descripción breve: Fecha deseada de ingreso del candidato
+- Ejemplo: 2024-02-15, 2024-03-01
+
+tipo_contrato
+- Tipo de concepto: Clasificador
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: varchar(40)
+- Tamaño: 40
+- Dominio: Texto de tipo de contrato
+- Descripción breve: Tipo de contrato laboral
+- Ejemplo: INDEFINIDO, TEMPORAL, PRUEBA
+
+modalidad
+- Tipo de concepto: Clasificador
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: varchar(20)
+- Tamaño: 20
+- Dominio: Texto de modalidad de trabajo
+- Descripción breve: Modalidad de trabajo
+- Ejemplo: PRESENCIAL, REMOTO, HIBRIDO
+
+horario
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: varchar(100)
+- Tamaño: 100
+- Dominio: Texto de horario de trabajo
+- Descripción breve: Horario de trabajo requerido
+- Ejemplo: LUNES A VIERNES 9:00 A 18:00
+
+salario_min
+- Tipo de concepto: Valor monetario
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: decimal(12,2)
+- Tamaño: 12,2
+- Dominio: Números decimales positivos
+- Descripción breve: Salario mínimo ofrecido
+- Ejemplo: 15000.00, 25000.50
+
+salario_max
+- Tipo de concepto: Valor monetario
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: decimal(12,2)
+- Tamaño: 12,2
+- Dominio: Números decimales positivos
+- Descripción breve: Salario máximo ofrecido
+- Ejemplo: 20000.00, 35000.00
+
+escolaridad_min
+- Tipo de concepto: Nivel educativo
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: tinyint(4)
+- Tamaño: 4
+- Dominio: 0-4 (0=Preparatoria, 1=Licenciatura, 2=Maestría, 3=Doctorado)
+- Descripción breve: Escolaridad mínima requerida
+- Ejemplo: 1, 2, 3
+
+carrera_estudiada
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: Texto de carreras requeridas
+- Descripción breve: Carreras de estudio requeridas
+- Ejemplo: INGENIERIA EN SISTEMAS, LICENCIATURA EN INFORMATICA
+
+experiencia_anios
+- Tipo de concepto: Cantidad
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros de 0 a 50
+- Descripción breve: Años de experiencia requeridos
+- Ejemplo: 2, 5, 10
+
+area_experiencia
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: Texto de áreas de experiencia
+- Descripción breve: Áreas de experiencia requeridas
+- Ejemplo: DESARROLLO WEB, BASE DE DATOS, PROGRAMACION
+
+ingles_combo
+- Tipo de concepto: Nivel de idioma
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: varchar(20)
+- Tamaño: 20
+- Dominio: NO, BASICO, INTERMEDIO, AVANZADO, NATIVO
+- Descripción breve: Nivel de inglés requerido
+- Ejemplo: INTERMEDIO, AVANZADO
+
+competencias_json
+- Tipo de concepto: Datos estructurados
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: JSON válido con array de competencias
+- Descripción breve: Competencias técnicas en formato JSON
+- Ejemplo: ["PHP", "MYSQL", "JAVASCRIPT", "HTML"]
+
+estado_actual
+- Tipo de concepto: Estado del proceso
+- Entidad a la que pertenece: solicitudes
+- Tipo de dato: enum
+- Tamaño: 20
+- Dominio: ENVIADA, EN_REV_GER, APROBADA, BUSCANDO, EN_ENTREVISTA, EN_DECISION, CERRADA, RECHAZADA
+- Descripción breve: Estado actual de la solicitud
+- Ejemplo: APROBADA, EN_ENTREVISTA, CERRADA
+
+CONCEPTOS DE CANDIDATOS
+=======================
+
+id_candidato
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único del candidato
+- Ejemplo: 1, 2, 3, 50
+
+solicitud_id
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de solicitud válida
+- Descripción breve: ID de la solicitud a la que aplica
+- Ejemplo: 1, 5, 10
+
+nombre_completo_candidato
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: varchar(200)
+- Tamaño: 200
+- Dominio: Texto en mayúsculas
+- Descripción breve: Nombre completo del candidato
+- Ejemplo: MARIA GONZALEZ LOPEZ
+
+telefono_candidato
+- Tipo de concepto: Contacto
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: varchar(30)
+- Tamaño: 30
+- Dominio: Número de teléfono válido
+- Descripción breve: Teléfono de contacto del candidato
+- Ejemplo: 5512345678, +52-55-1234-5678
+
+correo_candidato
+- Tipo de concepto: Contacto
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: varchar(160)
+- Tamaño: 160
+- Dominio: Formato de email válido
+- Descripción breve: Correo electrónico del candidato
+- Ejemplo: maria.gonzalez@email.com
+
+recruitment_strategy
+- Tipo de concepto: Clasificador
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: enum
+- Tamaño: 20
+- Dominio: RECOMENDADO, PORTALES DE EMPLEO, HEADHUNTING
+- Descripción breve: Estrategia de reclutamiento utilizada
+- Ejemplo: RECOMENDADO, PORTALES DE EMPLEO
+
+carrera
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: varchar(200)
+- Tamaño: 200
+- Dominio: Texto de carrera de estudio
+- Descripción breve: Carrera de estudio del candidato
+- Ejemplo: INGENIERIA EN SISTEMAS, LICENCIATURA EN INFORMATICA
+
+education_level
+- Tipo de concepto: Nivel educativo
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: enum
+- Tamaño: 15
+- Dominio: PREPARATORIA, LICENCIATURA, MAESTRIA, DOCTORADO
+- Descripción breve: Nivel educativo del candidato
+- Ejemplo: LICENCIATURA, MAESTRIA
+
+experience_years
+- Tipo de concepto: Cantidad
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: tinyint(3)
+- Tamaño: 3
+- Dominio: Números enteros de 0 a 50
+- Descripción breve: Años de experiencia del candidato
+- Ejemplo: 2, 5, 10
+
+area_experiencia_candidato
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: Texto de áreas de experiencia
+- Descripción breve: Áreas de experiencia del candidato
+- Ejemplo: DESARROLLO WEB, BASE DE DATOS, PROGRAMACION
+
+competencias_tecnicas
+- Tipo de concepto: Atributo descriptivo
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: Texto de competencias técnicas
+- Descripción breve: Competencias técnicas del candidato
+- Ejemplo: PHP, MYSQL, JAVASCRIPT, HTML, CSS
+
+ingles_requerido
+- Tipo de concepto: Nivel de idioma
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: enum
+- Tamaño: 10
+- Dominio: NO, BASICO, INTERMEDIO, AVANZADO, NATIVO
+- Descripción breve: Nivel de inglés requerido por la solicitud
+- Ejemplo: INTERMEDIO, AVANZADO
+
+ingles_postulante
+- Tipo de concepto: Nivel de idioma
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: enum
+- Tamaño: 10
+- Dominio: NO, BASICO, INTERMEDIO, AVANZADO, NATIVO
+- Descripción breve: Nivel de inglés del candidato
+- Ejemplo: INTERMEDIO, AVANZADO
+
+personality_score
+- Tipo de concepto: Puntaje de evaluación
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: tinyint(3)
+- Tamaño: 3
+- Dominio: Números enteros de 0 a 100
+- Descripción breve: Puntaje de personalidad en entrevista
+- Ejemplo: 85, 92, 78
+
+skill_score
+- Tipo de concepto: Puntaje de evaluación
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: tinyint(3)
+- Tamaño: 3
+- Dominio: Números enteros de 0 a 100
+- Descripción breve: Puntaje de habilidades técnicas
+- Ejemplo: 90, 88, 95
+
+interview_score
+- Tipo de concepto: Puntaje de evaluación
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: tinyint(3)
+- Tamaño: 3
+- Dominio: Números enteros de 0 a 100
+- Descripción breve: Puntaje general de la entrevista
+- Ejemplo: 87, 91, 83
+
+puntaje_evaluacion
+- Tipo de concepto: Puntaje calculado
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: tinyint(3)
+- Tamaño: 3
+- Dominio: Números enteros de 0 a 100
+- Descripción breve: Puntaje final calculado por IA
+- Ejemplo: 88, 92, 85
+
+viabilidad
+- Tipo de concepto: Clasificador de viabilidad
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: enum
+- Tamaño: 5
+- Dominio: ALTA, MEDIA, BAJA
+- Descripción breve: Nivel de viabilidad calculado por IA
+- Ejemplo: ALTA, MEDIA, BAJA
+
+posicion_ranking
+- Tipo de concepto: Posición ordinal
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: int(10)
+- Tamaño: 10
+- Dominio: Números enteros positivos
+- Descripción breve: Posición en el ranking de candidatos
+- Ejemplo: 1, 2, 3, 5
+
+decision_final
+- Tipo de concepto: Estado de decisión
+- Entidad a la que pertenece: postulantes_por_vacante
+- Tipo de dato: enum
+- Tamaño: 15
+- Dominio: CONTRATADO, NO_CONTRATADO, PENDIENTE
+- Descripción breve: Decisión final sobre el candidato
+- Ejemplo: CONTRATADO, NO_CONTRATADO, PENDIENTE
+
+CONCEPTOS DE NOTIFICACIONES
+===========================
+
+id_notificacion
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: notificaciones
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único de la notificación
+- Ejemplo: 1, 2, 3, 100
+
+usuario_id_notificacion
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: notificaciones
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de usuario válido
+- Descripción breve: ID del usuario destinatario
+- Ejemplo: 5, 12, 25
+
+mensaje
+- Tipo de concepto: Contenido
+- Entidad a la que pertenece: notificaciones
+- Tipo de dato: varchar(255)
+- Tamaño: 255
+- Dominio: Texto del mensaje
+- Descripción breve: Contenido de la notificación
+- Ejemplo: Nueva solicitud de personal pendiente de aprobación
+
+link
+- Tipo de concepto: Enlace
+- Entidad a la que pertenece: notificaciones
+- Tipo de dato: varchar(255)
+- Tamaño: 255
+- Dominio: URL válida
+- Descripción breve: Enlace relacionado con la notificación
+- Ejemplo: /solicitudes/detalle.php?id=123
+
+leida
+- Tipo de concepto: Estado de lectura
+- Entidad a la que pertenece: notificaciones
+- Tipo de dato: tinyint(1)
+- Tamaño: 1
+- Dominio: 0 o 1
+- Descripción breve: Indica si la notificación fue leída
+- Ejemplo: 0, 1
+
+expira_en
+- Tipo de concepto: Timestamp de expiración
+- Entidad a la que pertenece: notificaciones
+- Tipo de dato: datetime
+- Tamaño: 19
+- Dominio: Fecha y hora futura
+- Descripción breve: Fecha de expiración de la notificación
+- Ejemplo: 2024-02-15 23:59:59
+
+CONCEPTOS DE COMENTARIOS
+========================
+
+id_comentario
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: solicitudes_comentarios
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único del comentario
+- Ejemplo: 1, 2, 3, 50
+
+solicitud_id_comentario
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: solicitudes_comentarios
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de solicitud válida
+- Descripción breve: ID de la solicitud comentada
+- Ejemplo: 1, 5, 10
+
+usuario_id_comentario
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: solicitudes_comentarios
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de usuario válido
+- Descripción breve: ID del usuario que hizo el comentario
+- Ejemplo: 5, 12, 25
+
+comentario
+- Tipo de concepto: Contenido
+- Entidad a la que pertenece: solicitudes_comentarios
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: Texto del comentario
+- Descripción breve: Contenido del comentario
+- Ejemplo: Solicitud aprobada, se procederá con el reclutamiento
+
+CONCEPTOS DE SEGUIMIENTO
+========================
+
+id_seguimiento
+- Tipo de concepto: Identificador
+- Entidad a la que pertenece: solicitudes_seguimiento
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: Números enteros positivos únicos
+- Descripción breve: Identificador único del seguimiento
+- Ejemplo: 1, 2, 3, 50
+
+solicitud_id_seguimiento
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: solicitudes_seguimiento
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de solicitud válida
+- Descripción breve: ID de la solicitud seguida
+- Ejemplo: 1, 5, 10
+
+estado_anterior
+- Tipo de concepto: Estado previo
+- Entidad a la que pertenece: solicitudes_seguimiento
+- Tipo de dato: varchar(20)
+- Tamaño: 20
+- Dominio: Estado válido de solicitud
+- Descripción breve: Estado anterior de la solicitud
+- Ejemplo: ENVIADA, APROBADA
+
+estado_nuevo
+- Tipo de concepto: Estado actual
+- Entidad a la que pertenece: solicitudes_seguimiento
+- Tipo de dato: varchar(20)
+- Tamaño: 20
+- Dominio: Estado válido de solicitud
+- Descripción breve: Nuevo estado de la solicitud
+- Ejemplo: APROBADA, EN_ENTREVISTA
+
+usuario_id_seguimiento
+- Tipo de concepto: Clave foránea
+- Entidad a la que pertenece: solicitudes_seguimiento
+- Tipo de dato: int(11)
+- Tamaño: 11
+- Dominio: ID de usuario válido
+- Descripción breve: ID del usuario que hizo el cambio
+- Ejemplo: 5, 12, 25
+
+nota
+- Tipo de concepto: Contenido
+- Entidad a la que pertenece: solicitudes_seguimiento
+- Tipo de dato: text
+- Tamaño: 65535
+- Dominio: Texto de la nota
+- Descripción breve: Nota explicativa del cambio
+- Ejemplo: Cambio de estado por aprobación gerencial
+
+CONCEPTOS DE CONFIGURACION
+==========================
+
+base_path
+- Tipo de concepto: Configuración de ruta
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 50
+- Dominio: Ruta válida del sistema
+- Descripción breve: Ruta base del sistema en el servidor
+- Ejemplo: /sistema_rh, /rh-nexus
+
+base_url
+- Tipo de concepto: Configuración de URL
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 100
+- Dominio: URL válida
+- Descripción breve: URL base del sistema
+- Ejemplo: https://empresa.com/sistema_rh
+
+is_https
+- Tipo de concepto: Configuración de seguridad
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: boolean
+- Tamaño: 1
+- Dominio: true o false
+- Descripción breve: Indica si el sistema usa HTTPS
+- Ejemplo: true, false
+
+db_host
+- Tipo de concepto: Configuración de base de datos
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 100
+- Dominio: Host válido
+- Descripción breve: Host de la base de datos
+- Ejemplo: localhost, db.empresa.com
+
+db_name
+- Tipo de concepto: Configuración de base de datos
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 50
+- Dominio: Nombre de base de datos válido
+- Descripción breve: Nombre de la base de datos
+- Ejemplo: rh_nexus, sistema_rh
+
+db_user
+- Tipo de concepto: Configuración de base de datos
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 50
+- Dominio: Usuario válido
+- Descripción breve: Usuario de la base de datos
+- Ejemplo: root, rh_user
+
+db_pass
+- Tipo de concepto: Configuración de base de datos
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 100
+- Dominio: Contraseña válida
+- Descripción breve: Contraseña de la base de datos
+- Ejemplo: password123, secret_key
+
+ia_base_url
+- Tipo de concepto: Configuración de IA
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 200
+- Dominio: URL válida de API
+- Descripción breve: URL base del servicio de IA
+- Ejemplo: https://ia.empresa.com/api
+
+ia_api_key
+- Tipo de concepto: Configuración de IA
+- Entidad a la que pertenece: Sistema
+- Tipo de dato: string
+- Tamaño: 100
+- Dominio: Clave API válida
+- Descripción breve: Clave de API para el servicio de IA
+- Ejemplo: sk-1234567890abcdef
+
+CONCEPTOS DE TIMESTAMPS
+=======================
+
+created_at
+- Tipo de concepto: Timestamp de creación
+- Entidad a la que pertenece: Múltiples
+- Tipo de dato: datetime
+- Tamaño: 19
+- Dominio: Fecha y hora válida
+- Descripción breve: Fecha y hora de creación del registro
+- Ejemplo: 2024-01-15 09:30:45
+
+updated_at
+- Tipo de concepto: Timestamp de actualización
+- Entidad a la que pertenece: Múltiples
+- Tipo de dato: datetime
+- Tamaño: 19
+- Dominio: Fecha y hora válida
+- Descripción breve: Fecha y hora de última actualización
+- Ejemplo: 2024-01-15 14:22:10
+
+fecha_registro
+- Tipo de concepto: Timestamp de registro
+- Entidad a la que pertenece: Múltiples
+- Tipo de dato: timestamp
+- Tamaño: 19
+- Dominio: Fecha y hora válida
+- Descripción breve: Fecha y hora de registro en el sistema
+- Ejemplo: 2024-01-15 09:30:45
+
+creado_en
+- Tipo de concepto: Timestamp de creación
+- Entidad a la que pertenece: Múltiples
+- Tipo de dato: datetime
+- Tamaño: 19
+- Dominio: Fecha y hora válida
+- Descripción breve: Fecha y hora de creación del registro
+- Ejemplo: 2024-01-15 09:30:45
+
+actualizado_en
+- Tipo de concepto: Timestamp de actualización
+- Entidad a la que pertenece: Múltiples
+- Tipo de dato: datetime
+- Tamaño: 19
+- Dominio: Fecha y hora válida
+- Descripción breve: Fecha y hora de última actualización
+- Ejemplo: 2024-01-15 14:22:10

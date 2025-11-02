@@ -1,0 +1,211 @@
+DICCIONARIO DE CLASES - SISTEMA RH NEXUS
+==========================================
+(Orientado al Usuario Final)
+
+MODULOS PRINCIPALES
+===================
+
+GESTION DE USUARIOS
+===================
+
+Crear Usuario
+- Descripción: Registrar nuevos empleados en el sistema
+- Acciones: Llenar formulario con datos personales, asignar rol y departamento
+
+Editar Usuario
+- Descripción: Modificar información de empleados existentes
+- Acciones: Actualizar datos personales, cambiar rol o departamento
+
+Eliminar Usuario
+- Descripción: Desactivar empleados del sistema
+- Acciones: Marcar como inactivo, conservar historial
+
+Listar Usuarios
+- Descripción: Ver todos los empleados registrados
+- Acciones: Filtrar por departamento, buscar por nombre, exportar lista
+
+
+GESTION DE SEDES
+================
+
+Crear Sede
+- Descripción: Registrar nuevas oficinas o sucursales
+- Acciones: Llenar datos de ubicación, contacto y dirección
+
+Editar Sede
+- Descripción: Modificar información de sedes existentes
+- Acciones: Actualizar datos de contacto, dirección
+
+Eliminar Sede
+- Descripción: Desactivar sedes del sistema
+- Acciones: Marcar como inactiva, conservar historial
+
+Listar Sedes
+- Descripción: Ver todas las sedes registradas
+- Acciones: Filtrar por estado, buscar por ubicación
+
+
+GESTION DE DEPARTAMENTOS
+========================
+
+Crear Departamento
+- Descripción: Registrar nuevos departamentos en una sede
+- Acciones: Asignar nombre, descripción y sede correspondiente
+
+Editar Departamento
+- Descripción: Modificar información de departamentos
+- Acciones: Actualizar nombre, descripción o sede
+
+Eliminar Departamento
+- Descripción: Desactivar departamentos del sistema
+- Acciones: Marcar como inactivo, conservar historial
+
+Listar Departamentos
+- Descripción: Ver todos los departamentos por sede
+- Acciones: Filtrar por sede, buscar por nombre
+
+
+GESTION DE SOLICITUDES
+======================
+
+Crear Solicitud
+- Descripción: Solicitar nuevo personal para un puesto
+- Acciones: Llenar requisitos del puesto, competencias necesarias
+
+Aprobar Solicitud
+- Descripción: Autorizar solicitudes de personal
+- Acciones: Revisar requisitos, aprobar o rechazar
+
+Rechazar Solicitud
+- Descripción: Denegar solicitudes de personal
+- Acciones: Indicar motivo de rechazo, notificar al solicitante
+
+Listar Solicitudes
+- Descripción: Ver todas las solicitudes del sistema
+- Acciones: Filtrar por estado, departamento, prioridad
+
+
+AUTENTICACION
+=============
+
+Iniciar Sesion
+- Descripción: Acceder al sistema con credenciales
+- Acciones: Ingresar usuario y contraseña, seleccionar recordar sesion
+
+Cerrar Sesion
+- Descripción: Salir del sistema de forma segura
+- Acciones: Confirmar cierre, limpiar datos de sesion
+
+Cambiar Contraseña
+- Descripción: Actualizar contraseña de acceso
+- Acciones: Ingresar contraseña actual y nueva
+
+
+DASHBOARDS POR ROL
+==================
+
+Dashboard Administrador
+- Descripción: Panel principal con acceso completo al sistema
+- Acciones: Gestionar usuarios, sedes, departamentos, ver estadisticas generales
+
+Dashboard Recursos Humanos
+- Descripción: Panel para personal de RH
+- Acciones: Gestionar solicitudes, usuarios de RH, ver reportes de personal
+
+Dashboard Gerente
+- Descripción: Panel para gerentes de sede
+- Acciones: Aprobar solicitudes de su sede, ver estadisticas de sede
+
+Dashboard Jefe de Area
+- Descripción: Panel para jefes de departamento
+- Acciones: Aprobar solicitudes de su departamento, ver estadisticas de area
+
+
+NOTIFICACIONES
+==============
+
+Mensajes de Exito
+- Descripción: Confirmar acciones realizadas correctamente
+- Acciones: Mostrar mensaje verde, cerrar automaticamente
+
+Mensajes de Error
+- Descripción: Informar sobre problemas o errores
+- Acciones: Mostrar mensaje rojo, permitir reintento
+
+Mensajes de Advertencia
+- Descripción: Alertar sobre situaciones importantes
+- Acciones: Mostrar mensaje amarillo, requerir confirmacion
+
+
+REPORTES Y ESTADISTICAS
+=======================
+
+Reporte de Usuarios
+- Descripción: Lista detallada de empleados
+- Acciones: Filtrar por criterios, exportar a Excel
+
+Reporte de Solicitudes
+- Descripción: Estado de solicitudes de personal
+- Acciones: Filtrar por periodo, departamento, estado
+
+Estadisticas Generales
+- Descripción: Numeros y graficos del sistema
+- Acciones: Ver conteos, tendencias, comparaciones
+
+
+CONFIGURACION DEL SISTEMA
+=========================
+
+Configurar Seguridad
+- Descripción: Ajustar politicas de seguridad
+- Acciones: Establecer tiempo de sesion, intentos de login
+
+Configurar Notificaciones
+- Descripción: Personalizar alertas del sistema
+- Acciones: Activar/desactivar notificaciones, configurar destinatarios
+
+Configurar Entorno
+- Descripción: Ajustar configuraciones del sistema
+- Acciones: Cambiar configuraciones de base de datos, URLs
+
+
+FUNCIONALIDADES AVANZADAS
+=========================
+
+Evaluacion de Candidatos
+- Descripción: Usar inteligencia artificial para evaluar candidatos
+- Acciones: Cargar datos de candidatos, ejecutar evaluacion, ver resultados
+
+Reclutamiento Inteligente
+- Descripción: Optimizar proceso de reclutamiento
+- Acciones: Analizar competencias, sugerir mejores candidatos
+
+Analisis de Datos
+- Descripción: Obtener insights del sistema
+- Acciones: Generar reportes avanzados, analizar tendencias
+
+
+AYUDA Y SOPORTE
+===============
+
+Manual de Usuario
+- Descripción: Guia completa de uso del sistema
+- Acciones: Consultar procedimientos, ver ejemplos
+
+Contacto de Soporte
+- Descripción: Obtener ayuda tecnica
+- Acciones: Enviar consulta, reportar problemas
+
+Preguntas Frecuentes
+- Descripción: Respuestas a dudas comunes
+- Acciones: Buscar por tema, ver soluciones
+
+
+NOTAS IMPORTANTES
+=================
+
+1. Cada modulo esta disenado para ser intuitivo y facil de usar
+2. Todas las acciones requieren los permisos correspondientes
+3. El sistema guarda automaticamente los cambios realizados
+4. Las notificaciones mantienen informado al usuario del estado de sus acciones
+5. Los reportes se pueden exportar en diferentes formatos

@@ -1,0 +1,101 @@
+@startuml Diagrama de Actividades - Sistema de Notificaciones RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso del Sistema de Notificaciones
+
+start
+
+:Usuario accede al sistema;
+:Inicializar sistema de notificaciones;
+
+:Verificar preferencias de notificacion;
+if (Notificaciones habilitadas?) then (Si)
+  :Cargar notificaciones pendientes;
+  :Contar notificaciones no leidas;
+  :Mostrar contador en interfaz;
+else (No)
+  :Ocultar sistema de notificaciones;
+  stop
+endif
+
+:Usuario interactua con notificaciones;
+
+if (Accion del usuario?) then (Ver notificaciones)
+  :Abrir panel de notificaciones;
+  :Cargar lista de notificaciones;
+  :Aplicar filtros si existen;
+  :Mostrar notificaciones ordenadas;
+  
+  :Usuario selecciona notificacion;
+  :Marcar como leida;
+  :Actualizar contador;
+  :Mostrar contenido de notificacion;
+  
+elseif (Accion del usuario?) then (Marcar como leida)
+  :Seleccionar notificacion;
+  :Actualizar estado en BD;
+  :Decrementar contador;
+  :Actualizar interfaz;
+  
+elseif (Accion del usuario?) then (Filtrar notificaciones)
+  :Seleccionar filtros;
+  :Aplicar filtros a consulta;
+  :Recargar lista filtrada;
+  :Mostrar resultados;
+  
+elseif (Accion del usuario?) then (Limpiar notificaciones)
+  :Confirmar limpieza;
+  if (Confirmacion recibida?) then (Si)
+    :Marcar todas como leidas;
+    :Actualizar contador a cero;
+    :Mostrar confirmacion;
+  else (No)
+    :Cancelar limpieza;
+  endif
+endif
+
+:Evento del sistema genera notificacion;
+
+if (Tipo de evento?) then (Cambio de estado de solicitud)
+  :Identificar usuarios involucrados;
+  :Generar mensaje de notificacion;
+  :Crear notificacion en BD;
+  :Actualizar contadores de usuarios;
+  
+elseif (Tipo de evento?) then (Nuevo comentario)
+  :Identificar destinatarios;
+  :Generar mensaje de comentario;
+  :Crear notificacion en BD;
+  :Notificar en tiempo real;
+  
+elseif (Tipo de evento?) then (Alerta de seguridad)
+  :Identificar administradores;
+  :Generar alerta de seguridad;
+  :Crear notificacion prioritaria;
+  :Enviar notificacion inmediata;
+  
+elseif (Tipo de evento?) then (Nueva evaluacion)
+  :Identificar RH responsable;
+  :Generar mensaje de evaluacion;
+  :Crear notificacion en BD;
+  :Actualizar contador;
+endif
+
+:Verificar notificaciones pendientes;
+if (Hay notificaciones nuevas?) then (Si)
+  :Actualizar contador en tiempo real;
+  :Mostrar indicador visual;
+  :Reproducir sonido si esta habilitado;
+else (No)
+  :Mantener estado actual;
+endif
+
+:Continuar monitoreo;
+if (Sistema activo?) then (Si)
+  :Regresar a verificar notificaciones;
+else (No)
+  :Finalizar sistema de notificaciones;
+  stop
+endif
+
+stop
+

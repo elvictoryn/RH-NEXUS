@@ -1,0 +1,89 @@
+@startuml Diagrama de Actividades - Autenticacion de Usuario RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Autenticacion de Usuario
+
+start
+
+:Usuario accede al sistema;
+:Mostrar formulario de login;
+
+:Usuario ingresa credenciales;
+note right: Usuario y contraseña
+
+:Validar formato de datos;
+if (Formato valido?) then (Si)
+  :Buscar usuario en base de datos;
+else (No)
+  :Mostrar error de formato;
+  :Regresar al formulario;
+  stop
+endif
+
+if (Usuario existe?) then (Si)
+  :Verificar estado de la cuenta;
+  
+  if (Cuenta activa?) then (Si)
+    :Verificar contraseña;
+    
+    if (Contraseña correcta?) then (Si)
+      :Verificar intentos fallidos previos;
+      
+      if (Cuenta bloqueada?) then (Si)
+        :Verificar tiempo de bloqueo;
+        
+        if (Bloqueo expirado?) then (Si)
+          :Desbloquear cuenta;
+          :Resetear contador de intentos;
+        else (No)
+          :Mostrar mensaje de bloqueo;
+          :Mostrar tiempo restante;
+          stop
+        endif
+      else (No)
+        :Crear sesion de usuario;
+        :Registrar ultimo acceso;
+        :Determinar rol del usuario;
+        
+        if (Rol es Admin?) then (Si)
+          :Redirigir a dashboard Admin;
+        elseif (Rol es RH?) then (Si)
+          :Redirigir a dashboard RH;
+        elseif (Rol es Gerente?) then (Si)
+          :Redirigir a dashboard Gerente;
+        elseif (Rol es Jefe Area?) then (Si)
+          :Redirigir a dashboard Jefe Area;
+        else (Otro)
+          :Redirigir a login con error;
+        endif
+        
+        :Iniciar sesion exitosa;
+        stop
+      endif
+    else (No)
+      :Incrementar contador de intentos fallidos;
+      :Registrar intento fallido;
+      
+      if (Maximo intentos alcanzado?) then (Si)
+        :Bloquear cuenta temporalmente;
+        :Notificar a administradores;
+        :Mostrar mensaje de bloqueo;
+      else (No)
+        :Mostrar error de credenciales;
+      endif
+      
+      :Regresar al formulario;
+      stop
+    endif
+  else (No)
+    :Mostrar error de cuenta inactiva;
+    :Regresar al formulario;
+    stop
+  endif
+else (No)
+  :Mostrar error de credenciales incorrectas;
+  :Regresar al formulario;
+  stop
+endif
+
+stop
+

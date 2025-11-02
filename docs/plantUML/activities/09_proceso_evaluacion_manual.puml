@@ -1,0 +1,59 @@
+@startuml Diagrama de Actividades - Evaluacion Manual de Candidatos RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Evaluacion Manual de Candidatos
+
+start
+
+:RH selecciona candidato para evaluar;
+:Verificar que candidato existe;
+if (Candidato encontrado?) then (Si)
+  :Cargar datos del candidato;
+  :Mostrar formulario de evaluacion;
+else (No)
+  :Mostrar error de candidato no encontrado;
+  stop
+endif
+
+:RH realiza entrevista;
+:Evaluar competencias tecnicas;
+:Evaluar habilidades blandas;
+:Evaluar fit cultural;
+
+:Asignar puntaje de personalidad;
+note right: Escala 0-100
+
+:Asignar puntaje tecnico;
+note right: Escala 0-100
+
+:Asignar puntaje de entrevista;
+note right: Escala 0-100
+
+:Validar puntajes asignados;
+if (Puntajes validos?) then (Si)
+  :Guardar puntajes en base de datos;
+  :Calcular puntaje promedio;
+  
+  :Combinar con puntaje de IA;
+  :Generar puntaje final;
+  
+  :Determinar viabilidad del candidato;
+  if (Viabilidad alta?) then (Si)
+    :Marcar como candidato viable;
+    :Notificar a gerente;
+  elseif (Viabilidad media?) then (Si)
+    :Marcar como candidato en espera;
+    :Revisar en segunda ronda;
+  else (Viabilidad baja)
+    :Marcar como no viable;
+    :Archivar candidato;
+  endif
+  
+  :Actualizar ranking de candidatos;
+  :Mostrar confirmacion de evaluacion;
+  
+else (No)
+  :Mostrar error de puntajes invalidos;
+  :Regresar al formulario;
+endif
+
+stop

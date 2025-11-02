@@ -1,0 +1,48 @@
+@startuml Diagrama de Actividades - Aprobacion de Solicitud RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Aprobacion de Solicitud
+
+start
+
+:Gerente recibe notificacion;
+:Gerente accede al sistema;
+:Verificar permisos de gerente;
+
+if (Permisos validos?) then (Si)
+  :Mostrar solicitud pendiente;
+  :Revisar detalles de la solicitud;
+  
+  :Evaluar justificacion del puesto;
+  :Verificar presupuesto disponible;
+  :Revisar urgencia de la solicitud;
+  
+  if (Solicitud justificada?) then (Si)
+    :Aprobar solicitud;
+    :Cambiar estado a APROBADA;
+    :Asignar a RH disponible;
+    :Notificar a RH asignado;
+    :Notificar al Jefe de Area;
+    
+    :Registrar fecha de aprobacion;
+    :Generar reporte de aprobacion;
+    
+  else (No)
+    :Rechazar solicitud;
+    :Cambiar estado a RECHAZADA;
+    :Registrar motivo de rechazo;
+    :Notificar al Jefe de Area;
+    
+    if (Solicitud puede ser modificada?) then (Si)
+      :Sugerir modificaciones;
+      :Permitir reenvio;
+    else (No)
+      :Archivar solicitud;
+    endif
+  endif
+  
+else (No)
+  :Mostrar error de permisos;
+  :Regresar al dashboard;
+endif
+
+stop

@@ -1,0 +1,102 @@
+@startuml Diagrama de Actividades - Gestion de Candidatos RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Gestion de Candidatos
+
+start
+
+:RH accede al modulo de candidatos;
+:Mostrar lista de candidatos;
+
+if (Accion solicitada?) then (Crear candidato)
+  :Mostrar formulario de registro;
+  :Usuario completa datos del candidato;
+  
+  :Validar datos obligatorios;
+  if (Datos validos?) then (Si)
+    :Verificar duplicados;
+    
+    if (Candidato ya existe?) then (Si)
+      :Mostrar error de duplicado;
+      :Regresar al formulario;
+    else (No)
+      :Procesar archivo adjunto;
+      
+      if (Archivo valido?) then (Si)
+        :Guardar archivo en servidor;
+        :Generar nombre unico;
+        :Registrar candidato en BD;
+        :Mostrar confirmacion de creacion;
+      else (No)
+        :Mostrar error de archivo;
+        :Regresar al formulario;
+      endif
+    endif
+  else (No)
+    :Mostrar errores de validacion;
+    :Regresar al formulario;
+  endif
+  
+elseif (Accion solicitada?) then (Evaluar candidato)
+  :Seleccionar candidato para evaluar;
+  :Cargar datos del candidato;
+  
+  :Preparar datos para IA;
+  :Normalizar informacion;
+  :Enviar a sistema de IA;
+  
+  if (Respuesta de IA exitosa?) then (Si)
+    :Procesar puntaje de IA;
+    :Calcular compatibilidad;
+    :Guardar puntajes en BD;
+    :Mostrar resultados de evaluacion;
+  else (No)
+    :Mostrar error de evaluacion;
+    :Regresar a lista de candidatos;
+  endif
+  
+elseif (Accion solicitada?) then (Editar candidato)
+  :Seleccionar candidato para editar;
+  :Cargar datos existentes;
+  :Mostrar formulario de edicion;
+  
+  :Usuario modifica datos;
+  :Validar datos actualizados;
+  
+  if (Datos validos?) then (Si)
+    :Actualizar registro en BD;
+    :Mostrar confirmacion de actualizacion;
+  else (No)
+    :Mostrar errores de validacion;
+    :Regresar al formulario;
+  endif
+  
+elseif (Accion solicitada?) then (Generar ranking)
+  :Seleccionar solicitud de personal;
+  :Obtener candidatos de la solicitud;
+  
+  :Calcular puntajes totales;
+  :Aplicar criterios de ordenamiento;
+  :Generar ranking ordenado;
+  :Mostrar lista de ranking;
+  
+elseif (Accion solicitada?) then (Eliminar candidato)
+  :Seleccionar candidato para eliminar;
+  :Confirmar eliminacion;
+  
+  if (Confirmacion recibida?) then (Si)
+    :Eliminar archivo adjunto;
+    :Eliminar registro de BD;
+    :Mostrar confirmacion de eliminacion;
+  else (No)
+    :Cancelar eliminacion;
+  endif
+  
+else (Otra accion)
+  :Mostrar error de accion no valida;
+endif
+
+:Actualizar lista de candidatos;
+:Mostrar interfaz actualizada;
+
+stop
+

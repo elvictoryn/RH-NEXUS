@@ -1,0 +1,54 @@
+@startuml Diagrama de Actividades - Creacion de Solicitud de Personal RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Creacion de Solicitud de Personal
+
+start
+
+:Jefe de Area accede al sistema;
+:Verificar permisos de usuario;
+if (Usuario autorizado?) then (Si)
+  :Mostrar formulario de solicitud;
+else (No)
+  :Mostrar error de acceso;
+  stop
+endif
+
+:Jefe de Area completa formulario;
+note right: Datos del puesto, requisitos, justificacion
+
+:Validar datos obligatorios;
+if (Datos completos?) then (Si)
+  :Validar formato de datos;
+  
+  if (Formato correcto?) then (Si)
+    :Generar folio automatico;
+    note right: Formato SOL-YYYYMM-####
+    
+    :Determinar gerente de sede;
+    :Asignar gerente responsable;
+    
+    :Guardar solicitud como BORRADOR;
+    :Registrar fecha de creacion;
+    
+    if (Rol es RH?) then (Si)
+      :Cambiar estado a APROBADA;
+      :Auto-asignar a RH;
+      :Notificar a RH;
+    else (No)
+      :Cambiar estado a PENDIENTE;
+      :Notificar a Gerente;
+    endif
+    
+    :Mostrar confirmacion de creacion;
+    :Redirigir a lista de solicitudes;
+    
+  else (No)
+    :Mostrar errores de formato;
+    :Regresar al formulario;
+  endif
+else (No)
+  :Mostrar campos obligatorios faltantes;
+  :Regresar al formulario;
+endif
+
+stop

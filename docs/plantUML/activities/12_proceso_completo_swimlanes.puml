@@ -1,0 +1,82 @@
+@startuml Diagrama de Actividades - Proceso Completo con Swimlanes RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso Completo de Reclutamiento con Swimlanes
+
+|#LightBlue|Jefe de Area|
+start
+:Crear solicitud de personal;
+:Completar formulario;
+:Enviar para aprobacion;
+note right: Estado: PENDIENTE
+
+|#LightGreen|Gerente|
+:Recibir notificacion;
+:Revisar solicitud;
+if (Aprobar?) then (Si)
+  :Aprobar solicitud;
+  note right: Estado: APROBADA
+else (No)
+  :Rechazar solicitud;
+  note right: Estado: RECHAZADA
+  stop
+endif
+
+|#LightYellow|RH|
+:Recibir solicitud aprobada;
+:Iniciar reclutamiento;
+note right: Estado: BUSCANDO
+
+fork
+  :Publicar vacante;
+  :Recibir aplicaciones;
+  :Registrar candidatos;
+fork again
+  :Configurar criterios de busqueda;
+  :Preparar evaluaciones;
+end fork
+
+while (Hay candidatos por evaluar?) is (Si)
+  :Seleccionar candidato;
+  
+  fork
+    :Evaluar con IA;
+    :Calcular compatibilidad;
+    :Asignar puntaje IA;
+  fork again
+    :Realizar entrevista;
+    :Evaluar competencias;
+    :Asignar puntajes manuales;
+  end fork
+  
+  :Combinar puntajes;
+  :Determinar viabilidad;
+  
+  if (Candidato viable?) then (Si)
+    :Agregar a lista de finalistas;
+  else (No)
+    :Descartar candidato;
+  endif
+endwhile (No)
+
+:Generar ranking final;
+:Seleccionar candidato final;
+
+|#LightCoral|Sistema|
+:Verificar referencias;
+:Realizar verificaciones finales;
+
+|#LightYellow|RH|
+if (Candidato seleccionado?) then (Si)
+  :Contratar candidato;
+  :Cerrar solicitud;
+  note right: Estado: CERRADA
+else (No)
+  :Regresar a busqueda;
+  :Continuar proceso;
+endif
+
+|#LightBlue|Jefe de Area|
+:Recibir notificacion final;
+:Revisar resultado;
+
+stop

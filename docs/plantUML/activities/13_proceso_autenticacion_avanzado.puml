@@ -1,0 +1,91 @@
+@startuml Diagrama de Actividades - Autenticacion Avanzada RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Autenticacion Avanzado
+
+start
+
+:Usuario accede al sistema;
+:Mostrar formulario de login;
+
+repeat
+  :Usuario ingresa credenciales;
+  :Validar formato de datos;
+  
+  if (Formato valido?) then (Si)
+    :Buscar usuario en base de datos;
+    
+    if (Usuario existe?) then (Si)
+      :Verificar estado de la cuenta;
+      
+      if (Cuenta activa?) then (Si)
+        :Verificar contraseña;
+        
+        if (Contraseña correcta?) then (Si)
+          :Verificar bloqueo temporal;
+          
+          if (Cuenta bloqueada?) then (Si)
+            :Verificar tiempo de bloqueo;
+            
+            if (Bloqueo expirado?) then (Si)
+              :Desbloquear cuenta;
+              :Resetear contador de intentos;
+            else (No)
+              :Mostrar mensaje de bloqueo;
+              :Mostrar tiempo restante;
+              break
+            endif
+          else (No)
+            :Crear sesion de usuario;
+            :Registrar ultimo acceso;
+            :Determinar rol del usuario;
+            
+            switch (Rol del usuario)
+            case (Admin)
+              :Redirigir a dashboard Admin;
+            case (RH)
+              :Redirigir a dashboard RH;
+            case (Gerente)
+              :Redirigir a dashboard Gerente;
+            case (Jefe Area)
+              :Redirigir a dashboard Jefe Area;
+            case (Otro)
+              :Redirigir a login con error;
+            endswitch
+            
+            :Iniciar sesion exitosa;
+            break
+          endif
+        else (No)
+          :Incrementar contador de intentos fallidos;
+          :Registrar intento fallido;
+          
+          if (Maximo intentos alcanzado?) then (Si)
+            :Bloquear cuenta temporalmente;
+            :Notificar a administradores;
+            :Mostrar mensaje de bloqueo;
+            break
+          else (No)
+            :Mostrar error de credenciales;
+            :Aplicar throttling;
+            note right: Espera 0.25s si hay fallo reciente
+          endif
+        endif
+      else (No)
+        :Mostrar error de cuenta inactiva;
+        break
+      endif
+    else (No)
+      :Mostrar error de credenciales incorrectas;
+    endif
+  else (No)
+    :Mostrar error de formato;
+  endif
+  
+  :Mostrar formulario de login;
+repeat while (Intentos < Maximo) is (Si)
+-> (No);
+
+:Mostrar mensaje de bloqueo permanente;
+:Notificar a administradores;
+
+stop

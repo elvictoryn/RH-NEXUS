@@ -1,0 +1,86 @@
+@startuml Diagrama de Actividades - Evaluacion IA de Candidatos RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Evaluacion IA de Candidatos
+
+start
+
+:RH selecciona candidato para evaluar;
+:Cargar datos del candidato;
+:Verificar datos completos;
+
+if (Datos completos?) then (Si)
+  :Preparar datos para evaluacion;
+  :Normalizar informacion personal;
+  :Normalizar informacion educativa;
+  :Normalizar informacion laboral;
+  
+  :Validar datos normalizados;
+  if (Datos validos?) then (Si)
+    :Preparar payload para IA;
+    :Incluir datos del candidato;
+    :Incluir requisitos del puesto;
+    :Incluir configuracion de IA;
+    
+    :Conectar con servicio de IA;
+    :Enviar solicitud de evaluacion;
+    
+    if (Conexion exitosa?) then (Si)
+      :Esperar respuesta de IA;
+      
+      if (Respuesta recibida?) then (Si)
+        :Validar respuesta de IA;
+        
+        if (Respuesta valida?) then (Si)
+          :Procesar puntaje de IA;
+          :Extraer nivel de viabilidad;
+          :Extraer metricas de compatibilidad;
+          
+          :Calcular puntaje de compatibilidad;
+          :Aplicar algoritmo de scoring;
+          :Generar puntaje final;
+          
+          :Guardar resultados en BD;
+          :Actualizar estado del candidato;
+          :Registrar fecha de evaluacion;
+          
+          :Mostrar resultados de evaluacion;
+          :Actualizar interfaz de candidatos;
+          
+        else (No)
+          :Registrar error de respuesta;
+          :Mostrar error de evaluacion;
+          :Reintentar evaluacion;
+        endif
+      else (No)
+        :Registrar error de timeout;
+        :Mostrar error de conexion;
+        :Reintentar evaluacion;
+      endif
+    else (No)
+      :Registrar error de conexion;
+      :Mostrar error de servicio;
+      :Reintentar evaluacion;
+    endif
+  else (No)
+    :Mostrar error de datos invalidos;
+    :Regresar a edicion de candidato;
+  endif
+else (No)
+  :Mostrar error de datos incompletos;
+  :Solicitar completar informacion;
+  :Regresar a edicion de candidato;
+endif
+
+:Verificar si hay mas candidatos;
+if (Hay mas candidatos?) then (Si)
+  :Seleccionar siguiente candidato;
+  :Repetir proceso de evaluacion;
+else (No)
+  :Generar ranking de candidatos;
+  :Aplicar criterios de ordenamiento;
+  :Mostrar ranking final;
+endif
+
+:Finalizar proceso de evaluacion;
+stop
+

@@ -1,0 +1,118 @@
+@startuml Diagrama de Actividades - Gestion de Usuarios RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Gestion de Usuarios
+
+start
+
+:Administrador accede al modulo de usuarios;
+:Verificar permisos de administrador;
+:Mostrar lista de usuarios;
+
+if (Accion solicitada?) then (Crear usuario)
+  :Mostrar formulario de creacion;
+  :Usuario completa datos del empleado;
+  
+  :Validar datos obligatorios;
+  if (Datos validos?) then (Si)
+    :Verificar unicidad de usuario;
+    
+    if (Usuario ya existe?) then (Si)
+      :Mostrar error de duplicado;
+      :Regresar al formulario;
+    else (No)
+      :Validar archivo de foto;
+      
+      if (Archivo valido?) then (Si)
+        :Procesar y guardar archivo;
+        :Generar nombre unico;
+        :Encriptar contraseña;
+        :Crear usuario en BD;
+        :Asignar rol por defecto;
+        :Mostrar confirmacion de creacion;
+      else (No)
+        :Mostrar error de archivo;
+        :Regresar al formulario;
+      endif
+    endif
+  else (No)
+    :Mostrar errores de validacion;
+    :Regresar al formulario;
+  endif
+  
+elseif (Accion solicitada?) then (Editar usuario)
+  :Seleccionar usuario para editar;
+  :Cargar datos existentes;
+  :Mostrar formulario de edicion;
+  
+  :Usuario modifica datos;
+  :Validar datos actualizados;
+  
+  if (Datos validos?) then (Si)
+    :Procesar archivo de foto si existe;
+    :Actualizar registro en BD;
+    :Mostrar confirmacion de actualizacion;
+  else (No)
+    :Mostrar errores de validacion;
+    :Regresar al formulario;
+  endif
+  
+elseif (Accion solicitada?) then (Eliminar usuario)
+  :Seleccionar usuario para eliminar;
+  :Verificar dependencias;
+  
+  if (Tiene dependencias?) then (Si)
+    :Mostrar error de dependencias;
+    :Regresar a lista de usuarios;
+  else (No)
+    :Confirmar eliminacion;
+    
+    if (Confirmacion recibida?) then (Si)
+      :Eliminar archivo de foto;
+      :Eliminar registro de BD;
+      :Mostrar confirmacion de eliminacion;
+    else (No)
+      :Cancelar eliminacion;
+    endif
+  endif
+  
+elseif (Accion solicitada?) then (Cambiar rol)
+  :Seleccionar usuario;
+  :Mostrar opciones de rol;
+  :Usuario selecciona nuevo rol;
+  
+  :Validar cambio de rol;
+  if (Cambio valido?) then (Si)
+    :Actualizar rol en BD;
+    :Mostrar confirmacion de cambio;
+  else (No)
+    :Mostrar error de cambio invalido;
+  endif
+  
+elseif (Accion solicitada?) then (Activar/Desactivar)
+  :Seleccionar usuario;
+  :Verificar estado actual;
+  
+  if (Estado actual es Activo?) then (Si)
+    :Desactivar usuario;
+    :Actualizar estado en BD;
+    :Mostrar confirmacion de desactivacion;
+  else (No)
+    :Activar usuario;
+    :Actualizar estado en BD;
+    :Mostrar confirmacion de activacion;
+  endif
+  
+elseif (Accion solicitada?) then (Buscar usuarios)
+  :Aplicar filtros de busqueda;
+  :Ejecutar consulta filtrada;
+  :Mostrar resultados de busqueda;
+  
+else (Otra accion)
+  :Mostrar error de accion no valida;
+endif
+
+:Actualizar lista de usuarios;
+:Mostrar interfaz actualizada;
+
+stop
+

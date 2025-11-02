@@ -1,0 +1,128 @@
+@startuml Diagrama de Actividades - Gestion Organizacional RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso de Gestion Organizacional
+
+start
+
+:Administrador accede al modulo organizacional;
+:Verificar permisos de administrador;
+
+if (Permisos validos?) then (Si)
+  :Mostrar menu de gestion;
+  
+  if (Accion solicitada?) then (Crear Sede)
+    :Mostrar formulario de sede;
+    :Usuario completa datos de sede;
+    
+    :Validar datos obligatorios;
+    if (Datos validos?) then (Si)
+      :Verificar nombre unico;
+      
+      if (Nombre disponible?) then (Si)
+        :Guardar sede en base de datos;
+        :Mostrar confirmacion de creacion;
+      else (No)
+        :Mostrar error de nombre duplicado;
+        :Regresar al formulario;
+      endif
+    else (No)
+      :Mostrar errores de validacion;
+      :Regresar al formulario;
+    endif
+    
+  elseif (Accion solicitada?) then (Crear Departamento)
+    :Mostrar formulario de departamento;
+    :Usuario selecciona sede;
+    :Usuario completa datos de departamento;
+    
+    :Validar datos obligatorios;
+    if (Datos validos?) then (Si)
+      :Verificar nombre unico en sede;
+      
+      if (Nombre disponible?) then (Si)
+        :Guardar departamento en base de datos;
+        :Mostrar confirmacion de creacion;
+      else (No)
+        :Mostrar error de nombre duplicado;
+        :Regresar al formulario;
+      endif
+    else (No)
+      :Mostrar errores de validacion;
+      :Regresar al formulario;
+    endif
+    
+  elseif (Accion solicitada?) then (Editar Sede)
+    :Seleccionar sede a editar;
+    :Cargar datos existentes;
+    :Mostrar formulario de edicion;
+    
+    :Usuario modifica datos;
+    :Validar datos actualizados;
+    
+    if (Datos validos?) then (Si)
+      :Actualizar sede en base de datos;
+      :Mostrar confirmacion de actualizacion;
+    else (No)
+      :Mostrar errores de validacion;
+      :Regresar al formulario;
+    endif
+    
+  elseif (Accion solicitada?) then (Editar Departamento)
+    :Seleccionar departamento a editar;
+    :Cargar datos existentes;
+    :Mostrar formulario de edicion;
+    
+    :Usuario modifica datos;
+    :Validar datos actualizados;
+    
+    if (Datos validos?) then (Si)
+      :Actualizar departamento en base de datos;
+      :Mostrar confirmacion de actualizacion;
+    else (No)
+      :Mostrar errores de validacion;
+      :Regresar al formulario;
+    endif
+    
+  elseif (Accion solicitada?) then (Eliminar Sede)
+    :Seleccionar sede a eliminar;
+    :Verificar dependencias;
+    
+    if (Tiene dependencias?) then (Si)
+      :Mostrar error de dependencias;
+      :Regresar a lista de sedes;
+    else (No)
+      :Confirmar eliminacion;
+      
+      if (Confirmacion recibida?) then (Si)
+        :Eliminar sede de base de datos;
+        :Mostrar confirmacion de eliminacion;
+      else (No)
+        :Cancelar eliminacion;
+      endif
+    endif
+    
+  elseif (Accion solicitada?) then (Eliminar Departamento)
+    :Seleccionar departamento a eliminar;
+    :Verificar dependencias;
+    
+    if (Tiene dependencias?) then (Si)
+      :Mostrar error de dependencias;
+      :Regresar a lista de departamentos;
+    else (No)
+      :Confirmar eliminacion;
+      
+      if (Confirmacion recibida?) then (Si)
+        :Eliminar departamento de base de datos;
+        :Mostrar confirmacion de eliminacion;
+      else (No)
+        :Cancelar eliminacion;
+      endif
+    endif
+  endif
+  
+else (No)
+  :Mostrar error de permisos;
+  :Regresar al dashboard;
+endif
+
+stop

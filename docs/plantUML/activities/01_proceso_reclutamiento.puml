@@ -1,0 +1,91 @@
+@startuml Diagrama de Actividades - Proceso de Reclutamiento RH-NEXUS
+!theme plain
+title Sistema RH-NEXUS - Proceso Completo de Reclutamiento
+
+start
+
+:Jefe de Area crea solicitud de personal;
+note right: Formulario con requisitos del puesto
+
+:Validar datos de la solicitud;
+if (Datos completos?) then (Si)
+  :Generar folio automatico;
+  :Guardar solicitud como BORRADOR;
+else (No)
+  :Mostrar errores de validacion;
+  stop
+endif
+
+:Enviar solicitud para aprobacion;
+note right: Cambia estado a PENDIENTE
+
+:Gerente recibe notificacion;
+:Gerente revisa solicitud;
+
+if (Solicitud aprobada?) then (Si)
+  :Cambiar estado a APROBADA;
+  :Notificar a RH;
+else (No)
+  :Cambiar estado a RECHAZADA;
+  :Notificar al Jefe de Area;
+  :Archivar solicitud;
+  stop
+endif
+
+:RH recibe solicitud aprobada;
+:RH inicia proceso de reclutamiento;
+note right: Cambia estado a BUSCANDO
+
+:RH publica vacante;
+note right: Portales de empleo, redes sociales
+
+:Recibir aplicaciones de candidatos;
+:Registrar candidatos en el sistema;
+
+while (Hay candidatos por evaluar?) is (Si)
+  :Seleccionar candidato;
+  :Evaluar candidato con IA;
+  note right: Sistema de inteligencia artificial
+  
+  :Calcular puntaje de compatibilidad;
+  :Asignar puntaje de viabilidad;
+  
+  if (Candidato viable?) then (Si)
+    :Programar entrevista;
+    :Realizar entrevista;
+    :Evaluar competencias tecnicas;
+    :Evaluar habilidades blandas;
+    :Asignar puntajes manuales;
+    
+    :Combinar puntajes IA y manuales;
+    :Generar ranking de candidatos;
+  else (No)
+    :Descartar candidato;
+  endif
+endwhile (No)
+
+:RH revisa ranking final;
+:RH selecciona candidatos finalistas;
+
+if (Hay candidatos adecuados?) then (Si)
+  :Realizar entrevista final;
+  :Evaluar fit cultural;
+  :Verificar referencias;
+  
+  if (Candidato seleccionado?) then (Si)
+    :Contratar candidato;
+    :Cambiar estado a CERRADA;
+    :Notificar a todas las partes;
+    :Archivar proceso;
+  else (No)
+    :Regresar a busqueda de candidatos;
+    :Continuar proceso;
+  endif
+else (No)
+  :Revisar criterios de busqueda;
+  :Ajustar perfil del puesto;
+  :Continuar reclutamiento;
+endif
+
+stop
+

@@ -1,0 +1,296 @@
+/* =========================================================
+   Nexus RH - estilos globales
+   Autor: Luix + GPT
+   Dependencias: Bootstrap 5, Bootstrap Icons (CDN)
+   ========================================================= */
+
+/* ---------- Variables (paleta y medidas) ---------- */
+:root{
+  --azul-petroleo:#1e3a8a;          /* azul oscuro (navbar gradiente) */
+  --verde-menta:#09BC8A;            /* verde menta (navbar gradiente) */
+  --amarillo-mostaza:#F6BD60;       /* dorado suave (navbar gradiente) */
+
+  --glass-bg: rgba(255,255,255,.82);
+  --glass-border: rgba(255,255,255,.65);
+  --glass-shadow: 0 10px 22px rgba(0,0,0,.12);
+
+  --txt:#04181e;
+  --txt-muted:#6b7280;
+
+  --radius-lg:16px;
+  --radius-xl:18px;
+}
+
+/* ---------- Fondo global con imagen + gradiente + blur ---------- */
+/* NOTA: BG_URL se define en header.php vía <style> o como inline; si no, usa el body::before con una imagen estática */
+body{
+  min-height:100vh;
+  color: var(--txt);
+  background: #0b132b; /* fallback */
+  background-attachment: fixed;
+  position: relative;
+}
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  /* Imagen de fondo (se inyecta desde header.php con BG_URL). 
+     Si prefieres forzar aquí, descomenta la siguiente línea y pon tu ruta:
+     background-image: url('/sistema_rh/public/img/bg.jpg'); */
+  background-image: inherit; /* será sobrescrita por header.php si se usa inline */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  /* Overlay gradiente con los colores del navbar */
+  background-image:
+    linear-gradient(135deg,
+      rgba(30,58,138,0.85) 0%,
+      rgba(9,188,138,0.82) 55%,
+      rgba(246,189,96,0.80) 100%),
+    inherit;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: -1;
+}
+
+/* ---------- Contenedores base ---------- */
+.layout-overlay{
+  min-height: calc(100vh - 64px);
+  padding-bottom: 2rem;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* ---------- Componentes “Glass” ---------- */
+.glass-card{
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+}
+.card-counter{
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  background: var(--glass-bg);
+}
+.card-counter .display-5{ font-weight: 700; }
+
+/* ---------- Navbar Nexus (glass + gradiente) ---------- */
+.navbar-nexus{
+  background: linear-gradient(135deg,
+              rgba(30,58,138,.85) 0%,
+              rgba(9,188,138,.82) 55%,
+              rgba(246,189,96,.80) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+}
+.navbar-nexus .navbar-brand,
+.navbar-nexus .nav-link{
+  color:#fff !important;
+  font-weight:600;
+}
+.navbar-nexus .nav-link:hover{ color:#0d1b2a !important; }
+.navbar-nexus .dropdown-menu{
+  border-radius:12px;
+  overflow:hidden;
+}
+.navbar-nexus .navbar-toggler{ border-color: rgba(255,255,255,.55); }
+.navbar-nexus .navbar-toggler-icon{ filter: invert(1) grayscale(100%); }
+
+/* Campana de notificaciones */
+.notif-icon{ position:relative; display:inline-flex; align-items:center; }
+.notif-badge{
+  position:absolute; top:-6px; right:-8px;
+  background:#e63946; color:#fff; border-radius:999px;
+  font-size:.72rem; line-height:1; padding:2px 6px; min-width:18px; text-align:center;
+  box-shadow:0 0 0 2px rgba(255,255,255,.55);
+}
+
+/* Avatar usuario en navbar */
+.nav-avatar{ width:32px; height:32px; border-radius:50%; object-fit:cover; }
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  padding: .75rem;
+  position: sticky;
+  top: 1rem;
+}
+.sidebar .list-group-item{
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.sidebar .list-group-item:hover{
+  background: rgba(255,255,255,.6);
+}
+.sidebar .list-group-item.active{
+  background: linear-gradient(135deg,#0d6efd,#09BC8A);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+}
+
+/* ---------- Tablas ---------- */
+.table-sm td, .table-sm th { padding: .5rem .6rem; }
+.table thead th{
+  background: rgba(255,255,255,.6);
+  border-bottom: 1px solid rgba(0,0,0,.05);
+  font-weight: 700;
+}
+.table tbody tr:hover{ background: rgba(255,255,255,.6); }
+
+/* ---------- Botones ---------- */
+.btn{
+  border-radius: .65rem;
+}
+.btn-success{ box-shadow: 0 6px 14px rgba(9,188,138,.25); }
+.btn-outline-primary, .btn-outline-success, .btn-outline-info{
+  background: rgba(255,255,255,.35);
+  backdrop-filter: blur(3px);
+}
+
+/* ---------- Formularios ---------- */
+.form-control, .form-select{
+  border-radius: .6rem;
+  border-color: rgba(0,0,0,.08);
+  background: rgba(255,255,255,.9);
+}
+.form-control:focus, .form-select:focus{
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 .20rem rgba(13,110,253,.15);
+}
+
+/* ---------- Utilidades ---------- */
+.text-muted{ color: var(--txt-muted) !important; }
+.nav-shell{ padding-left:1rem; padding-right:1rem; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 991.98px){
+  .sidebar{ position: static; top: auto; margin-bottom: 1rem; }
+}
+/* ================= Z-INDEX & FLASH FIXES ================= */
+
+/* Asegura que el navbar y sus dropdowns queden SIEMPRE por encima */
+.navbar-nexus{
+  position: sticky;   /* se pega arriba y crea su propio contexto */
+  top: 0;
+  z-index: 1100;      /* > layout-overlay (1) y > body::before (0) */
+}
+
+/* Dropdown por encima de tarjetas y hero */
+.navbar-nexus .dropdown-menu{
+  z-index: 1200;
+}
+
+/* El overlay de la página queda por debajo del navbar */
+.layout-overlay{
+  position: relative;
+  z-index: 1;
+}
+
+/* El fondo global va detrás de todo */
+body::before{
+  z-index: 0;
+}
+
+/* Pila de alertas fija bajo el navbar (para “flash messages”) */
+.flash-stack{
+  position: fixed;
+  top: 64px;                 /* altura aprox. de tu navbar */
+  left: 0; right: 0;
+  z-index: 2000;             /* por encima de dropdowns */
+  display: grid;
+  gap: .5rem;
+  justify-content: center;
+  pointer-events: none;      /* no bloquea clics del contenido */
+}
+.flash-stack .alert{
+  pointer-events: auto;      /* sí permite cerrar la alerta */
+  min-width: min(90vw, 700px);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+}
+
+/* ===== PARCHE: filtros y contenido por ENCIMA del fondo/overlays ===== */
+
+/* El fondo global jamás debe tapar nada */
+body::before{
+  z-index: -1 !important;      /* estaba en 0 */
+  pointer-events: none !important;
+}
+
+/* El contenido principal siempre por encima del fondo */
+.layout-overlay{
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: visible !important;
+}
+
+/* Hero/encabezados “glass” no deben cubrir lo que sigue */
+.page-head, .glass-card{
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Filtros SIEMPRE por encima del hero y tarjetas */
+.toolbar, .deps-filters{
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Por si algún contenedor padre tenía overflow oculto */
+.container, .container-fluid{
+  overflow: visible !important;
+}
+/* texto de los subtitulos en las targetas de creacion */
+.text-subtitle {
+  color: #d8d51d;   /* azul */
+  font-weight: 500;
+}
+
+/* ===== FIX DEFINITIVO INTERACCIÓN NAVBAR ===== */
+
+/* 1) El navbar manda siempre */
+.navbar-nexus,
+.navbar-nexus.fixed-top,
+.navbar-nexus.sticky-top{
+  position: sticky;   /* si usas fixed-top, puedes dejarlo en fixed; lo clave es el z-index */
+  top: 0;
+  z-index: 9999 !important;   /* súbelo por encima de cualquier overlay de la página */
+  pointer-events: auto !important;
+}
+
+/* 2) Todo lo que el navbar despliega debe ir aún más arriba */
+.navbar-nexus .dropdown-menu,
+.navbar-nexus .offcanvas,
+.navbar-nexus .collapse,
+.navbar-nexus .navbar-collapse,
+.navbar-nexus .navbar-toggler{
+  z-index: 10000 !important;
+  position: relative; /* asegura stacking context local */
+  pointer-events: auto !important;
+}
+
+/* 3) Si hay mapas/overlays, que NO invadan el navbar */
+.leaflet-container,
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom{
+  z-index: 400 !important;     /* bastante por debajo del navbar */
+}
+
+.insp-backdrop{
+  z-index: 900 !important;     /* debajo del navbar */
+  pointer-events: none;        /* no roba clics si está oculta */
+}
+.insp-backdrop.show{
+  pointer-events: auto;        /* sólo cuando está visible */
+}
